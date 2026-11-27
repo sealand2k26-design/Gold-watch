@@ -34,9 +34,9 @@
   "_date": "2026-11-27",
   "brent": {
    "base": 92.5,
-   "diff": -0.11,
-   "now": 92.39,
-   "pct": -0.12
+   "diff": -0.17,
+   "now": 92.33,
+   "pct": -0.18
   },
   "core_pce": {
    "base": 3.26,
@@ -64,9 +64,9 @@
   },
   "dxy": {
    "base": 103.713,
-   "diff": 0.09,
-   "now": 103.803,
-   "pct": 0.09
+   "diff": 0.102,
+   "now": 103.815,
+   "pct": 0.1
   },
   "fedfunds": {
    "base": 3.88,
@@ -76,9 +76,9 @@
   },
   "gold": {
    "base": 3675.3,
-   "diff": 30.2,
-   "now": 3705.5,
-   "pct": 0.82
+   "diff": 29.2,
+   "now": 3704.5,
+   "pct": 0.79
   },
   "ndx": {
    "base": -16.5818,
@@ -128,14 +128,14 @@
   },
   "silver": {
    "base": 44.43,
-   "diff": 0.16,
-   "now": 44.59,
-   "pct": 0.36
+   "diff": 0.2,
+   "now": 44.63,
+   "pct": 0.45
   }
  },
  "forecast": {
-  "actual": 3705.5,
-  "error_pct": 2.08,
+  "actual": 3704.5,
+  "error_pct": 2.05,
   "expected_today": 3630,
   "invalidation": 3268,
   "key_bet": "Gold trades below $3,400 before it trades above $4,000 (70%)",
@@ -183,15 +183,15 @@
    }
   ]
  },
- "generated": "2026-11-27 09:58:37 UTC",
+ "generated": "2026-11-27 10:50:19 UTC",
  "indicators": {
   "brent": {
-   "asof": "2026-11-27 09:48 UTC",
-   "change_pct": 1.931,
-   "drawdown_pct": -21.934937734534586,
+   "asof": "2026-11-27 10:38 UTC",
+   "change_pct": 1.865,
+   "drawdown_pct": -21.985634820105837,
    "peak": 118.3499984741211,
    "peak_date": "31 Mar 2026",
-   "price": 92.39,
+   "price": 92.33,
    "trough": 58.91999816894531
   },
   "core_pce": {
@@ -219,12 +219,12 @@
    "value": 5.3
   },
   "dxy": {
-   "asof": "2026-11-27 09:48 UTC",
-   "change_pct": 0.133,
-   "drawdown_pct": -0.49559019970920604,
+   "asof": "2026-11-27 10:40 UTC",
+   "change_pct": 0.145,
+   "drawdown_pct": -0.4840871321908913,
    "peak": 104.31999969482422,
    "peak_date": "23 Nov 2026",
-   "price": 103.803,
+   "price": 103.815,
    "trough": 96.22000122070312
   },
   "fedfunds": {
@@ -243,12 +243,12 @@
    "trough": 322.8699951171875
   },
   "gold": {
-   "asof": "2026-11-27 09:48 UTC",
-   "change_pct": 3.953,
-   "drawdown_pct": -30.32678873269695,
+   "asof": "2026-11-27 10:40 UTC",
+   "change_pct": 3.925,
+   "drawdown_pct": -30.345591380454962,
    "peak": 5318.39990234375,
    "peak_date": "29 Jan 2026",
-   "price": 3705.5,
+   "price": 3704.5,
    "series": [
     5061.7001953125,
     5002.2001953125,
@@ -429,7 +429,7 @@
     3651.39990234375,
     3561.89990234375,
     3535.800048828125,
-    3705.5
+    3704.5
    ],
    "trough": 2608.10009765625
   },
@@ -467,12 +467,12 @@
    "value": 2.79
   },
   "silver": {
-   "asof": "2026-11-27 09:48 UTC",
-   "change_pct": 9.996,
-   "drawdown_pct": -61.25304197903891,
+   "asof": "2026-11-27 10:39 UTC",
+   "change_pct": 10.094,
+   "drawdown_pct": -61.21828355067296,
    "peak": 115.08000183105469,
    "peak_date": "26 Jan 2026",
-   "price": 44.59,
+   "price": 44.63,
    "trough": 40.051998138427734
   }
  },
@@ -521,14 +521,14 @@
  "plain": {
   "action": {
    "label": "HOLD \u2014 NOTHING TO DO",
-   "text": "$3,706 is the normal range. If you have bought your first third, just wait. The next real decision point is the Fed meeting on 9 December.",
+   "text": "$3,704 is the normal range. If you have bought your first third, just wait. The next real decision point is the Fed meeting on 9 December.",
    "tone": "neutral"
   },
-  "headline": "Gold is $3,706 an ounce and jumped 4.0% today.",
+  "headline": "Gold is $3,704 an ounce and jumped 3.9% today.",
   "lines": [
    {
     "icon": "^",
-    "text": "That is 2.1% higher than the plan expected ($3,630). Gold is holding up better than forecast.",
+    "text": "That is 2.0% higher than the plan expected ($3,630). Gold is holding up better than forecast.",
     "tone": "bull"
    },
    {
@@ -682,7 +682,7 @@
    "key": "brent",
    "label": "Brent crude",
    "tone": "neutral",
-   "value": "$92.39",
+   "value": "$92.33",
    "verdict": "$85\u2013100 \u2014 neutral, premium deflating",
    "weights": {}
   },
@@ -719,7 +719,7 @@
    "key": "dxy",
    "label": "Dollar index",
    "tone": "neutral",
-   "value": "103.80",
+   "value": "103.81",
    "verdict": "101\u2013105 \u2014 strong, capping any gold rally",
    "weights": {
     "A": 0.3

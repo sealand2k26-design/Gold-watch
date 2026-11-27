@@ -1,0 +1,785 @@
+{
+ "alerts": [
+  {
+   "level": "calm",
+   "text": "No thresholds breached. Nothing has changed that matters to the thesis."
+  }
+ ],
+ "baseline": {
+  "date": "2026-11-27",
+  "note": "Locked the day the forecast was made. Everything is measured against this.",
+  "posterior": {
+   "A": 30.5,
+   "B": 44.9,
+   "C": 18.2,
+   "D": 6.4
+  },
+  "values": {
+   "brent": 92.5,
+   "core_pce": 3.26,
+   "dgs10": 4.91,
+   "dgs2": 4.63,
+   "dgs30": 5.3,
+   "dxy": 103.713,
+   "fedfunds": 3.88,
+   "gold": 3675.3,
+   "ndx": -16.58178533225486,
+   "nvda": -37.594049250986984,
+   "orcl": -58.13822181944786,
+   "real10": 2.79,
+   "silver": 44.43
+  }
+ },
+ "deltas": {
+  "_date": "2026-11-27",
+  "brent": {
+   "base": 92.5,
+   "diff": -0.1,
+   "now": 92.4,
+   "pct": -0.11
+  },
+  "core_pce": {
+   "base": 3.26,
+   "diff": 0.0,
+   "now": 3.26,
+   "pct": null
+  },
+  "dgs10": {
+   "base": 4.91,
+   "diff": 0.0,
+   "now": 4.91,
+   "pct": null
+  },
+  "dgs2": {
+   "base": 4.63,
+   "diff": 0.0,
+   "now": 4.63,
+   "pct": null
+  },
+  "dgs30": {
+   "base": 5.3,
+   "diff": 0.0,
+   "now": 5.3,
+   "pct": null
+  },
+  "dxy": {
+   "base": 103.713,
+   "diff": 0.095,
+   "now": 103.808,
+   "pct": 0.09
+  },
+  "fedfunds": {
+   "base": 3.88,
+   "diff": 0.0,
+   "now": 3.88,
+   "pct": null
+  },
+  "gold": {
+   "base": 3675.3,
+   "diff": 30.2,
+   "now": 3705.5,
+   "pct": 0.82
+  },
+  "ndx": {
+   "base": -16.5818,
+   "diff": 0.0,
+   "now": -16.5818,
+   "pct": null
+  },
+  "nvda": {
+   "base": -37.594,
+   "diff": 0.0,
+   "now": -37.594,
+   "pct": null
+  },
+  "orcl": {
+   "base": -58.1382,
+   "diff": 0.0,
+   "now": -58.1382,
+   "pct": null
+  },
+  "posterior": {
+   "A": {
+    "base": 30.5,
+    "diff": 0.0,
+    "now": 30.5
+   },
+   "B": {
+    "base": 44.9,
+    "diff": 0.0,
+    "now": 44.9
+   },
+   "C": {
+    "base": 18.2,
+    "diff": 0.0,
+    "now": 18.2
+   },
+   "D": {
+    "base": 6.4,
+    "diff": 0.0,
+    "now": 6.4
+   }
+  },
+  "real10": {
+   "base": 2.79,
+   "diff": 0.0,
+   "now": 2.79,
+   "pct": null
+  },
+  "silver": {
+   "base": 44.43,
+   "diff": 0.32,
+   "now": 44.75,
+   "pct": 0.72
+  }
+ },
+ "forecast": {
+  "actual": 3705.5,
+  "error_pct": 2.08,
+  "expected_today": 3630,
+  "invalidation": 3268,
+  "key_bet": "Gold trades below $3,400 before it trades above $4,000 (70%)",
+  "locked_on": "2026-11-27",
+  "path": [
+   {
+    "date": "2026-11-27",
+    "gold": 3630,
+    "label": "Locked"
+   },
+   {
+    "date": "2026-12-09",
+    "gold": 3480,
+    "label": "FOMC"
+   },
+   {
+    "date": "2026-12-31",
+    "gold": 3500,
+    "label": "Year end"
+   },
+   {
+    "date": "2027-02-15",
+    "gold": 3280,
+    "label": "The low"
+   },
+   {
+    "date": "2027-03-31",
+    "gold": 3450,
+    "label": "Basing"
+   },
+   {
+    "date": "2027-06-30",
+    "gold": 3900,
+    "label": "Recovery"
+   },
+   {
+    "date": "2027-09-30",
+    "gold": 4150,
+    "label": "Run begins"
+   },
+   {
+    "date": "2027-12-31",
+    "gold": 4400,
+    "label": "Target"
+   }
+  ]
+ },
+ "generated": "2026-11-27 09:09:46 UTC",
+ "indicators": {
+  "brent": {
+   "asof": "2026-11-27 08:59 UTC",
+   "change_pct": 1.942,
+   "drawdown_pct": -21.92648822027271,
+   "peak": 118.3499984741211,
+   "peak_date": "31 Mar 2026",
+   "price": 92.4,
+   "trough": 58.91999816894531
+  },
+  "core_pce": {
+   "change": 0.12,
+   "date": "2026-10-01",
+   "prev": 3.14,
+   "value": 3.26
+  },
+  "dgs10": {
+   "change": -0.009999999999999787,
+   "date": "2026-11-24",
+   "prev": 4.92,
+   "value": 4.91
+  },
+  "dgs2": {
+   "change": 0.0,
+   "date": "2026-11-24",
+   "prev": 4.63,
+   "value": 4.63
+  },
+  "dgs30": {
+   "change": 0.009999999999999787,
+   "date": "2026-11-24",
+   "prev": 5.29,
+   "value": 5.3
+  },
+  "dxy": {
+   "asof": "2026-11-27 08:59 UTC",
+   "change_pct": 0.138,
+   "drawdown_pct": -0.49079725490990267,
+   "peak": 104.31999969482422,
+   "peak_date": "23 Nov 2026",
+   "price": 103.808,
+   "trough": 96.22000122070312
+  },
+  "fedfunds": {
+   "change": 0.0,
+   "date": "2026-11-24",
+   "prev": 3.88,
+   "value": 3.88
+  },
+  "gld": {
+   "asof": "2026-11-25 21:00 UTC",
+   "change_pct": 0.615,
+   "drawdown_pct": -33.968541232054775,
+   "peak": 495.8999938964844,
+   "peak_date": "29 Jan 2026",
+   "price": 327.45,
+   "trough": 322.8699951171875
+  },
+  "gold": {
+   "asof": "2026-11-27 08:59 UTC",
+   "change_pct": 3.953,
+   "drawdown_pct": -30.32678873269695,
+   "peak": 5318.39990234375,
+   "peak_date": "29 Jan 2026",
+   "price": 3705.5,
+   "series": [
+    5061.7001953125,
+    5002.2001953125,
+    5008.2001953125,
+    4896.2001953125,
+    4605.7001953125,
+    4574.89990234375,
+    4407.2998046875,
+    4402.0,
+    4552.2998046875,
+    4376.2998046875,
+    4492.5,
+    4526.0,
+    4647.60009765625,
+    4813.10009765625,
+    4679.7001953125,
+    4684.7001953125,
+    4684.7001953125,
+    4777.2001953125,
+    4818.0,
+    4787.39990234375,
+    4767.39990234375,
+    4850.10009765625,
+    4823.60009765625,
+    4808.2998046875,
+    4879.60009765625,
+    4828.7998046875,
+    4719.60009765625,
+    4753.0,
+    4724.0,
+    4740.89990234375,
+    4693.7001953125,
+    4608.39990234375,
+    4561.5,
+    4629.60009765625,
+    4644.5,
+    4533.2998046875,
+    4568.5,
+    4694.2998046875,
+    4710.89990234375,
+    4730.7001953125,
+    4728.7001953125,
+    4686.7001953125,
+    4706.7001953125,
+    4685.2998046875,
+    4561.89990234375,
+    4558.0,
+    4511.2001953125,
+    4535.2998046875,
+    4542.5,
+    4523.2001953125,
+    4502.2998046875,
+    4448.39990234375,
+    4499.2998046875,
+    4593.0,
+    4506.2998046875,
+    4519.89990234375,
+    4466.89990234375,
+    4505.0,
+    4365.2998046875,
+    4363.39990234375,
+    4286.39990234375,
+    4133.2998046875,
+    4114.0,
+    4238.7998046875,
+    4351.60009765625,
+    4354.39990234375,
+    4381.39990234375,
+    4245.89990234375,
+    4202.7001953125,
+    4149.39990234375,
+    4008.800048828125,
+    4047.60009765625,
+    4096.2998046875,
+    4038.89990234375,
+    4038.5,
+    4082.39990234375,
+    4125.7001953125,
+    4167.5,
+    4157.39990234375,
+    4082.39990234375,
+    4140.7998046875,
+    4113.7001953125,
+    4005.699951171875,
+    4069.699951171875,
+    4051.800048828125,
+    3992.10009765625,
+    4018.800048828125,
+    4015.89990234375,
+    4076.39990234375,
+    4151.89990234375,
+    4050.199951171875,
+    4070.800048828125,
+    4077.0,
+    4038.699951171875,
+    4036.300048828125,
+    4100.10009765625,
+    4107.0,
+    4090.5,
+    4152.60009765625,
+    4305.2001953125,
+    4299.60009765625,
+    4399.7001953125,
+    4419.7001953125,
+    4441.10009765625,
+    4467.5,
+    4420.39990234375,
+    4437.2998046875,
+    4473.7001953125,
+    4420.60009765625,
+    4545.2998046875,
+    4571.39990234375,
+    4680.60009765625,
+    4697.7998046875,
+    4694.5,
+    4653.2998046875,
+    4664.0,
+    4529.89990234375,
+    4481.5,
+    4396.39990234375,
+    4414.60009765625,
+    4539.89990234375,
+    4476.60009765625,
+    4439.0,
+    4460.7001953125,
+    4407.2998046875,
+    4408.89990234375,
+    4351.89990234375,
+    4332.7998046875,
+    4387.5,
+    4399.7001953125,
+    4424.89990234375,
+    4383.89990234375,
+    4376.39990234375,
+    4318.39990234375,
+    4298.0,
+    4321.2001953125,
+    4168.39990234375,
+    4179.7001953125,
+    4186.7001953125,
+    4202.2998046875,
+    4162.2998046875,
+    4156.7998046875,
+    4187.10009765625,
+    4140.7001953125,
+    4157.0,
+    4216.2998046875,
+    4190.60009765625,
+    4177.2998046875,
+    4107.89990234375,
+    4170.10009765625,
+    4181.10009765625,
+    4160.10009765625,
+    4142.60009765625,
+    4150.0,
+    4060.39990234375,
+    4007.89990234375,
+    4038.39990234375,
+    4074.60009765625,
+    4051.60009765625,
+    4031.39990234375,
+    3898.89990234375,
+    3969.60009765625,
+    3940.39990234375,
+    4073.0,
+    4113.5,
+    4074.89990234375,
+    4114.5,
+    4030.199951171875,
+    4000.5,
+    3885.300048828125,
+    3886.300048828125,
+    3853.0,
+    3864.199951171875,
+    3741.89990234375,
+    3685.5,
+    3515.39990234375,
+    3651.39990234375,
+    3561.89990234375,
+    3535.800048828125,
+    3705.5
+   ],
+   "trough": 2608.10009765625
+  },
+  "ndx": {
+   "asof": "2026-11-25 22:15 UTC",
+   "change_pct": -0.638,
+   "drawdown_pct": -16.58178533225486,
+   "peak": 31224.470703125,
+   "peak_date": "06 Oct 2026",
+   "price": 26046.896,
+   "trough": 22953.380859375
+  },
+  "nvda": {
+   "asof": "2026-11-25 21:00 UTC",
+   "change_pct": -3.913,
+   "drawdown_pct": -37.594049250986984,
+   "peak": 239.24000549316406,
+   "peak_date": "06 Oct 2026",
+   "price": 149.3,
+   "trough": 125.52999877929688
+  },
+  "orcl": {
+   "asof": "2026-11-25 21:02 UTC",
+   "change_pct": -5.132,
+   "drawdown_pct": -58.13822181944786,
+   "peak": 248.14999389648438,
+   "peak_date": "01 Jun 2026",
+   "price": 103.88,
+   "trough": 101.19000244140625
+  },
+  "real10": {
+   "change": 0.0,
+   "date": "2026-11-24",
+   "prev": 2.79,
+   "value": 2.79
+  },
+  "silver": {
+   "asof": "2026-11-27 08:59 UTC",
+   "change_pct": 10.39,
+   "drawdown_pct": -61.11400826557505,
+   "peak": 115.08000183105469,
+   "peak_date": "26 Jan 2026",
+   "price": 44.75,
+   "trough": 40.051998138427734
+  }
+ },
+ "manual": {
+  "cb_buying_tonnes_q": {
+   "asof": "2026-11-04",
+   "label": "Central bank buying, latest quarter",
+   "note": "Q3 2026, +42% YoY. WGC publishes quarterly. Below 250t and the floor thesis weakens.",
+   "source": "World Gold Council",
+   "unit": "t",
+   "value": 321
+  },
+  "coreweave_2031_yield": {
+   "asof": "2026-11-26",
+   "label": "CoreWeave 2031 bond yield",
+   "note": "Weakest link in AI financing. Above 20% signals real distress.",
+   "source": "press reports",
+   "unit": "%",
+   "value": 17.9
+  },
+  "fed_hike_odds_dec": {
+   "asof": "2026-11-26",
+   "label": "Dec FOMC hike odds",
+   "note": "CME FedWatch. Fully priced means the hike itself moves nothing; guidance is the event.",
+   "source": "CME FedWatch",
+   "unit": "%",
+   "value": 98.0
+  },
+  "gld_tonnes": {
+   "asof": "2026-11-24",
+   "label": "GLD holdings",
+   "note": "US ETF selling pressure. Stabilisation here lifts the ceiling.",
+   "source": "SPDR",
+   "unit": "t",
+   "value": 1031
+  },
+  "oracle_cds_bp": {
+   "asof": "2026-11-27",
+   "label": "Oracle 5y CDS",
+   "note": "No free feed. Reported 288-320bp late Nov 2026. Trigger for scenario B is 400bp.",
+   "source": "press reports",
+   "unit": "bp",
+   "value": 304.0
+  }
+ },
+ "plain": {
+  "action": {
+   "label": "HOLD \u2014 NOTHING TO DO",
+   "text": "$3,706 is the normal range. If you have bought your first third, just wait. The next real decision point is the Fed meeting on 9 December.",
+   "tone": "neutral"
+  },
+  "headline": "Gold is $3,706 an ounce and jumped 4.0% today.",
+  "lines": [
+   {
+    "icon": "^",
+    "text": "That is 2.1% higher than the plan expected ($3,630). Gold is holding up better than forecast.",
+    "tone": "bull"
+   },
+   {
+    "icon": "!",
+    "text": "US inflation is still 3.3% \u2014 well above the 2% the Fed wants. So the Fed keeps raising interest rates, and that is the single biggest thing pushing gold down.",
+    "tone": "bear"
+   },
+   {
+    "icon": "=",
+    "text": "Oil is $92 \u2014 middling. Not adding to inflation, not helping either.",
+    "tone": "neutral"
+   },
+   {
+    "icon": "!",
+    "text": "The US dollar is strong (104). A strong dollar makes gold more expensive everywhere else, which caps any rally.",
+    "tone": "bear"
+   },
+   {
+    "icon": "!",
+    "text": "AI-linked companies are in real trouble \u2014 Oracle is down 58% from its peak. If their debts start failing, the Fed would be forced to cut rates, which would send gold sharply higher. Watch this.",
+    "tone": "bull"
+   },
+   {
+    "icon": ">",
+    "text": "Most likely path right now (45%): The AI bubble bursts. If that happens \u2014 gold dips hard first, then jumps a long way.",
+    "tone": "neutral"
+   }
+  ],
+  "mood": "neutral"
+ },
+ "plain_labels": {
+  "brent": [
+   "Oil price",
+   "Expensive oil pushes up inflation, which means higher interest rates \u2014 bad for gold."
+  ],
+  "core_pce": [
+   "US inflation",
+   "The exact number the Fed watches. It wants 2%. Until it gets there, rates keep rising."
+  ],
+  "dgs10": [
+   "US 10-year borrowing cost",
+   "The world's benchmark interest rate."
+  ],
+  "dgs2": [
+   "US 2-year borrowing cost",
+   "Tracks what traders think the Fed will do next."
+  ],
+  "dgs30": [
+   "US 30-year borrowing cost",
+   "What it costs the US government to borrow long term. Rising = lenders are worried about US debt."
+  ],
+  "dxy": [
+   "US dollar strength",
+   "A strong dollar makes gold pricier for everyone outside the US, which holds the price down."
+  ],
+  "fedfunds": [
+   "US interest rate",
+   "What the Fed charges. Gold pays you nothing, so when this is high, gold looks worse."
+  ],
+  "gld": [
+   "Gold ETF",
+   "The biggest gold fund. Tracks whether Western investors are buying or selling."
+  ],
+  "gold": [
+   "Gold price",
+   "What one ounce costs in US dollars."
+  ],
+  "ndx": [
+   "US tech stocks",
+   "When these crash, investors sell gold to cover their losses elsewhere."
+  ],
+  "nvda": [
+   "Nvidia",
+   "The company at the centre of the AI boom. A barometer for the whole trade."
+  ],
+  "orcl": [
+   "Oracle \u2014 AI debt stress",
+   "A stand-in for how shaky AI company finances are. Deep falls mean lenders are getting nervous."
+  ],
+  "real10": [
+   "Safe return after inflation",
+   "What you'd earn risk-free in US bonds after inflation. This is gold's direct competition."
+  ],
+  "silver": [
+   "Silver price",
+   "Moves like gold but twice as wild. An early warning sign."
+  ]
+ },
+ "posterior": {
+  "A": 30.5,
+  "B": 44.9,
+  "C": 18.2,
+  "D": 6.4
+ },
+ "priors": {
+  "A": 35.0,
+  "B": 30.0,
+  "C": 25.0,
+  "D": 10.0
+ },
+ "scenarios": {
+  "A": {
+   "blurb": "Oil stays bid, Fed hikes through Q1 and keeps going",
+   "colour": "#f85149",
+   "gold": "$3,000 \u2013 $3,400 through H1 2027",
+   "name": "Inflation wins"
+  },
+  "B": {
+   "blurb": "AI financing cracks, Fed forced to pivot",
+   "colour": "#3fb950",
+   "gold": "$3,200 first, then $4,500 \u2013 $5,500",
+   "name": "The credit event"
+  },
+  "C": {
+   "blurb": "Two more hikes then a long pause",
+   "colour": "#58a6ff",
+   "gold": "$3,400 \u2013 $4,000, then $4,200 \u2013 $4,600 late 2027",
+   "name": "Muddle through"
+  },
+  "D": {
+   "blurb": "Debt ceiling or failed auction breaks the long end",
+   "colour": "#f0b429",
+   "gold": "$5,000+ regardless of the Fed",
+   "name": "Fiscal accident"
+  }
+ },
+ "scenarios_plain": {
+  "A": {
+   "blurb": "Inflation won't come down, so the Fed keeps raising rates",
+   "gold": "Gold grinds down to roughly $3,000\u20133,400 and stays there for months",
+   "name": "Prices stay hot"
+  },
+  "B": {
+   "blurb": "AI company debts start failing and drag the economy down",
+   "gold": "Gold drops to about $3,200 first \u2014 then jumps to $4,500\u20135,500",
+   "name": "The AI bubble bursts"
+  },
+  "C": {
+   "blurb": "A couple more rate rises, then the Fed stops",
+   "gold": "Gold drifts $3,400\u20134,000, then recovers to $4,200\u20134,600 late next year",
+   "name": "Things slowly calm down"
+  },
+  "D": {
+   "blurb": "Government borrowing costs spiral and spook the market",
+   "gold": "Gold spikes above $5,000 no matter what the Fed does",
+   "name": "US debt scare"
+  }
+ },
+ "signals": [
+  {
+   "key": "brent",
+   "label": "Brent crude",
+   "tone": "neutral",
+   "value": "$92.40",
+   "verdict": "$85\u2013100 \u2014 neutral, premium deflating",
+   "weights": {}
+  },
+  {
+   "key": "core_pce",
+   "label": "Core PCE y/y",
+   "tone": "bear",
+   "value": "3.26%",
+   "verdict": "3.0\u20133.5% \u2014 sticky, hikes stay on the table",
+   "weights": {
+    "A": 0.5,
+    "C": -0.2
+   }
+  },
+  {
+   "key": "dgs30",
+   "label": "30-year Treasury",
+   "tone": "neutral",
+   "value": "5.30%",
+   "verdict": "5.15\u20135.50% \u2014 elevated but contained",
+   "weights": {}
+  },
+  {
+   "key": "real10",
+   "label": "10y real yield",
+   "tone": "neutral",
+   "value": "2.79%",
+   "verdict": "2.5\u20133.0% \u2014 still a real headwind",
+   "weights": {
+    "A": 0.3
+   }
+  },
+  {
+   "key": "dxy",
+   "label": "Dollar index",
+   "tone": "neutral",
+   "value": "103.81",
+   "verdict": "101\u2013105 \u2014 strong, capping any gold rally",
+   "weights": {
+    "A": 0.3
+   }
+  },
+  {
+   "key": "ndx",
+   "label": "Nasdaq 100 drawdown",
+   "tone": "neutral",
+   "value": "-16.6% from peak",
+   "verdict": "\u221212% to \u221220% \u2014 correction, not yet systemic",
+   "weights": {
+    "B": 0.3
+   }
+  },
+  {
+   "key": "orcl",
+   "label": "Oracle drawdown (credit proxy)",
+   "tone": "bull",
+   "value": "-58.1% from peak",
+   "verdict": "Deeper than \u221255% \u2014 market pricing real default risk",
+   "weights": {
+    "B": 1.6
+   }
+  },
+  {
+   "key": "oracle_cds",
+   "label": "Oracle 5y CDS (manual)",
+   "stale_date": "2026-11-27",
+   "tone": "neutral",
+   "value": "304 bp",
+   "verdict": "Below 320bp \u2014 credit calm for now",
+   "weights": {
+    "B": -0.4
+   }
+  },
+  {
+   "key": "cb_buying",
+   "label": "Central bank buying /qtr (manual)",
+   "stale_date": "2026-11-04",
+   "tone": "bull",
+   "value": "321 t",
+   "verdict": "Above 260t \u2014 floor intact",
+   "weights": {
+    "A": -0.4,
+    "B": 0.4,
+    "C": 0.5
+   }
+  }
+ ],
+ "thresholds": {
+  "brent_bear": 110,
+  "brent_bull": 85,
+  "core_pce_bear": 3.5,
+  "core_pce_bull": 2.8,
+  "dgs30_fiscal": 5.75,
+  "dxy_bull": 100,
+  "gold_invalidation": 3268,
+  "ndx_dd_credit": 30,
+  "oracle_cds_trigger": 400,
+  "real10_bear": 3.0
+ }
+}

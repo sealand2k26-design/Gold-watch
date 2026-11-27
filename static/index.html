@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gold Tracker</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.6}
+  .wrap{max-width:1060px;margin:0 auto;padding:26px 20px 70px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+  h2.sec{font-size:19px;font-weight:700;margin:34px 0 4px;letter-spacing:-.2px}
+  p.sub{margin:0 0 14px;color:#8b949e;font-size:13.5px}
+  .card{background:#161b22;border:1px solid #30363d;border-radius:10px}
+  .bull{color:#3fb950}.bear{color:#f85149}.warn{color:#f0b429}.mute{color:#8b949e}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;padding:11px 14px;background:#21262d;font-weight:700;border-bottom:1px solid #30363d;font-size:12px}
+  td{padding:10px 14px;border-bottom:1px solid #21262d;vertical-align:top}
+  button{font-family:inherit;cursor:pointer}
+  input{font-family:ui-monospace,monospace;background:#0d1117;border:1px solid #30363d;color:#e6edf3;border-radius:5px;padding:5px 8px;width:85px;font-size:13px}
+  .pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3fb950;margin-right:7px;animation:p 2s infinite}
+  @keyframes p{0%,100%{opacity:1}50%{opacity:.25}}
+  .grid{display:grid;gap:11px}
+  .adv{display:none}
+  body.detailed .adv{display:block}
+  .toggle{background:#21262d;border:1px solid #30363d;color:#8b949e;border-radius:20px;padding:6px 15px;font-size:12.5px}
+  .toggle.on{background:#1f6feb22;border-color:#58a6ff;color:#58a6ff}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;border-bottom:1px solid #30363d;padding-bottom:18px">
+    <div>
+      <div style="font-size:11px;letter-spacing:2.5px;color:#f0b429;text-transform:uppercase;font-weight:700;margin-bottom:6px">
+        <span class="pulse" id="pulse"></span>Gold Tracker
+      </div>
+      <h1 style="margin:0;font-size:27px;font-weight:800;letter-spacing:-.6px">Is it time to buy?</h1>
+      <div class="mute" style="font-size:13px">Checks the market by itself and tells you, in plain English, what it means.</div>
+    </div>
+    <div style="text-align:right">
+      <div class="mono" id="goldPrice" style="font-size:36px;font-weight:800;color:#f0b429;line-height:1">—</div>
+      <div class="mono" id="goldChg" style="font-size:13.5px;margin-top:2px">—</div>
+      <div id="freshness" style="font-size:11.5px;margin-top:7px;color:#8b949e">
+        <span id="checkLine">checking…</span><br>
+        <span id="moveLine" class="mono" style="font-size:11px"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTION -->
+  <div id="actionBox" class="card" style="padding:20px 22px;margin-top:20px;border-width:2px"></div>
+
+  <!-- PLAIN ENGLISH -->
+  <h2 class="sec">What's going on</h2>
+  <p class="sub">Rewritten from live market data every minute.</p>
+  <div id="plainLines" class="grid"></div>
+
+  <!-- SCENARIOS -->
+  <h2 class="sec">What might happen next</h2>
+  <p class="sub">Four possible futures. The percentages shift as real data arrives — they are not fixed.</p>
+  <div id="scenarios" class="grid"></div>
+
+  <!-- DRIVERS -->
+  <h2 class="sec">What's pushing the price around</h2>
+  <p class="sub">Each of these is explained. Green helps gold, red hurts it.</p>
+  <div id="drivers" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(285px,1fr))"></div>
+
+  <!-- COMING UP -->
+  <h2 class="sec">Coming up</h2>
+  <p class="sub">Dates that actually matter, counting down by themselves.</p>
+  <div class="card" style="padding:6px 18px"><div id="events"></div></div>
+
+  <!-- SINCE -->
+  <h2 class="sec">What's changed since <span id="baseLabel" style="color:#f0b429">27 Nov</span></h2>
+  <p class="sub" id="sinceNote">—</p>
+  <div class="card" style="padding:17px 20px">
+    <div id="sinceStrip" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px"></div>
+  </div>
+
+  <!-- NEWS -->
+  <h2 class="sec">Latest news</h2>
+  <p class="sub">Straight from the US Federal Reserve and the newswires.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:11px">
+    <div class="card" style="padding:15px 18px">
+      <div class="mute" style="font-size:10.5px;letter-spacing:1.2px;margin-bottom:9px">FROM THE FED ITSELF</div>
+      <div id="fedNews" class="mute" style="font-size:12.5px">loading…</div>
+    </div>
+    <div class="card" style="padding:15px 18px">
+      <div class="mute" style="font-size:10.5px;letter-spacing:1.2px;margin-bottom:9px">NEWS HEADLINES</div>
+      <div id="wireNews" class="mute" style="font-size:12.5px">loading…</div>
+    </div>
+  </div>
+
+  <!-- TOGGLE -->
+  <div style="margin-top:34px;display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+    <button class="toggle on" id="btnSimple">Simple</button>
+    <button class="toggle" id="btnDetail">Show the technical detail</button>
+    <span class="mute" style="font-size:12px">charts, raw numbers and the scoring model</span>
+  </div>
+
+  <!-- ===== ADVANCED ===== -->
+  <div class="adv">
+    <h2 class="sec">Tracking vs the forecast</h2>
+    <p class="sub">The locked path from 27 Nov against where gold actually is.</p>
+    <div class="card" style="padding:18px 20px">
+      <div style="display:flex;flex-wrap:wrap;gap:24px;margin-bottom:14px">
+        <div><div class="mute" style="font-size:11px">FORECAST SAYS TODAY</div><div class="mono" id="fcExp" style="font-size:22px;font-weight:700">—</div></div>
+        <div><div class="mute" style="font-size:11px">ACTUAL</div><div class="mono" id="fcAct" style="font-size:22px;font-weight:700;color:#f0b429">—</div></div>
+        <div><div class="mute" style="font-size:11px">DIFFERENCE</div><div class="mono" id="fcErr" style="font-size:22px;font-weight:700">—</div></div>
+      </div>
+      <svg id="chart" viewBox="0 0 980 230" style="width:100%;height:auto;overflow:visible"></svg>
+    </div>
+
+    <h2 class="sec">Drift over time <span class="mute" id="histMeta" style="font-size:12.5px;font-weight:400"></span></h2>
+    <div class="card" style="padding:18px 20px">
+      <div id="histEmpty" class="mute" style="font-size:13px">Recording every 15 minutes. Fills in as time passes.</div>
+      <div id="histWrap" style="display:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:20px">
+        <div><div class="mute" style="font-size:11px;margin-bottom:5px">GOLD</div><svg id="histGold" viewBox="0 0 420 110" style="width:100%"></svg></div>
+        <div><div class="mute" style="font-size:11px;margin-bottom:5px">THE FOUR FUTURES</div><svg id="histScen" viewBox="0 0 420 110" style="width:100%"></svg>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:5px;font-size:10.5px">
+            <span style="color:#f85149">■ hot prices</span><span style="color:#3fb950">■ AI bust</span>
+            <span style="color:#58a6ff">■ calm</span><span style="color:#f0b429">■ debt scare</span></div></div>
+      </div>
+    </div>
+
+    <h2 class="sec">How the score is calculated</h2>
+    <p class="sub">Nothing hidden — every input and the direction it pushes.</p>
+    <div class="card" style="overflow:hidden">
+      <table><thead><tr><th>Input</th><th>Reading</th><th>What it says</th><th style="text-align:right">Favours</th></tr></thead>
+      <tbody id="signals"></tbody></table>
+    </div>
+
+    <h2 class="sec">Numbers you update by hand</h2>
+    <p class="sub">No free data source exists for these, so they need a manual check now and then.</p>
+    <div class="card" style="overflow:hidden">
+      <table><thead><tr><th>Item</th><th>Value</th><th>Last checked</th><th>Why it matters</th><th></th></tr></thead>
+      <tbody id="manual"></tbody></table>
+    </div>
+  </div>
+
+  <div class="mute" style="margin-top:30px;padding-top:15px;border-top:1px solid #30363d;font-size:11.5px">
+    Prices from Yahoo Finance, interest rates and inflation from the US Federal Reserve's own database.
+    Refreshes in <span id="countdown">60</span>s · <button id="refreshNow" style="background:#21262d;border:1px solid #30363d;color:#8b949e;border-radius:5px;padding:3px 9px;font-size:11px">refresh now</button><br>
+    <b style="color:#8b949e">Why a number can sit still:</b> the gold price is re-pulled at most every 5 minutes, and it only
+    changes when gold actually trades — quiet overnight hours and weekends look frozen because they are.
+    Inflation and interest-rate figures come out roughly once a month, so those legitimately won't move for weeks.
+    The tick next to "checked" is the honest signal: if it just updated, the tool is working.<br>
+    This is a tracking tool, not financial advice. The percentages are one person's scoring model, not a market forecast.
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let timer = 60, newsTick = 0, lastGold = null, lastGoldAt = null;
+const TONE = {bull:'#3fb950', bear:'#f85149', warn:'#f0b429', neutral:'#8b949e', critical:'#f85149'};
+
+$('btnSimple').onclick = ()=>{ document.body.classList.remove('detailed');
+  $('btnSimple').classList.add('on'); $('btnDetail').classList.remove('on'); };
+$('btnDetail').onclick = ()=>{ document.body.classList.add('detailed');
+  $('btnDetail').classList.add('on'); $('btnSimple').classList.remove('on');
+  window.scrollBy({top:260,behavior:'smooth'}); };
+
+// Did the live server hand us this page? It injects __SERVED_BY_APP__ when it did.
+const SERVED = (typeof window.__SERVED_BY_APP__ !== 'undefined');
+
+function wrongWindow(){
+  $('pulse').style.background = '#f0b429';
+  $('checkLine').innerHTML = '<span class="warn">⚠ file preview — no live data here</span>';
+  $('moveLine').innerHTML = '<span class="mute">' + location.href.slice(0,70) + '</span>';
+  $('actionBox').style.borderColor = '#f0b429';
+  $('actionBox').innerHTML = `
+    <div style="font-size:10.5px;letter-spacing:2px;color:#f0b429;font-weight:700;margin-bottom:7px">WRONG WINDOW — THE APP IS FINE</div>
+    <div style="font-size:21px;font-weight:800;color:#f0b429;margin-bottom:10px;letter-spacing:-.3px">You are reading the file, not running the app</div>
+    <div style="font-size:14.5px;color:#e6edf3;line-height:1.7">
+      This is <b>index.html</b> opened in the workspace file viewer. That viewer has no internet access on purpose,
+      so no price can ever load here — it is not a fault and waiting will not fix it.<br><br>
+      <b style="color:#f0b429">Open the live app instead:</b> look for the preview panel named
+      <b style="color:#58a6ff">Gold Tracker</b> — the running app on port 8000. Click that, not this file.
+      <div class="mute" style="margin-top:9px;font-size:12.5px">
+        Don't type a web address by hand — the preview link is generated for you and only works from inside this app.
+      </div>
+    </div>`;
+  ['plainLines','scenarios','drivers','events','sinceStrip','fedNews','wireNews'].forEach(id=>{
+    if($(id)) $(id).innerHTML = '<span class="mute" style="font-size:12.5px">— open the live app to see this —</span>';
+  });
+}
+
+async function load(){
+  if (!SERVED){ wrongWindow(); return; }
+  let d;
+  $('checkLine').textContent = 'checking…';
+  try { d = await (await fetch('/api/snapshot')).json(); }
+  catch(e){
+    $('pulse').style.background = '#f0b429';
+    const sandboxed = (location.origin === 'null' || location.protocol === 'file:' || location.protocol === 'blob:');
+    $('checkLine').innerHTML = sandboxed
+      ? '<span class="warn">⚠ file preview — no data here</span>'
+      : '<span class="bear">✕ server not responding</span>';
+    $('actionBox').style.borderColor = '#f0b429';
+    $('actionBox').innerHTML = sandboxed ? `
+      <div style="font-size:10.5px;letter-spacing:2px;color:#f0b429;font-weight:700;margin-bottom:7px">WRONG WINDOW</div>
+      <div style="font-size:21px;font-weight:800;color:#f0b429;margin-bottom:10px;letter-spacing:-.3px">Open the live app, not this file</div>
+      <div style="font-size:14.5px;color:#e6edf3;line-height:1.65">
+        You are viewing <b>index.html</b> as a saved file. The file viewer has no internet access, so the page
+        cannot pull prices here — it will always look empty.<br><br>
+        Open the <b>Gold Tracker</b> preview instead (the running app on port 8000). Everything fills in there.
+      </div>` : `
+      <div style="font-size:10.5px;letter-spacing:2px;color:#f0b429;font-weight:700;margin-bottom:7px">NO CONNECTION</div>
+      <div style="font-size:21px;font-weight:800;color:#f0b429;margin-bottom:10px;letter-spacing:-.3px">The tracker has stopped</div>
+      <div style="font-size:14.5px;color:#e6edf3;line-height:1.65">
+        The app behind this page is not running. Restart it with:
+        <code style="background:#161b22;padding:3px 8px;border-radius:4px;display:inline-block;margin-top:6px">cd ~/gold-watch &amp;&amp; python3 app.py</code>
+      </div>`;
+    return;
+  }
+  const ind = d.indicators, P = d.plain, L = d.plain_labels, SP = d.scenarios_plain;
+
+  // header
+  const g = ind.gold || {};
+  $('goldPrice').textContent = g.price ? '$'+g.price.toLocaleString(undefined,{maximumFractionDigits:0}) : '—';
+  if (g.change_pct != null){
+    const up = g.change_pct >= 0;
+    $('goldChg').innerHTML = `<span class="${up?'bull':'bear'}">${up?'▲':'▼'} ${Math.abs(g.change_pct).toFixed(2)}% today</span>`;
+  }
+
+  // ---- freshness: prove to the user that this is actually live ----
+  const now = new Date();
+  const hhmmss = now.toLocaleTimeString('en-GB');
+  $('pulse').style.background = '#3fb950';
+  $('pulse').style.animation = 'none';
+  setTimeout(()=>{ $('pulse').style.animation='p 2s infinite'; }, 50);
+  $('checkLine').innerHTML = `<span class="bull">✓</span> checked ${hhmmss} your time`;
+
+  if (g.price != null){
+    if (lastGold == null){
+      $('moveLine').innerHTML = `<span class="mute">market price timestamped ${g.asof || '—'}</span>`;
+    } else if (Math.abs(g.price - lastGold) < 0.001){
+      const mins = Math.round((Date.now()-lastGoldAt)/60000);
+      $('moveLine').innerHTML = `<span class="mute">price unchanged for ${mins} min — normal, it only reprints when it trades</span>`;
+    } else {
+      const diff = g.price - lastGold, up = diff > 0;
+      $('moveLine').innerHTML = `<span class="${up?'bull':'bear'}">${up?'▲':'▼'} moved $${Math.abs(diff).toFixed(2)} since last check</span>`;
+      lastGoldAt = Date.now();
+      const hp = $('goldPrice');
+      hp.style.transition='none'; hp.style.textShadow=`0 0 16px ${up?'#3fb950':'#f85149'}`;
+      setTimeout(()=>{ hp.style.transition='text-shadow 1.4s'; hp.style.textShadow='none'; }, 60);
+    }
+    if (lastGold == null) lastGoldAt = Date.now();
+    lastGold = g.price;
+  }
+
+  // action box
+  if (P && P.action){
+    const c = TONE[P.action.tone] || '#8b949e';
+    $('actionBox').style.borderColor = c;
+    $('actionBox').innerHTML = `
+      <div style="font-size:10.5px;letter-spacing:2px;color:${c};font-weight:700;margin-bottom:7px">WHAT TO DO TODAY</div>
+      <div style="font-size:23px;font-weight:800;color:${c};margin-bottom:8px;letter-spacing:-.3px">${P.action.label}</div>
+      <div style="font-size:14.5px;color:#e6edf3">${P.action.text}</div>
+      <div class="mute" style="font-size:13px;margin-top:11px;padding-top:10px;border-top:1px solid #21262d">${P.headline}</div>`;
+  }
+
+  // plain lines
+  if (P && P.lines){
+    $('plainLines').innerHTML = P.lines.map(l=>{
+      const c = TONE[l.tone] || '#8b949e';
+      const sym = l.icon==='!'?'▲':l.icon==='+'?'✓':l.icon==='v'?'▼':l.icon==='>'?'→':'•';
+      return `<div class="card" style="padding:13px 17px;border-left:3px solid ${c};display:flex;gap:13px;align-items:flex-start">
+        <span style="color:${c};font-weight:700;font-size:14px;min-width:14px">${sym}</span>
+        <span style="font-size:14px">${l.text}</span></div>`;
+    }).join('');
+  }
+
+  // scenarios, plain words
+  $('scenarios').innerHTML = ['A','B','C','D'].map(k=>{
+    const s = SP[k], post = d.posterior[k], col = d.scenarios[k].colour;
+    const bp = d.deltas?.posterior?.[k];
+    const drift = bp && bp.base!=null ? post-bp.base : 0;
+    const arrow = Math.abs(drift)<0.1 ? '<span class="mute" style="font-size:11px">no change yet</span>'
+      : `<span class="${drift>0?'bull':'bear'}" style="font-size:11px">${drift>0?'▲':'▼'} ${Math.abs(drift).toFixed(1)} since 27 Nov</span>`;
+    return `<div class="card" style="padding:15px 18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+        <div><strong style="font-size:15.5px">${s.name}</strong>
+          <div class="mute" style="font-size:12.5px">${s.blurb}</div></div>
+        <div style="text-align:right"><div class="mono" style="font-size:24px;font-weight:800;color:${col};line-height:1">${post}%</div>${arrow}</div>
+      </div>
+      <div style="background:#0d1117;height:6px;border-radius:3px;overflow:hidden;margin-bottom:8px">
+        <div style="background:${col};height:100%;width:${post}%;transition:width .6s"></div></div>
+      <div style="font-size:12.5px;color:#c9d1d9">${s.gold}</div></div>`;
+  }).join('');
+
+  // drivers with plain explanations
+  const D = d.deltas || {};
+  const order = ['core_pce','brent','dxy','fedfunds','real10','orcl','ndx','dgs30'];
+  const val = {core_pce:ind.core_pce?.value, brent:ind.brent?.price, dxy:ind.dxy?.price,
+               fedfunds:ind.fedfunds?.value, real10:ind.real10?.value,
+               orcl:ind.orcl?.drawdown_pct, ndx:ind.ndx?.drawdown_pct, dgs30:ind.dgs30?.value};
+  const fmt = {core_pce:v=>v.toFixed(2)+'%', brent:v=>'$'+v.toFixed(0), dxy:v=>v.toFixed(1),
+               fedfunds:v=>v.toFixed(2)+'%', real10:v=>v.toFixed(2)+'%',
+               orcl:v=>v.toFixed(0)+'% below peak', ndx:v=>v.toFixed(0)+'% below peak', dgs30:v=>v.toFixed(2)+'%'};
+  const helps = {core_pce:v=>v<2.8, brent:v=>v<85, dxy:v=>v<100, fedfunds:v=>v<3.5,
+                 real10:v=>v<2.5, orcl:v=>v<-50, ndx:v=>v<-30, dgs30:v=>v>5.75};
+  $('drivers').innerHTML = order.map(k=>{
+    const v = val[k]; if (v==null || !L[k]) return '';
+    const [label, why] = L[k];
+    const good = helps[k](v);
+    const c = good ? '#3fb950' : '#f85149';
+    const dd = D[k];
+    let since = '';
+    if (dd){
+      const flat = Math.abs(dd.diff)<1e-9, up = dd.diff>0;
+      const amt = dd.pct!=null ? `${up?'+':'−'}${Math.abs(dd.pct).toFixed(1)}%` : `${up?'+':'−'}${Math.abs(dd.diff).toFixed(2)}`;
+      since = `<div style="font-size:11px;margin-top:7px;padding-top:7px;border-top:1px solid #21262d;display:flex;justify-content:space-between">
+        <span class="mute">since 27 Nov</span><span class="mono ${flat?'mute':(up?'bull':'bear')}" style="font-weight:700">${flat?'unchanged':amt}</span></div>`;
+    }
+    return `<div class="card" style="padding:14px 16px;border-left:3px solid ${c}">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px">
+        <strong style="font-size:13.5px">${label}</strong>
+        <span class="mono" style="font-size:17px;font-weight:700;color:${c}">${fmt[k](v)}</span></div>
+      <div class="mute" style="font-size:12px">${why}</div>
+      <div style="font-size:11.5px;margin-top:6px;color:${c};font-weight:600">${good?'✓ helping gold':'▲ hurting gold'}</div>
+      ${since}</div>`;
+  }).join('');
+
+  // since-baseline strip
+  if (D._date){
+    const bd = new Date(D._date+'T00:00:00Z');
+    $('baseLabel').textContent = bd.toLocaleDateString('en',{day:'numeric',month:'short',timeZone:'UTC'});
+    const days = Math.max(0, Math.floor((Date.now()-bd.getTime())/864e5));
+    const items = [['Gold',D.gold,v=>'$'+v.toFixed(0),1],['Oil',D.brent,v=>'$'+v.toFixed(0),1],
+                   ['Dollar',D.dxy,v=>v.toFixed(1),1],['Inflation',D.core_pce,v=>v.toFixed(2)+'%',0],
+                   ['AI bust odds',D.posterior?.B,v=>v.toFixed(0)+'%',0]];
+    $('sinceStrip').innerHTML = items.map(([l,dd,f,isP])=>{
+      if(!dd||dd.now==null) return '';
+      const flat=Math.abs(dd.diff)<1e-9, up=dd.diff>0;
+      const amt = isP&&dd.pct!=null ? `${Math.abs(dd.pct).toFixed(1)}%` : `${Math.abs(dd.diff).toFixed(2)}`;
+      return `<div><div class="mute" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.8px">${l}</div>
+        <div class="mono" style="font-size:17px;font-weight:700">${f(dd.now)}</div>
+        <div class="mono ${flat?'mute':(up?'bull':'bear')}" style="font-size:11.5px">${flat?'unchanged':(up?'▲ +':'▼ −')+amt}</div>
+        <div class="mute mono" style="font-size:10px">was ${f(dd.base)}</div></div>`;
+    }).join('');
+    const moved = items.filter(([,dd])=>dd&&Math.abs(dd.diff)>1e-9).length;
+    $('sinceNote').textContent = days===0
+      ? `Baseline set today, so most of these still read zero. Differences build up from here.`
+      : `${days} day${days===1?'':'s'} on. ${moved} of ${items.length} have moved.`;
+  }
+
+  // advanced: forecast
+  const f = d.forecast;
+  $('fcExp').textContent = f.expected_today ? '$'+f.expected_today.toLocaleString() : '—';
+  $('fcAct').textContent = f.actual ? '$'+Math.round(f.actual).toLocaleString() : '—';
+  if (f.error_pct!=null) $('fcErr').innerHTML = `<span class="${Math.abs(f.error_pct)<5?'bull':'warn'}">${f.error_pct>0?'+':''}${f.error_pct}%</span>`;
+  drawChart(f, g.price);
+
+  // advanced: signals
+  $('signals').innerHTML = d.signals.map(s=>{
+    const pushes = Object.entries(s.weights||{}).filter(([,v])=>Math.abs(v)>0.15)
+      .sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))
+      .map(([k,v])=>{ const col=v>0?d.scenarios[k].colour:'#6e7681';
+        return `<span style="background:${col}1f;color:${col};border:1px solid ${col}55;border-radius:4px;padding:1px 7px;margin-left:4px;font-size:11px;font-weight:700">${v>0?'':'−'}${SP[k].name}</span>`;
+      }).join('') || '<span class="mute" style="font-size:11.5px">neutral</span>';
+    return `<tr><td style="font-weight:600">${s.label}</td><td class="mono" style="color:#f0b429">${s.value}</td>
+      <td style="color:${TONE[s.tone]||'#8b949e'}">${s.verdict}</td>
+      <td style="text-align:right">${pushes}</td></tr>`;
+  }).join('');
+
+  // advanced: manual
+  $('manual').innerHTML = Object.entries(d.manual).map(([key,m])=>`<tr>
+      <td style="font-weight:600">${m.label}</td>
+      <td><input class="mono" id="in_${key}" value="${m.value}"> <span class="mute" style="font-size:11.5px">${m.unit}</span></td>
+      <td class="mono mute" style="font-size:12px">${m.asof}</td>
+      <td class="mute" style="font-size:12px;max-width:310px">${m.note}</td>
+      <td style="text-align:right"><button onclick="saveManual('${key}')" style="background:#21262d;border:1px solid #30363d;color:#58a6ff;border-radius:5px;padding:4px 11px;font-size:12px">save</button></td></tr>`).join('');
+}
+
+function drawChart(f, actual){
+  const svg=$('chart'); if(!svg||!f.path) return;
+  const W=980,H=230,PL=58,PR=16,PT=14,PB=30;
+  const pts=f.path.map(p=>({d:new Date(p.date+'T00:00:00Z'),v:p.gold,l:p.label}));
+  const t0=pts[0].d.getTime(), t1=pts[pts.length-1].d.getTime();
+  const vals=pts.map(p=>p.v).concat(actual?[actual]:[]);
+  const lo=Math.min(...vals)*.95, hi=Math.max(...vals)*1.05;
+  const X=t=>PL+(t-t0)/(t1-t0)*(W-PL-PR), Y=v=>PT+(1-(v-lo)/(hi-lo))*(H-PT-PB);
+  let g='';
+  for(let i=0;i<=4;i++){const v=lo+(hi-lo)*i/4,y=Y(v);
+    g+=`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#21262d"/><text x="${PL-8}" y="${y+4}" fill="#6e7681" font-size="11" text-anchor="end" font-family="monospace">$${Math.round(v)}</text>`;}
+  const yI=Y(f.invalidation);
+  g+=`<line x1="${PL}" y1="${yI}" x2="${W-PR}" y2="${yI}" stroke="#f85149" stroke-width="1.5" stroke-dasharray="6 4" opacity=".75"/><text x="${W-PR}" y="${yI-7}" fill="#f85149" font-size="10.5" text-anchor="end" font-weight="700">PLAN IS WRONG BELOW $${f.invalidation}</text>`;
+  g+=`<path d="${pts.map((p,i)=>`${i?'L':'M'}${X(p.d.getTime()).toFixed(1)},${Y(p.v).toFixed(1)}`).join(' ')}" fill="none" stroke="#f0b429" stroke-width="2.5"/>`;
+  pts.forEach(p=>{const x=X(p.d.getTime()),y=Y(p.v);
+    g+=`<circle cx="${x}" cy="${y}" r="4" fill="#0d1117" stroke="#f0b429" stroke-width="2"/><text x="${x}" y="${y-13}" fill="#8b949e" font-size="10" text-anchor="middle">${p.l}</text><text x="${x}" y="${H-10}" fill="#6e7681" font-size="10" text-anchor="middle">${p.d.toLocaleDateString('en',{month:'short',year:'2-digit',timeZone:'UTC'})}</text>`;});
+  if(actual){const x=X(Date.now()),y=Y(actual);
+    g+=`<line x1="${x}" y1="${PT}" x2="${x}" y2="${H-PB}" stroke="#3fb950" stroke-dasharray="3 3" opacity=".6"/><circle cx="${x}" cy="${y}" r="6" fill="#3fb950" stroke="#0d1117" stroke-width="2"/><text x="${x+10}" y="${y-8}" fill="#3fb950" font-size="11.5" font-weight="700">now $${Math.round(actual)}</text>`;}
+  svg.innerHTML=g;
+}
+
+function spark(id,series,cols,lo,hi,fmt){
+  const svg=$(id); if(!svg||!series.length||!series[0].vals.length) return;
+  const W=420,H=110,P=34,n=series[0].vals.length;
+  const X=i=>P+(n<2?0:i/(n-1))*(W-P-8), Y=v=>8+(1-(v-lo)/((hi-lo)||1))*(H-28);
+  let g='';
+  for(let k=0;k<=2;k++){const v=lo+(hi-lo)*k/2,y=Y(v);
+    g+=`<line x1="${P}" y1="${y}" x2="${W-8}" y2="${y}" stroke="#21262d"/><text x="${P-5}" y="${y+3.5}" fill="#6e7681" font-size="9" text-anchor="end" font-family="monospace">${fmt(v)}</text>`;}
+  series.forEach((s,si)=>{
+    const dd=s.vals.map((v,i)=>v==null?null:`${i&&s.vals[i-1]!=null?'L':'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).filter(Boolean).join(' ');
+    g+=`<path d="${dd}" fill="none" stroke="${cols[si]}" stroke-width="1.8"/>`;});
+  svg.innerHTML=g;
+}
+
+async function loadHistory(){
+  if(!SERVED) return;
+  let h; try{ h=await (await fetch('/api/history')).json(); }catch(e){ return; }
+  if(!h.count||h.count<2){ return; }
+  $('histEmpty').style.display='none'; $('histWrap').style.display='grid';
+  const hrs=(Date.now()-new Date(h.rows[0].ts))/3.6e6;
+  $('histMeta').textContent=`— ${h.count} readings over ${hrs<1?Math.round(hrs*60)+' min':hrs.toFixed(1)+' h'}`;
+  const gs=h.rows.map(r=>r.gold).filter(v=>v!=null);
+  spark('histGold',[{vals:h.rows.map(r=>r.gold)}],['#f0b429'],Math.min(...gs)*.999,Math.max(...gs)*1.001,v=>'$'+Math.round(v));
+  spark('histScen',['A','B','C','D'].map(k=>({vals:h.rows.map(r=>r.post?r.post[k]:null)})),
+        ['#f85149','#3fb950','#58a6ff','#f0b429'],0,70,v=>Math.round(v)+'%');
+}
+
+async function loadNews(){
+  if(!SERVED) return;
+  let n; try{ n=await (await fetch('/api/news')).json(); }catch(e){ return; }
+  $('events').innerHTML=(n.events||[]).map(e=>{
+    const past=e.status==='past', col=e.status==='today'?'#3fb950':(e.key?'#f0b429':'#8b949e');
+    const when=e.status==='today'?'TODAY':past?`${Math.abs(e.days)}d ago`:`in ${e.days} days`;
+    return `<div style="display:flex;gap:13px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #21262d;opacity:${past?.4:1}">
+      <span class="mono" style="color:${col};font-weight:700;font-size:12px;min-width:72px">${when}</span>
+      <div><div style="font-size:13.5px;font-weight:600">${e.label}</div>
+        <div class="mute" style="font-size:12px">${e.why}</div></div></div>`;}).join('');
+  const r=rows=>(rows&&rows.length)?rows.slice(0,5).map(x=>`
+      <div style="padding:7px 0;border-bottom:1px solid #21262d">
+        <a href="${x.link||'#'}" target="_blank" rel="noopener" style="color:#c9d1d9;text-decoration:none;font-size:12.5px;display:block">${x.title}</a>
+        <div class="mute" style="font-size:10.5px">${(x.published||'').slice(0,22)}</div></div>`).join('')
+    :'<span class="mute">feed unavailable</span>';
+  $('fedNews').innerHTML=r(n.fed); $('wireNews').innerHTML=r(n.wires);
+}
+
+async function saveManual(key){
+  await fetch('/api/manual',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({key,value:$('in_'+key).value})});
+  load();
+}
+
+$('refreshNow').onclick=()=>{timer=60;load();loadHistory();loadNews();};
+setInterval(()=>{timer--;if(timer<=0){timer=60;load();loadHistory();if(++newsTick%5===0)loadNews();}
+  $('countdown').textContent=timer;},1000);
+load(); loadHistory(); loadNews();
+</script>
+</body>
+</html>

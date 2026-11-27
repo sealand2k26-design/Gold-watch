@@ -1,0 +1,290 @@
+#!/usr/bin/env python3
+"""Build a completely self-contained gold report.
+
+Why this exists
+---------------
+The live Flask app works, but it can only be viewed through a preview panel.
+When that panel is unavailable, the user is left with nothing. This script
+pulls the same live data and bakes it into ONE static HTML file with no
+JavaScript fetching, no external CSS, no fonts and no images - so it renders
+correctly in the workspace file viewer, which has no network access.
+
+Trade-off: it is a photograph, not a video. Re-run it to get a fresh one.
+
+    cd ~/gold-watch && python3 make_report.py
+"""
+
+import html
+import json
+import os
+import sys
+import urllib.request
+from datetime import datetime, timezone
+
+BASE = os.environ.get("GOLD_BASE", "http://127.0.0.1:8000")
+OUT = os.environ.get("GOLD_OUT", "/home/user/gold-now.html")
+
+C = {
+    "bull": "#2f9e44", "bear": "#d6336c", "warn": "#e8900c",
+    "neutral": "#666", "critical": "#d6336c",
+}
+
+
+def get(path):
+    with urllib.request.urlopen(BASE + path, timeout=60) as r:
+        return json.loads(r.read().decode())
+
+
+def e(x):
+    return html.escape(str(x))
+
+
+def money(v, dp=0):
+    try:
+        return "$" + format(float(v), ",." + str(dp) + "f")
+    except (TypeError, ValueError):
+        return "-"
+
+
+def render(snap, news):
+    """Turn one snapshot + news bundle into a standalone HTML page."""
+    ind = snap["indicators"]
+    plain = snap["plain"]
+    labels = snap["plain_labels"]
+    scen = snap["scenarios_plain"]
+    post = snap["posterior"]
+    fc = snap["forecast"]
+    deltas = snap.get("deltas", {})
+    gold = ind.get("gold", {})
+    act = plain["action"]
+    acol = C.get(act.get("tone"), "#666")
+    now = datetime.now(timezone.utc)
+
+    # ---------- what's going on ----------
+    lines = "".join(
+        '<li style="margin:0 0 11px 0;color:%s">%s</li>'
+        % (C.get(l.get("tone"), "#333"), e(l["text"]))
+        for l in plain["lines"]
+    )
+
+    # ---------- four futures ----------
+    rows = []
+    for k in "ABCD":
+        s = scen.get(k, {})
+        p = post.get(k, 0)
+        bar = max(2, round(p * 2.4))
+        rows.append(
+            '<tr>'
+            '<td style="padding:11px 10px;border-bottom:1px solid #eee;vertical-align:top;width:30%%">'
+            '<b style="font-size:15px">%s</b><br>'
+            '<span style="color:#777;font-size:12.5px">%s</span></td>'
+            '<td style="padding:11px 10px;border-bottom:1px solid #eee;vertical-align:top;width:17%%;white-space:nowrap">'
+            '<b style="font-size:19px">%.1f%%</b><br>'
+            '<span style="display:inline-block;height:7px;width:%dpx;background:#c9a227;border-radius:4px;margin-top:4px"></span></td>'
+            '<td style="padding:11px 10px;border-bottom:1px solid #eee;vertical-align:top;font-size:13.5px;color:#444">%s</td>'
+            '</tr>'
+            % (e(s.get("name", k)), e(s.get("blurb", "")), p, bar, e(s.get("gold", "")))
+        )
+    scen_rows = "".join(rows)
+
+    # ---------- drivers ----------
+    helps = {
+        "core_pce": lambda v: v < 2.8, "brent": lambda v: v < 85,
+        "dxy": lambda v: v < 100, "fedfunds": lambda v: v < 3.5,
+        "real10": lambda v: v < 2.5, "orcl_dd": lambda v: v < -50,
+        "ndx_dd": lambda v: v < -30, "dgs30": lambda v: v > 5.75,
+    }
+    dr = []
+    for key, test in helps.items():
+        src = ind.get(key, {})
+        val = src.get("value", src.get("price", src.get("drawdown_pct")))
+        if val is None:
+            continue
+        lab, why = labels.get(key, (key, ""))
+        good = False
+        try:
+            good = test(float(val))
+        except (TypeError, ValueError):
+            pass
+        col = C["bull"] if good else C["bear"]
+        mark = "helping gold" if good else "hurting gold"
+        sym = "&#10003;" if good else "&#9650;"
+        d = deltas.get(key) or {}
+        chg = ""
+        if isinstance(d, dict) and d.get("diff") is not None:
+            try:
+                chg = ' <span style="color:#999;font-size:11.5px">(%+.2f since 27 Nov)</span>' % float(d["diff"])
+            except (TypeError, ValueError):
+                chg = ""
+        shown = ("%.2f" % float(val)).rstrip("0").rstrip(".")
+        dr.append(
+            '<div style="border:1px solid #e3e3e3;border-left:4px solid %s;border-radius:7px;padding:12px 14px;margin-bottom:9px">'
+            '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">'
+            '<b style="font-size:14.5px">%s</b>'
+            '<span style="font-family:ui-monospace,Menlo,monospace;font-size:14.5px"><b>%s</b>%s</span></div>'
+            '<div style="color:%s;font-size:12px;font-weight:700;margin-top:3px">%s %s</div>'
+            '<div style="color:#666;font-size:12.5px;margin-top:5px;line-height:1.5">%s</div></div>'
+            % (col, e(lab), shown, chg, col, sym, mark, e(why))
+        )
+    drivers = "".join(dr)
+
+    # ---------- calendar ----------
+    ev = []
+    for x in news.get("events", []):
+        if x.get("status") == "past":
+            continue
+        when = "today" if x.get("days") == 0 else "in %s days" % x.get("days")
+        ev.append(
+            '<tr><td style="padding:9px 10px;border-bottom:1px solid #eee;white-space:nowrap">'
+            '<b>%s</b><br><span style="color:#888;font-size:12px">%s</span></td>'
+            '<td style="padding:9px 10px;border-bottom:1px solid #eee">'
+            '<b style="font-size:14px">%s</b><br>'
+            '<span style="color:#666;font-size:12.5px">%s</span></td></tr>'
+            % (e(x.get("date")), e(when), e(x.get("label")), e(x.get("why", "")))
+        )
+    events = "".join(ev)
+
+    # ---------- headlines ----------
+    def feed(items, n=5):
+        out = []
+        for it in items[:n]:
+            out.append(
+                '<li style="margin-bottom:7px;line-height:1.45">%s'
+                '<span style="color:#999;font-size:11.5px"> &middot; %s</span></li>'
+                % (e(it.get("title", "")), e((it.get("published") or "")[:22]))
+            )
+        return "".join(out) or '<li style="color:#999">none returned</li>'
+
+    # ---------- forecast path ----------
+    pr = []
+    for p in fc.get("path", []):
+        pr.append(
+            '<tr><td style="padding:7px 10px;border-bottom:1px solid #eee">%s</td>'
+            '<td style="padding:7px 10px;border-bottom:1px solid #eee;'
+            'font-family:ui-monospace,Menlo,monospace;text-align:right">%s</td></tr>'
+            % (e(p.get("date")), money(p.get("gold")))
+        )
+    path_rows = "".join(pr)
+
+    err = fc.get("error_pct")
+    err_txt = ("%+.2f%%" % err) if isinstance(err, (int, float)) else "-"
+
+    doc = """<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="refresh" content="900">
+<title>Gold - is it time to buy?</title>
+<style>
+  @media (max-width:600px){
+    h1{font-size:24px !important}
+    table td{display:block;width:auto !important}
+  }
+</style>
+<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+            max-width:860px;margin:0 auto;padding:30px 22px 60px;color:#1a1a1a;line-height:1.6">
+
+  <div style="border-bottom:3px solid #c9a227;padding-bottom:16px;margin-bottom:26px">
+    <div style="font-size:11px;letter-spacing:2.5px;color:#c9a227;font-weight:700;text-transform:uppercase">
+      Gold tracker &middot; printed report
+    </div>
+    <h1 style="margin:6px 0 4px;font-size:30px;letter-spacing:-.5px">Is it time to buy?</h1>
+    <div style="color:#777;font-size:13px">
+      Snapshot taken %(stamp)s. This page needs no internet - it will open anywhere.
+      It does <b>not</b> refresh by itself; ask me for a fresh one any time.
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px;margin-bottom:24px">
+    <div>
+      <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1.5px">Gold, per ounce</div>
+      <div style="font-size:42px;font-weight:800;color:#c9a227;line-height:1.1">%(price)s</div>
+      <div style="color:%(chgcol)s;font-weight:700;font-size:14px">%(chg)s today</div>
+    </div>
+    <div style="text-align:right;color:#777;font-size:12.5px">
+      market timestamp %(asof)s<br>
+      plan expected %(exp)s &middot; off by <b>%(err)s</b>
+    </div>
+  </div>
+
+  <div style="border:2px solid %(acol)s;border-radius:10px;padding:20px 22px;margin-bottom:30px;background:#fcfcfa">
+    <div style="font-size:10.5px;letter-spacing:2px;color:%(acol)s;font-weight:700;margin-bottom:7px">WHAT TO DO TODAY</div>
+    <div style="font-size:26px;font-weight:800;color:%(acol)s;margin-bottom:10px;letter-spacing:-.4px">%(alabel)s</div>
+    <div style="font-size:15.5px">%(atext)s</div>
+  </div>
+
+  <h2 style="font-size:19px;margin:0 0 6px">What's going on</h2>
+  <div style="font-size:16px;font-weight:600;margin-bottom:12px">%(headline)s</div>
+  <ul style="padding-left:20px;margin:0 0 30px;font-size:14.5px">%(lines)s</ul>
+
+  <h2 style="font-size:19px;margin:0 0 10px">What might happen next</h2>
+  <table style="width:100%%;border-collapse:collapse;margin-bottom:30px">%(scen)s</table>
+
+  <h2 style="font-size:19px;margin:0 0 10px">What's pushing the price around</h2>
+  %(drivers)s
+
+  <h2 style="font-size:19px;margin:26px 0 10px">Coming up</h2>
+  <table style="width:100%%;border-collapse:collapse;margin-bottom:30px">%(events)s</table>
+
+  <h2 style="font-size:19px;margin:0 0 10px">The plan, for reference</h2>
+  <div style="color:#666;font-size:13px;margin-bottom:8px">
+    Locked %(locked)s. Headline bet: %(bet)s. Thesis dies on a close below %(inval)s.
+  </div>
+  <table style="width:100%%;border-collapse:collapse;max-width:330px;margin-bottom:30px;font-size:14px">%(path)s</table>
+
+  <h2 style="font-size:19px;margin:0 0 10px">Latest from the Fed</h2>
+  <ul style="padding-left:20px;font-size:13.5px;margin-bottom:22px">%(fed)s</ul>
+
+  <h2 style="font-size:19px;margin:0 0 10px">Latest headlines</h2>
+  <ul style="padding-left:20px;font-size:13.5px;margin-bottom:30px">%(wires)s</ul>
+
+  <div style="border-top:1px solid #ddd;padding-top:14px;color:#888;font-size:12px">
+    Prices from Yahoo Finance; interest rates and inflation from the US Federal Reserve's database.
+    The percentages are one scoring model's output, not a market consensus. Not financial advice.
+  </div>
+</div>
+""" % {
+        "stamp": now.strftime("%d %b %Y, %H:%M UTC"),
+        "price": money(gold.get("price")),
+        "chg": ("%+.2f%%" % gold["change_pct"]) if gold.get("change_pct") is not None else "-",
+        "chgcol": C["bull"] if (gold.get("change_pct") or 0) >= 0 else C["bear"],
+        "asof": e(gold.get("asof", "-")),
+        "exp": money(fc.get("expected_today")),
+        "err": err_txt,
+        "acol": acol,
+        "alabel": e(act.get("label", "")),
+        "atext": e(act.get("text", "")),
+        "headline": e(plain.get("headline", "")),
+        "lines": lines,
+        "scen": scen_rows,
+        "drivers": drivers,
+        "events": events,
+        "locked": e(fc.get("locked_on", "-")),
+        "bet": e(fc.get("key_bet", "-")),
+        "inval": money(fc.get("invalidation")),
+        "path": path_rows,
+        "fed": feed(news.get("fed", [])),
+        "wires": feed(news.get("wires", []), 6),
+    }
+
+    return doc
+
+
+def main():
+    try:
+        snap = get("/api/snapshot")
+        news = get("/api/news")
+    except Exception as exc:                      # noqa: BLE001
+        print("could not reach the app on %s: %s" % (BASE, exc), file=sys.stderr)
+        print("start it first:  cd ~/gold-watch && python3 app.py", file=sys.stderr)
+        return 1
+    doc = render(snap, news)
+    with open(OUT, "w", encoding="utf-8") as fh:
+        fh.write(doc)
+    print("wrote %s (%d bytes)" % (OUT, len(doc)))
+    print("gold %s  %s" % (money(snap["indicators"].get("gold", {}).get("price")),
+                           snap["plain"]["action"].get("label")))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

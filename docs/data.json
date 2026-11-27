@@ -34,9 +34,9 @@
   "_date": "2026-11-27",
   "brent": {
    "base": 92.5,
-   "diff": -2.42,
-   "now": 90.08,
-   "pct": -2.62
+   "diff": -2.13,
+   "now": 90.37,
+   "pct": -2.3
   },
   "core_pce": {
    "base": 3.26,
@@ -64,9 +64,9 @@
   },
   "dxy": {
    "base": 103.713,
-   "diff": 0.301,
-   "now": 104.014,
-   "pct": 0.29
+   "diff": 0.329,
+   "now": 104.042,
+   "pct": 0.32
   },
   "fedfunds": {
    "base": 3.88,
@@ -76,9 +76,9 @@
   },
   "gold": {
    "base": 3675.3,
-   "diff": 0.3,
-   "now": 3675.6,
-   "pct": 0.01
+   "diff": -6.8,
+   "now": 3668.5,
+   "pct": -0.19
   },
   "ndx": {
    "base": -16.5818,
@@ -94,8 +94,8 @@
   },
   "orcl": {
    "base": -58.1382,
-   "diff": 1.4225,
-   "now": -56.7157,
+   "diff": 1.3097,
+   "now": -56.8285,
    "pct": null
   },
   "posterior": {
@@ -128,14 +128,14 @@
   },
   "silver": {
    "base": 44.43,
-   "diff": -0.465,
-   "now": 43.965,
-   "pct": -1.05
+   "diff": -0.728,
+   "now": 43.702,
+   "pct": -1.64
   }
  },
  "forecast": {
-  "actual": 3675.6,
-  "error_pct": 1.26,
+  "actual": 3668.5,
+  "error_pct": 1.06,
   "expected_today": 3630,
   "invalidation": 3268,
   "key_bet": "Gold trades below $3,400 before it trades above $4,000 (70%)",
@@ -183,15 +183,15 @@
    }
   ]
  },
- "generated": "2026-11-27 18:11:58 UTC",
+ "generated": "2026-11-27 19:05:46 UTC",
  "indicators": {
   "brent": {
-   "asof": "2026-11-27 18:01 UTC",
-   "change_pct": -0.618,
-   "drawdown_pct": -23.88677552902777,
+   "asof": "2026-11-27 18:55 UTC",
+   "change_pct": -0.298,
+   "drawdown_pct": -23.641739615433377,
    "peak": 118.3499984741211,
    "peak_date": "31 Mar 2026",
-   "price": 90.08,
+   "price": 90.37,
    "trough": 58.91999816894531
   },
   "core_pce": {
@@ -219,12 +219,12 @@
    "value": 5.3
   },
   "dxy": {
-   "asof": "2026-11-27 18:01 UTC",
-   "change_pct": 0.337,
-   "drawdown_pct": -0.29332792917886596,
+   "asof": "2026-11-27 18:55 UTC",
+   "change_pct": 0.364,
+   "drawdown_pct": -0.2664874383027871,
    "peak": 104.31999969482422,
    "peak_date": "23 Nov 2026",
-   "price": 104.014,
+   "price": 104.042,
    "trough": 96.22000122070312
   },
   "fedfunds": {
@@ -235,20 +235,20 @@
   },
   "gld": {
    "asof": "2026-11-27 18:00 UTC",
-   "change_pct": 2.08,
-   "drawdown_pct": -32.59528047710071,
+   "change_pct": 2.122,
+   "drawdown_pct": -32.5670489784673,
    "peak": 495.8999938964844,
    "peak_date": "29 Jan 2026",
-   "price": 334.26,
+   "price": 334.4,
    "trough": 322.8699951171875
   },
   "gold": {
-   "asof": "2026-11-27 18:01 UTC",
-   "change_pct": 3.114,
-   "drawdown_pct": -30.888987900661423,
+   "asof": "2026-11-27 18:55 UTC",
+   "change_pct": 2.915,
+   "drawdown_pct": -31.02248669974329,
    "peak": 5318.39990234375,
    "peak_date": "29 Jan 2026",
-   "price": 3675.6,
+   "price": 3668.5,
    "series": [
     5061.7001953125,
     5002.2001953125,
@@ -429,12 +429,12 @@
     3651.39990234375,
     3561.89990234375,
     3535.800048828125,
-    3675.60009765625
+    3668.5
    ],
    "trough": 2608.10009765625
   },
   "ndx": {
-   "asof": "2026-11-27 18:11 UTC",
+   "asof": "2026-11-27 19:05 UTC",
    "change_pct": 2.609,
    "drawdown_pct": -14.405629949316722,
    "peak": 31224.470703125,
@@ -452,12 +452,12 @@
    "trough": 125.52999877929688
   },
   "orcl": {
-   "asof": "2026-11-27 18:00 UTC",
-   "change_pct": 3.398,
-   "drawdown_pct": -56.71569508689731,
+   "asof": "2026-11-27 18:02 UTC",
+   "change_pct": 3.129,
+   "drawdown_pct": -56.828530068516045,
    "peak": 248.14999389648438,
    "peak_date": "01 Jun 2026",
-   "price": 107.41,
+   "price": 107.13,
    "trough": 101.19000244140625
   },
   "real10": {
@@ -467,12 +467,12 @@
    "value": 2.79
   },
   "silver": {
-   "asof": "2026-11-27 18:01 UTC",
-   "change_pct": 8.454,
-   "drawdown_pct": -61.79614242225715,
+   "asof": "2026-11-27 18:55 UTC",
+   "change_pct": 7.805,
+   "drawdown_pct": -62.02467908876338,
    "peak": 115.08000183105469,
    "peak_date": "26 Jan 2026",
-   "price": 43.965,
+   "price": 43.702,
    "trough": 40.051998138427734
   }
  },
@@ -521,10 +521,10 @@
  "plain": {
   "action": {
    "label": "HOLD \u2014 NOTHING TO DO",
-   "text": "$3,676 is the normal range. If you have bought your first third, just wait. The next real decision point is the Fed meeting on 9 December.",
+   "text": "$3,668 is the normal range. If you have bought your first third, just wait. The next real decision point is the Fed meeting on 9 December.",
    "tone": "neutral"
   },
-  "headline": "Gold is $3,676 an ounce and jumped 3.1% today.",
+  "headline": "Gold is $3,668 an ounce and jumped 2.9% today.",
   "lines": [
    {
     "icon": "=",
@@ -682,7 +682,7 @@
    "key": "brent",
    "label": "Brent crude",
    "tone": "neutral",
-   "value": "$90.08",
+   "value": "$90.37",
    "verdict": "$85\u2013100 \u2014 neutral, premium deflating",
    "weights": {}
   },
@@ -719,7 +719,7 @@
    "key": "dxy",
    "label": "Dollar index",
    "tone": "neutral",
-   "value": "104.01",
+   "value": "104.04",
    "verdict": "101\u2013105 \u2014 strong, capping any gold rally",
    "weights": {
     "A": 0.3
@@ -739,7 +739,7 @@
    "key": "orcl",
    "label": "Oracle drawdown (credit proxy)",
    "tone": "bull",
-   "value": "-56.7% from peak",
+   "value": "-56.8% from peak",
    "verdict": "Deeper than \u221255% \u2014 market pricing real default risk",
    "weights": {
     "B": 1.6

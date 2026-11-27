@@ -172,6 +172,7 @@ def render(snap, news):
     doc = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
 <meta http-equiv="refresh" content="900">
 <title>Gold - is it time to buy?</title>
 <style>

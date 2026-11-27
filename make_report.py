@@ -46,6 +46,74 @@ def money(v, dp=0):
         return "-"
 
 
+def plan_block(price):
+    """Render the user's own buying plan, measured against today's price."""
+    cfg_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+    try:
+        with open(cfg_path, encoding="utf-8") as fh:
+            plan = json.load(fh).get("plan")
+    except Exception:                                      # noqa: BLE001
+        return ""
+    if not plan:
+        return ""
+
+    cards = []
+    for t in plan.get("tranches", []):
+        done = t.get("status") == "done"
+        col = C["bull"] if done else "#b0a06a"
+        if done:
+            head = "DONE &middot; %s at %s" % (e(t.get("when", "")), money(t.get("price")))
+            dist = ""
+            if price and t.get("price"):
+                diff = float(price) - float(t["price"])
+                updown = "above" if diff >= 0 else "below"
+                dist = ('<div style="font-size:12.5px;color:%s;margin-top:4px">'
+                        "Today's price is %s %s what you paid.</div>"
+                        % (C["bull"] if diff >= 0 else C["bear"], money(abs(diff)), updown))
+        else:
+            lo, hi = t.get("trigger_low"), t.get("trigger_high")
+            if lo and hi:
+                head = "WAITING &middot; buy at %s - %s" % (money(lo), money(hi))
+                dist = ""
+                if price:
+                    gap = float(price) - float(hi)
+                    if gap > 0:
+                        dist = ('<div style="font-size:12.5px;color:#8a7a3a;margin-top:4px">'
+                                "Still %s too expensive. Do nothing.</div>" % money(gap))
+                    else:
+                        dist = ('<div style="font-size:13px;color:%s;font-weight:700;margin-top:4px">'
+                                "IN RANGE NOW - this is your buy.</div>" % C["bull"])
+            else:
+                head = "WAITING &middot; no price trigger - timing based"
+                dist = ""
+        cards.append(
+            '<div style="border:1px solid #e3e3e3;border-left:4px solid %s;border-radius:7px;'
+            'padding:12px 14px;margin-bottom:9px;background:#fff">'
+            '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">'
+            '<b style="font-size:15px">%s</b>'
+            '<span style="font-size:11.5px;letter-spacing:1px;color:%s;font-weight:700">%s</span></div>'
+            '<div style="color:#555;font-size:13px;margin-top:5px;line-height:1.5">%s</div>%s</div>'
+            % (col, e(t.get("label", "Tranche")), col, head, e(t.get("note", "")), dist)
+        )
+
+    rules = "".join('<li style="margin-bottom:7px">%s</li>' % e(r) for r in plan.get("rules", []))
+    notes = "".join('<li style="margin-bottom:7px">%s</li>' % e(n) for n in plan.get("buying_notes", []))
+
+    return (
+        '<h2 style="font-size:19px;margin:0 0 4px">Your plan</h2>'
+        '<div style="color:#777;font-size:12.5px;margin-bottom:12px">%s<br>%s</div>'
+        '%s'
+        '<div style="border:1px solid #e3e3e3;border-radius:7px;padding:14px 16px;margin:14px 0 8px;background:#fcfcfa">'
+        '<div style="font-size:11px;letter-spacing:1.5px;color:#8a7a3a;font-weight:700;margin-bottom:8px">YOUR RULES</div>'
+        '<ul style="padding-left:19px;margin:0;font-size:13.5px">%s</ul></div>'
+        '<div style="border:1px solid #e3e3e3;border-radius:7px;padding:14px 16px;margin-bottom:30px;background:#fcfcfa">'
+        '<div style="font-size:11px;letter-spacing:1.5px;color:#8a7a3a;font-weight:700;margin-bottom:8px">'
+        'BUYING IT IN SAUDI ARABIA</div>'
+        '<ul style="padding-left:19px;margin:0;font-size:13.5px">%s</ul></div>'
+        % (e(plan.get("who", "")), e(plan.get("style", "")), "".join(cards), rules, notes)
+    )
+
+
 def render(snap, news):
     """Turn one snapshot + news bundle into a standalone HTML page."""
     ind = snap["indicators"]
@@ -213,6 +281,8 @@ def render(snap, news):
     <div style="font-size:15.5px">%(atext)s</div>
   </div>
 
+  %(plan)s
+
   <h2 style="font-size:19px;margin:0 0 6px">What's going on</h2>
   <div style="font-size:16px;font-weight:600;margin-bottom:12px">%(headline)s</div>
   <ul style="padding-left:20px;margin:0 0 30px;font-size:14.5px">%(lines)s</ul>
@@ -254,6 +324,7 @@ def render(snap, news):
         "acol": acol,
         "alabel": e(act.get("label", "")),
         "atext": e(act.get("text", "")),
+        "plan": plan_block(gold.get("price")),
         "headline": e(plain.get("headline", "")),
         "lines": lines,
         "scen": scen_rows,

@@ -159,5 +159,46 @@
       "why": "My locked call says gold bottoms near $3,280 around now.",
       "key": true
     }
-  ]
+  ],
+  "plan": {
+    "who": "Retail saver - Eastern Province (Dammam / Khobar), Saudi Arabia",
+    "style": "Physical gold, bought in three parts. Not leveraged, not trading, not in a hurry.",
+    "tranches": [
+      {
+        "n": 1,
+        "status": "done",
+        "label": "First third",
+        "when": "27 Nov 2026",
+        "price": 3630,
+        "note": "Bought. Don't second-guess it - you are in the market."
+      },
+      {
+        "n": 2,
+        "status": "waiting",
+        "label": "Second third",
+        "trigger_low": 3400,
+        "trigger_high": 3450,
+        "note": "Buy on a drop to $3,400-3,450, or after the 9 Dec Fed meeting if it sells off."
+      },
+      {
+        "n": 3,
+        "status": "waiting",
+        "label": "Final third",
+        "trigger_low": 0,
+        "trigger_high": 0,
+        "note": "Q1 2027, or earlier if the Fed signals it has stopped raising rates."
+      }
+    ],
+    "rules": [
+      "Do not chase above $3,750. Paying up is how you turn a good plan into a bad one.",
+      "Stop buying entirely below $3,268. That level means the thesis was wrong - preserve the cash.",
+      "Missing a rally is not a loss. Buying the top is."
+    ],
+    "buying_notes": [
+      "Buy 999 bars or coins, not jewellery. Jewellery charges you for craftsmanship you cannot resell.",
+      "Investment-grade gold (99.5%+) is VAT-zero-rated in Saudi Arabia. Confirm it before paying - do not accept 15% VAT on investment bars.",
+      "Use established Dammam / Khobar dealers and keep every invoice. You need them to resell cleanly.",
+      "The riyal is pegged to the dollar, so the dollar price above is your price. There is no currency bet here."
+    ]
+  }
 }

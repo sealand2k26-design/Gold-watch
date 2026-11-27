@@ -34,9 +34,9 @@
   "_date": "2026-11-27",
   "brent": {
    "base": 92.5,
-   "diff": -0.06,
-   "now": 92.44,
-   "pct": -0.06
+   "diff": -1.03,
+   "now": 91.47,
+   "pct": -1.11
   },
   "core_pce": {
    "base": 3.26,
@@ -64,9 +64,9 @@
   },
   "dxy": {
    "base": 103.713,
-   "diff": 0.101,
-   "now": 103.814,
-   "pct": 0.1
+   "diff": 0.252,
+   "now": 103.965,
+   "pct": 0.24
   },
   "fedfunds": {
    "base": 3.88,
@@ -76,9 +76,9 @@
   },
   "gold": {
    "base": 3675.3,
-   "diff": 31.9,
-   "now": 3707.2,
-   "pct": 0.87
+   "diff": -4.2,
+   "now": 3671.1,
+   "pct": -0.11
   },
   "ndx": {
    "base": -16.5818,
@@ -128,14 +128,14 @@
   },
   "silver": {
    "base": 44.43,
-   "diff": 0.26,
-   "now": 44.69,
-   "pct": 0.59
+   "diff": -0.41,
+   "now": 44.02,
+   "pct": -0.92
   }
  },
  "forecast": {
-  "actual": 3707.2,
-  "error_pct": 2.13,
+  "actual": 3671.1,
+  "error_pct": 1.13,
   "expected_today": 3630,
   "invalidation": 3268,
   "key_bet": "Gold trades below $3,400 before it trades above $4,000 (70%)",
@@ -183,15 +183,15 @@
    }
   ]
  },
- "generated": "2026-11-27 09:42:11 UTC",
+ "generated": "2026-11-27 13:43:02 UTC",
  "indicators": {
   "brent": {
-   "asof": "2026-11-27 09:32 UTC",
-   "change_pct": 1.986,
-   "drawdown_pct": -21.892690163225215,
+   "asof": "2026-11-27 13:32 UTC",
+   "change_pct": 0.916,
+   "drawdown_pct": -22.712293046627106,
    "peak": 118.3499984741211,
    "peak_date": "31 Mar 2026",
-   "price": 92.44,
+   "price": 91.47,
    "trough": 58.91999816894531
   },
   "core_pce": {
@@ -219,12 +219,12 @@
    "value": 5.3
   },
   "dxy": {
-   "asof": "2026-11-27 09:32 UTC",
-   "change_pct": 0.144,
-   "drawdown_pct": -0.4850457211507564,
+   "asof": "2026-11-27 13:32 UTC",
+   "change_pct": 0.289,
+   "drawdown_pct": -0.3402987882119679,
    "peak": 104.31999969482422,
    "peak_date": "23 Nov 2026",
-   "price": 103.814,
+   "price": 103.965,
    "trough": 96.22000122070312
   },
   "fedfunds": {
@@ -243,12 +243,12 @@
    "trough": 322.8699951171875
   },
   "gold": {
-   "asof": "2026-11-27 09:32 UTC",
-   "change_pct": 4.0,
-   "drawdown_pct": -30.294824231508343,
+   "asof": "2026-11-27 13:32 UTC",
+   "change_pct": 2.988,
+   "drawdown_pct": -30.973599815572474,
    "peak": 5318.39990234375,
    "peak_date": "29 Jan 2026",
-   "price": 3707.2,
+   "price": 3671.1,
    "series": [
     5061.7001953125,
     5002.2001953125,
@@ -429,7 +429,7 @@
     3651.39990234375,
     3561.89990234375,
     3535.800048828125,
-    3707.199951171875
+    3671.10009765625
    ],
    "trough": 2608.10009765625
   },
@@ -467,12 +467,12 @@
    "value": 2.79
   },
   "silver": {
-   "asof": "2026-11-27 09:32 UTC",
-   "change_pct": 10.242,
-   "drawdown_pct": -61.166145908124015,
+   "asof": "2026-11-27 13:32 UTC",
+   "change_pct": 8.589,
+   "drawdown_pct": -61.74834958325395,
    "peak": 115.08000183105469,
    "peak_date": "26 Jan 2026",
-   "price": 44.69,
+   "price": 44.02,
    "trough": 40.051998138427734
   }
  },
@@ -521,15 +521,15 @@
  "plain": {
   "action": {
    "label": "HOLD \u2014 NOTHING TO DO",
-   "text": "$3,707 is the normal range. If you have bought your first third, just wait. The next real decision point is the Fed meeting on 9 December.",
+   "text": "$3,671 is the normal range. If you have bought your first third, just wait. The next real decision point is the Fed meeting on 9 December.",
    "tone": "neutral"
   },
-  "headline": "Gold is $3,707 an ounce and jumped 4.0% today.",
+  "headline": "Gold is $3,671 an ounce and jumped 3.0% today.",
   "lines": [
    {
-    "icon": "^",
-    "text": "That is 2.1% higher than the plan expected ($3,630). Gold is holding up better than forecast.",
-    "tone": "bull"
+    "icon": "=",
+    "text": "That is almost exactly where the plan expected it ($3,630). Nothing surprising yet.",
+    "tone": "neutral"
    },
    {
     "icon": "!",
@@ -538,7 +538,7 @@
    },
    {
     "icon": "=",
-    "text": "Oil is $92 \u2014 middling. Not adding to inflation, not helping either.",
+    "text": "Oil is $91 \u2014 middling. Not adding to inflation, not helping either.",
     "tone": "neutral"
    },
    {
@@ -557,7 +557,7 @@
     "tone": "neutral"
    }
   ],
-  "mood": "neutral"
+  "mood": "bear"
  },
  "plain_labels": {
   "brent": [
@@ -682,7 +682,7 @@
    "key": "brent",
    "label": "Brent crude",
    "tone": "neutral",
-   "value": "$92.44",
+   "value": "$91.47",
    "verdict": "$85\u2013100 \u2014 neutral, premium deflating",
    "weights": {}
   },
@@ -719,7 +719,7 @@
    "key": "dxy",
    "label": "Dollar index",
    "tone": "neutral",
-   "value": "103.81",
+   "value": "103.97",
    "verdict": "101\u2013105 \u2014 strong, capping any gold rally",
    "weights": {
     "A": 0.3

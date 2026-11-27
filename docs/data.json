@@ -46,27 +46,27 @@
   },
   "dgs10": {
    "base": 4.91,
-   "diff": 0.0,
-   "now": 4.91,
+   "diff": -0.06,
+   "now": 4.85,
    "pct": null
   },
   "dgs2": {
    "base": 4.63,
-   "diff": 0.0,
-   "now": 4.63,
+   "diff": -0.02,
+   "now": 4.61,
    "pct": null
   },
   "dgs30": {
    "base": 5.3,
-   "diff": 0.0,
-   "now": 5.3,
+   "diff": -0.06,
+   "now": 5.24,
    "pct": null
   },
   "dxy": {
    "base": 103.713,
-   "diff": 0.321,
-   "now": 104.034,
-   "pct": 0.31
+   "diff": 0.301,
+   "now": 104.014,
+   "pct": 0.29
   },
   "fedfunds": {
    "base": 3.88,
@@ -122,8 +122,8 @@
   },
   "real10": {
    "base": 2.79,
-   "diff": 0.0,
-   "now": 2.79,
+   "diff": -0.06,
+   "now": 2.73,
    "pct": null
   },
   "silver": {
@@ -183,7 +183,7 @@
    }
   ]
  },
- "generated": "2026-11-27 21:02:05 UTC",
+ "generated": "2026-11-27 22:01:07 UTC",
  "indicators": {
   "brent": {
    "asof": "2026-11-27 19:44 UTC",
@@ -201,35 +201,35 @@
    "value": 3.26
   },
   "dgs10": {
-   "change": -0.009999999999999787,
-   "date": "2026-11-24",
-   "prev": 4.92,
-   "value": 4.91
+   "change": -0.0600000000000005,
+   "date": "2026-11-25",
+   "prev": 4.91,
+   "value": 4.85
   },
   "dgs2": {
-   "change": 0.0,
-   "date": "2026-11-24",
+   "change": -0.019999999999999574,
+   "date": "2026-11-25",
    "prev": 4.63,
-   "value": 4.63
+   "value": 4.61
   },
   "dgs30": {
-   "change": 0.009999999999999787,
-   "date": "2026-11-24",
-   "prev": 5.29,
-   "value": 5.3
+   "change": -0.05999999999999961,
+   "date": "2026-11-25",
+   "prev": 5.3,
+   "value": 5.24
   },
   "dxy": {
-   "asof": "2026-11-27 20:52 UTC",
-   "change_pct": 0.356,
-   "drawdown_pct": -0.2741561499816636,
+   "asof": "2026-11-27 21:51 UTC",
+   "change_pct": 0.337,
+   "drawdown_pct": -0.29332792917886596,
    "peak": 104.31999969482422,
    "peak_date": "23 Nov 2026",
-   "price": 104.034,
+   "price": 104.014,
    "trough": 96.22000122070312
   },
   "fedfunds": {
    "change": 0.0,
-   "date": "2026-11-24",
+   "date": "2026-11-26",
    "prev": 3.88,
    "value": 3.88
   },
@@ -461,10 +461,10 @@
    "trough": 101.19000244140625
   },
   "real10": {
-   "change": 0.0,
-   "date": "2026-11-24",
+   "change": -0.06000000000000005,
+   "date": "2026-11-25",
    "prev": 2.79,
-   "value": 2.79
+   "value": 2.73
   },
   "silver": {
    "asof": "2026-11-27 19:44 UTC",
@@ -701,7 +701,7 @@
    "key": "dgs30",
    "label": "30-year Treasury",
    "tone": "neutral",
-   "value": "5.30%",
+   "value": "5.24%",
    "verdict": "5.15\u20135.50% \u2014 elevated but contained",
    "weights": {}
   },
@@ -709,7 +709,7 @@
    "key": "real10",
    "label": "10y real yield",
    "tone": "neutral",
-   "value": "2.79%",
+   "value": "2.73%",
    "verdict": "2.5\u20133.0% \u2014 still a real headwind",
    "weights": {
     "A": 0.3
@@ -719,7 +719,7 @@
    "key": "dxy",
    "label": "Dollar index",
    "tone": "neutral",
-   "value": "104.03",
+   "value": "104.01",
    "verdict": "101\u2013105 \u2014 strong, capping any gold rally",
    "weights": {
     "A": 0.3

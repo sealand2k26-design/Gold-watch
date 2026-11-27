@@ -34,9 +34,9 @@
   "_date": "2026-11-27",
   "brent": {
    "base": 92.5,
-   "diff": -1.91,
-   "now": 90.59,
-   "pct": -2.06
+   "diff": -2.4,
+   "now": 90.1,
+   "pct": -2.59
   },
   "core_pce": {
    "base": 3.26,
@@ -64,9 +64,9 @@
   },
   "dxy": {
    "base": 103.713,
-   "diff": 0.292,
-   "now": 104.005,
-   "pct": 0.28
+   "diff": 0.281,
+   "now": 103.994,
+   "pct": 0.27
   },
   "fedfunds": {
    "base": 3.88,
@@ -76,26 +76,26 @@
   },
   "gold": {
    "base": 3675.3,
-   "diff": -19.9,
-   "now": 3655.4,
-   "pct": -0.54
+   "diff": -15.5,
+   "now": 3659.8,
+   "pct": -0.42
   },
   "ndx": {
    "base": -16.5818,
-   "diff": 1.5035,
-   "now": -15.0783,
+   "diff": 1.6909,
+   "now": -14.8908,
    "pct": null
   },
   "nvda": {
    "base": -37.594,
-   "diff": -0.4347,
-   "now": -38.0288,
+   "diff": -0.1338,
+   "now": -37.7278,
    "pct": null
   },
   "orcl": {
    "base": -58.1382,
-   "diff": 1.076,
-   "now": -57.0623,
+   "diff": 1.217,
+   "now": -56.9212,
    "pct": null
   },
   "posterior": {
@@ -128,14 +128,14 @@
   },
   "silver": {
    "base": 44.43,
-   "diff": -0.64,
-   "now": 43.79,
-   "pct": -1.44
+   "diff": -0.67,
+   "now": 43.76,
+   "pct": -1.51
   }
  },
  "forecast": {
-  "actual": 3655.4,
-  "error_pct": 0.7,
+  "actual": 3659.8,
+  "error_pct": 0.82,
   "expected_today": 3630,
   "invalidation": 3268,
   "key_bet": "Gold trades below $3,400 before it trades above $4,000 (70%)",
@@ -183,15 +183,15 @@
    }
   ]
  },
- "generated": "2026-11-27 16:09:39 UTC",
+ "generated": "2026-11-27 17:15:20 UTC",
  "indicators": {
   "brent": {
-   "asof": "2026-11-27 15:59 UTC",
-   "change_pct": -0.055,
-   "drawdown_pct": -23.455850301672132,
+   "asof": "2026-11-27 17:05 UTC",
+   "change_pct": -0.596,
+   "drawdown_pct": -23.869876500504017,
    "peak": 118.3499984741211,
    "peak_date": "31 Mar 2026",
-   "price": 90.59,
+   "price": 90.1,
    "trough": 58.91999816894531
   },
   "core_pce": {
@@ -219,12 +219,12 @@
    "value": 5.3
   },
   "dxy": {
-   "asof": "2026-11-27 15:59 UTC",
-   "change_pct": 0.328,
-   "drawdown_pct": -0.3019552298175965,
+   "asof": "2026-11-27 17:05 UTC",
+   "change_pct": 0.317,
+   "drawdown_pct": -0.3124997083760461,
    "peak": 104.31999969482422,
    "peak_date": "23 Nov 2026",
-   "price": 104.005,
+   "price": 103.994,
    "trough": 96.22000122070312
   },
   "fedfunds": {
@@ -234,21 +234,21 @@
    "value": 3.88
   },
   "gld": {
-   "asof": "2026-11-27 16:09 UTC",
-   "change_pct": 1.399,
-   "drawdown_pct": -33.044967919618706,
+   "asof": "2026-11-27 17:15 UTC",
+   "change_pct": 1.674,
+   "drawdown_pct": -32.86347971411817,
    "peak": 495.8999938964844,
    "peak_date": "29 Jan 2026",
-   "price": 332.03,
+   "price": 332.93,
    "trough": 322.8699951171875
   },
   "gold": {
-   "asof": "2026-11-27 15:59 UTC",
-   "change_pct": 2.547,
-   "drawdown_pct": -31.268801385373212,
+   "asof": "2026-11-27 17:05 UTC",
+   "change_pct": 2.671,
+   "drawdown_pct": -31.186069735237965,
    "peak": 5318.39990234375,
    "peak_date": "29 Jan 2026",
-   "price": 3655.4,
+   "price": 3659.8,
    "series": [
     5061.7001953125,
     5002.2001953125,
@@ -429,35 +429,35 @@
     3651.39990234375,
     3561.89990234375,
     3535.800048828125,
-    3655.39990234375
+    3659.800048828125
    ],
    "trough": 2608.10009765625
   },
   "ndx": {
-   "asof": "2026-11-27 16:09 UTC",
-   "change_pct": 1.802,
-   "drawdown_pct": -15.078323497902568,
+   "asof": "2026-11-27 17:15 UTC",
+   "change_pct": 2.027,
+   "drawdown_pct": -14.890839134895772,
    "peak": 31224.470703125,
    "peak_date": "06 Oct 2026",
-   "price": 26516.344,
+   "price": 26574.885,
    "trough": 22953.380859375
   },
   "nvda": {
-   "asof": "2026-11-27 16:09 UTC",
-   "change_pct": -0.697,
-   "drawdown_pct": -38.028759155735635,
+   "asof": "2026-11-27 17:15 UTC",
+   "change_pct": -0.214,
+   "drawdown_pct": -37.7278061447558,
    "peak": 239.24000549316406,
    "peak_date": "06 Oct 2026",
-   "price": 148.26,
+   "price": 148.98,
    "trough": 125.52999877929688
   },
   "orcl": {
-   "asof": "2026-11-27 16:09 UTC",
-   "change_pct": 2.57,
-   "drawdown_pct": -57.062259673297724,
+   "asof": "2026-11-27 17:15 UTC",
+   "change_pct": 2.907,
+   "drawdown_pct": -56.92121594627431,
    "peak": 248.14999389648438,
    "peak_date": "01 Jun 2026",
-   "price": 106.55,
+   "price": 106.9,
    "trough": 101.19000244140625
   },
   "real10": {
@@ -467,12 +467,12 @@
    "value": 2.79
   },
   "silver": {
-   "asof": "2026-11-27 15:59 UTC",
-   "change_pct": 8.022,
-   "drawdown_pct": -61.948210546358254,
+   "asof": "2026-11-27 17:05 UTC",
+   "change_pct": 7.948,
+   "drawdown_pct": -61.97427936763273,
    "peak": 115.08000183105469,
    "peak_date": "26 Jan 2026",
-   "price": 43.79,
+   "price": 43.76,
    "trough": 40.051998138427734
   }
  },
@@ -521,10 +521,10 @@
  "plain": {
   "action": {
    "label": "HOLD \u2014 NOTHING TO DO",
-   "text": "$3,655 is the normal range. If you have bought your first third, just wait. The next real decision point is the Fed meeting on 9 December.",
+   "text": "$3,660 is the normal range. If you have bought your first third, just wait. The next real decision point is the Fed meeting on 9 December.",
    "tone": "neutral"
   },
-  "headline": "Gold is $3,655 an ounce and jumped 2.5% today.",
+  "headline": "Gold is $3,660 an ounce and jumped 2.7% today.",
   "lines": [
    {
     "icon": "=",
@@ -538,7 +538,7 @@
    },
    {
     "icon": "=",
-    "text": "Oil is $91 \u2014 middling. Not adding to inflation, not helping either.",
+    "text": "Oil is $90 \u2014 middling. Not adding to inflation, not helping either.",
     "tone": "neutral"
    },
    {
@@ -682,7 +682,7 @@
    "key": "brent",
    "label": "Brent crude",
    "tone": "neutral",
-   "value": "$90.59",
+   "value": "$90.10",
    "verdict": "$85\u2013100 \u2014 neutral, premium deflating",
    "weights": {}
   },
@@ -719,7 +719,7 @@
    "key": "dxy",
    "label": "Dollar index",
    "tone": "neutral",
-   "value": "104.00",
+   "value": "103.99",
    "verdict": "101\u2013105 \u2014 strong, capping any gold rally",
    "weights": {
     "A": 0.3
@@ -729,7 +729,7 @@
    "key": "ndx",
    "label": "Nasdaq 100 drawdown",
    "tone": "neutral",
-   "value": "-15.1% from peak",
+   "value": "-14.9% from peak",
    "verdict": "\u221212% to \u221220% \u2014 correction, not yet systemic",
    "weights": {
     "B": 0.3
@@ -739,7 +739,7 @@
    "key": "orcl",
    "label": "Oracle drawdown (credit proxy)",
    "tone": "bull",
-   "value": "-57.1% from peak",
+   "value": "-56.9% from peak",
    "verdict": "Deeper than \u221255% \u2014 market pricing real default risk",
    "weights": {
     "B": 1.6

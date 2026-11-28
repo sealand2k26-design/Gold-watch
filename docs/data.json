@@ -493,17 +493,17 @@
      "21k": {
       "n": 1,
       "spread_pct": 0.0,
-      "value": 9586.14
+      "value": 9580.66
      },
      "22k": {
       "n": 1,
       "spread_pct": 0.0,
-      "value": 10035.32
+      "value": 10029.58
      },
      "24k": {
       "n": 1,
       "spread_pct": 0.0,
-      "value": 10955.59
+      "value": 10949.32
      }
     },
     "sources": [
@@ -520,18 +520,18 @@
      },
      "21k": {
       "n": 2,
-      "spread_pct": 0.075,
-      "value": 385.56
+      "spread_pct": 0.018,
+      "value": 385.46
      },
      "22k": {
       "n": 2,
-      "spread_pct": 0.002,
-      "value": 403.78
+      "spread_pct": 0.055,
+      "value": 403.67
      },
      "24k": {
       "n": 2,
-      "spread_pct": 0.086,
-      "value": 440.63
+      "spread_pct": 0.027,
+      "value": 440.5
      }
     },
     "sources": [
@@ -622,35 +622,35 @@
      {
       "basis": "published",
       "computed": 440.27,
-      "gap_pct": 0.081,
+      "gap_pct": 0.052,
       "karat": "24k",
       "n_sources": 2,
       "purity": 1.0,
       "purity_pct": 100.0,
-      "raw": 440.63,
-      "with_premium": 449.44
+      "raw": 440.5,
+      "with_premium": 449.31
      },
      {
       "basis": "published",
       "computed": 403.58,
-      "gap_pct": 0.049,
+      "gap_pct": 0.021,
       "karat": "22k",
       "n_sources": 2,
       "purity": 0.9166666666666666,
       "purity_pct": 91.7,
-      "raw": 403.78,
-      "with_premium": 411.86
+      "raw": 403.67,
+      "with_premium": 411.74
      },
      {
       "basis": "published",
       "computed": 385.24,
-      "gap_pct": 0.083,
+      "gap_pct": 0.057,
       "karat": "21k",
       "n_sources": 2,
       "purity": 0.875,
       "purity_pct": 87.5,
-      "raw": 385.56,
-      "with_premium": 393.27
+      "raw": 385.46,
+      "with_premium": 393.17
      },
      {
       "basis": "published",

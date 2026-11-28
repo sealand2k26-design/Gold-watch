@@ -254,12 +254,13 @@ def render(snap, news):
 
   <div style="border-bottom:3px solid #c9a227;padding-bottom:16px;margin-bottom:26px">
     <div style="font-size:11px;letter-spacing:2.5px;color:#c9a227;font-weight:700;text-transform:uppercase">
-      Gold tracker &middot; printed report
+      Gold tracker &middot; updates by itself
     </div>
     <h1 style="margin:6px 0 4px;font-size:30px;letter-spacing:-.5px">Is it time to buy?</h1>
     <div style="color:#777;font-size:13px">
-      Snapshot taken %(stamp)s. This page needs no internet - it will open anywhere.
-      It does <b>not</b> refresh by itself; ask me for a fresh one any time.
+      Last checked <b>%(stamp)s</b>. This page checks the market and rewrites itself
+      about once an hour - you do not need to do anything. If that time stops moving
+      forward for a day, something has broken.
     </div>
   </div>
 

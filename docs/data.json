@@ -135,8 +135,8 @@
  },
  "forecast": {
   "actual": 3668.5,
-  "error_pct": 1.06,
-  "expected_today": 3630,
+  "error_pct": 1.41,
+  "expected_today": 3618,
   "invalidation": 3268,
   "key_bet": "Gold trades below $3,400 before it trades above $4,000 (70%)",
   "locked_on": "2026-11-27",
@@ -183,7 +183,7 @@
    }
   ]
  },
- "generated": "2026-11-27 23:56:39 UTC",
+ "generated": "2026-11-28 00:48:48 UTC",
  "indicators": {
   "brent": {
    "asof": "2026-11-27 19:44 UTC",
@@ -528,7 +528,7 @@
   "lines": [
    {
     "icon": "=",
-    "text": "That is almost exactly where the plan expected it ($3,630). Nothing surprising yet.",
+    "text": "That is almost exactly where the plan expected it ($3,618). Nothing surprising yet.",
     "tone": "neutral"
    },
    {

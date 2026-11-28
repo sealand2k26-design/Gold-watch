@@ -777,6 +777,87 @@ def history_worker():
 # --------------------------------------------------------------------------
 # snapshot builder + routes
 # --------------------------------------------------------------------------
+TROY_OZ_G = 31.1034768
+
+
+def local_prices(indicators, cfg):
+    """Convert the world gold price into what it actually costs locally.
+
+    The world quotes gold in US dollars per troy ounce. Nobody in Dammam or
+    Delhi buys that way - Saudi dealers price per gram, Indian ones per ten
+    grams, both by karat. This does the arithmetic so the page shows a number
+    you could walk into a shop and compare against.
+    """
+    gold = (indicators.get("gold") or {}).get("price")
+    if not gold:
+        return {}
+
+    fx = {
+        "usdsar": (indicators.get("usdsar") or {}).get("price") or 3.75,
+        "usdinr": (indicators.get("usdinr") or {}).get("price"),
+    }
+    conf = cfg.get("local") or {}
+    out = {"fx": fx, "world_usd_oz": round(gold, 2), "markets": []}
+
+    def rows(per_unit_usd, karats, premium_pct, rate, grams):
+        res = []
+        for k in karats:
+            purity = k / 24.0
+            base = gold / TROY_OZ_G * grams * purity * rate
+            res.append({
+                "karat": "%dk" % k,
+                "purity_pct": round(purity * 100, 1),
+                "raw": round(base, 2),
+                "with_premium": round(base * (1 + premium_pct / 100.0), 2),
+            })
+        return res
+
+    ksa = conf.get("ksa")
+    if ksa and fx["usdsar"]:
+        out["markets"].append({
+            "key": "ksa",
+            "label": ksa.get("label", "Saudi Arabia"),
+            "currency": ksa.get("currency", "SAR"),
+            "unit": ksa.get("unit", "per gram"),
+            "fx_rate": round(fx["usdsar"], 4),
+            "fx_label": "1 USD = %.4f SAR (pegged)" % fx["usdsar"],
+            "premium_pct": ksa.get("dealer_premium_pct", 0),
+            "premium_label": "typical dealer premium",
+            "rows": rows(None, ksa.get("karats", [24]), ksa.get("dealer_premium_pct", 0),
+                         fx["usdsar"], 1),
+            "note": ksa.get("note", ""),
+        })
+
+    ind = conf.get("india")
+    if ind and fx["usdinr"]:
+        out["markets"].append({
+            "key": "india",
+            "label": ind.get("label", "India"),
+            "currency": ind.get("currency", "INR"),
+            "unit": ind.get("unit", "per 10 grams"),
+            "fx_rate": round(fx["usdinr"], 3),
+            "fx_label": "1 USD = %.2f INR" % fx["usdinr"],
+            "premium_pct": ind.get("import_duty_gst_pct", 0),
+            "premium_label": "import duty + GST",
+            "rows": rows(None, ind.get("karats", [24]), ind.get("import_duty_gst_pct", 0),
+                         fx["usdinr"], 10),
+            "note": ind.get("note", ""),
+        })
+
+    # What the next planned buy level looks like in local money.
+    plan = cfg.get("plan") or {}
+    nxt = next((t for t in plan.get("tranches", [])
+                if t.get("status") != "done" and t.get("trigger_high")), None)
+    if nxt:
+        trig = float(nxt["trigger_high"])
+        out["next_buy"] = {
+            "usd_oz": trig,
+            "ksa_gram_24k": round(trig / TROY_OZ_G * (fx["usdsar"] or 3.75), 2),
+            "india_10g_24k": round(trig / TROY_OZ_G * 10 * fx["usdinr"], 2) if fx["usdinr"] else None,
+        }
+    return out
+
+
 def build_snapshot():
     cfg = load_config()
 
@@ -792,6 +873,8 @@ def build_snapshot():
         "gld":    lambda: cached("gld",    lambda: yahoo("GLD", "1y")),
         "nvda":   lambda: cached("nvda",   lambda: yahoo("NVDA", "1y")),
         "orcl":   lambda: cached("orcl",   lambda: yahoo("ORCL", "1y")),
+        "usdsar": lambda: cached("usdsar", lambda: yahoo("SAR=X", "1mo")),
+        "usdinr": lambda: cached("usdinr", lambda: yahoo("INR=X", "1mo")),
     }
     with ThreadPoolExecutor(max_workers=8) as pool:
         futures = {k: pool.submit(v) for k, v in market_jobs.items()}
@@ -838,6 +921,7 @@ def build_snapshot():
         "thresholds": cfg["thresholds"],
         "baseline": cfg.get("baseline", {}),
         "deltas": compute_deltas(indicators, posterior, cfg.get("baseline", {})),
+        "local": local_prices(indicators, cfg),
         "plain": plain_summary(indicators, posterior,
                                track_forecast(gold_price, cfg), cfg),
         "plain_labels": PLAIN_LABELS,

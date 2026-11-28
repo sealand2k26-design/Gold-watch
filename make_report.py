@@ -114,6 +114,73 @@ def plan_block(price):
     )
 
 
+def local_block(snap):
+    """Show the world price converted into Saudi and Indian shop prices."""
+    loc = snap.get("local") or {}
+    if not loc.get("markets"):
+        return ""
+
+    cards = []
+    for m in loc["markets"]:
+        rows = []
+        for r in m["rows"]:
+            rows.append(
+                '<tr>'
+                '<td style="padding:7px 8px;border-bottom:1px solid #eee"><b>%s</b>'
+                '<span style="color:#999;font-size:11.5px"> %s%%</span></td>'
+                '<td style="padding:7px 8px;border-bottom:1px solid #eee;text-align:right;'
+                'font-family:ui-monospace,Menlo,monospace">%s</td>'
+                '<td style="padding:7px 8px;border-bottom:1px solid #eee;text-align:right;'
+                'font-family:ui-monospace,Menlo,monospace;color:#8a7a3a"><b>%s</b></td>'
+                '</tr>'
+                % (e(r["karat"]), r["purity_pct"],
+                   format(r["raw"], ",.2f"), format(r["with_premium"], ",.2f"))
+            )
+        cards.append(
+            '<div style="border:1px solid #e3e3e3;border-radius:8px;padding:14px 16px;'
+            'margin-bottom:12px;background:#fff">'
+            '<div style="display:flex;justify-content:space-between;align-items:baseline;'
+            'flex-wrap:wrap;gap:8px">'
+            '<b style="font-size:16px">%s</b>'
+            '<span style="color:#888;font-size:11.5px">%s</span></div>'
+            '<div style="color:#777;font-size:12px;margin:3px 0 9px">%s &middot; %s</div>'
+            '<table style="width:100%%;border-collapse:collapse;font-size:13.5px">'
+            '<tr><th style="text-align:left;padding:4px 8px;font-size:11px;color:#999;'
+            'text-transform:uppercase;letter-spacing:.8px">Purity</th>'
+            '<th style="text-align:right;padding:4px 8px;font-size:11px;color:#999;'
+            'text-transform:uppercase;letter-spacing:.8px">World price</th>'
+            '<th style="text-align:right;padding:4px 8px;font-size:11px;color:#8a7a3a;'
+            'text-transform:uppercase;letter-spacing:.8px">+ %s %s%%</th></tr>'
+            '%s</table>'
+            '<div style="color:#666;font-size:12.5px;margin-top:9px;line-height:1.5">%s</div>'
+            '</div>'
+            % (e(m["label"]), e(m["fx_label"]), e(m["currency"]), e(m["unit"]),
+               e(m["premium_label"]), m["premium_pct"], "".join(rows), e(m["note"]))
+        )
+
+    nb = loc.get("next_buy") or {}
+    target = ""
+    if nb.get("ksa_gram_24k"):
+        india = (" &middot; <b>%s INR</b> per 10g in India" % format(nb["india_10g_24k"], ",.0f")) \
+                if nb.get("india_10g_24k") else ""
+        target = (
+            '<div style="border:1px dashed #b0a06a;border-radius:8px;padding:12px 15px;'
+            'margin-bottom:30px;background:#fcfcfa;font-size:13.5px">'
+            '<b style="color:#8a7a3a">Your next buy level in local money:</b> when gold reaches '
+            '$%s an ounce, that is about <b>%s SAR</b> per gram of 24k in Saudi Arabia%s '
+            '<span style="color:#888">(before dealer premium).</span></div>'
+            % (format(nb["usd_oz"], ",.0f"), format(nb["ksa_gram_24k"], ",.2f"), india)
+        )
+
+    return (
+        '<h2 style="font-size:19px;margin:0 0 4px">What it costs where you are</h2>'
+        '<div style="color:#777;font-size:12.5px;margin-bottom:12px">'
+        'The world quotes gold in US dollars per ounce. Shops do not. '
+        'This is the same price converted into what a dealer would quote you.</div>'
+        '%s%s' % ("".join(cards), target)
+    )
+
+
 def render(snap, news):
     """Turn one snapshot + news bundle into a standalone HTML page."""
     ind = snap["indicators"]
@@ -284,6 +351,8 @@ def render(snap, news):
 
   %(plan)s
 
+  %(local)s
+
   <h2 style="font-size:19px;margin:0 0 6px">What's going on</h2>
   <div style="font-size:16px;font-weight:600;margin-bottom:12px">%(headline)s</div>
   <ul style="padding-left:20px;margin:0 0 30px;font-size:14.5px">%(lines)s</ul>
@@ -326,6 +395,7 @@ def render(snap, news):
         "alabel": e(act.get("label", "")),
         "atext": e(act.get("text", "")),
         "plan": plan_block(gold.get("price")),
+        "local": local_block(snap),
         "headline": e(plain.get("headline", "")),
         "lines": lines,
         "scen": scen_rows,

@@ -200,5 +200,31 @@
       "Use established Dammam / Khobar dealers and keep every invoice. You need them to resell cleanly.",
       "The riyal is pegged to the dollar, so the dollar price above is your price. There is no currency bet here."
     ]
+  },
+  "local": {
+    "ksa": {
+      "label": "Saudi Arabia",
+      "currency": "SAR",
+      "unit": "per gram",
+      "karats": [
+        24,
+        22,
+        21,
+        18
+      ],
+      "dealer_premium_pct": 2.0,
+      "note": "Investment bars and coins 99.5%+ are VAT-zero-rated. Jewellery is not - you pay 15% VAT plus a making charge you cannot resell."
+    },
+    "india": {
+      "label": "India",
+      "currency": "INR",
+      "unit": "per 10 grams",
+      "karats": [
+        24,
+        22
+      ],
+      "import_duty_gst_pct": 9.0,
+      "note": "Indian retail sits above the world price: roughly 6% import duty plus 3% GST. Jewellers add making charges on top."
+    }
   }
 }

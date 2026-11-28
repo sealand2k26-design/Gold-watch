@@ -213,7 +213,7 @@
         18
       ],
       "dealer_premium_pct": 2.0,
-      "note": "Investment bars and coins 99.5%+ are VAT-zero-rated. Jewellery is not - you pay 15% VAT plus a making charge you cannot resell."
+      "note": "The left column is the benchmark Saudi shops price off. Investment bars and coins 99.5%+ are VAT-zero-rated; jewellery is not - you pay 15% VAT plus a making charge you cannot resell."
     },
     "india": {
       "label": "India",
@@ -223,8 +223,8 @@
         24,
         22
       ],
-      "import_duty_gst_pct": 9.0,
-      "note": "Indian retail sits above the world price: roughly 6% import duty plus 3% GST. Jewellers add making charges on top."
+      "import_duty_gst_pct": 14.5,
+      "note": "Indian retail sits well above the world price: 6% import duty, 3% GST, plus the local market premium. Jewellers add making charges on top of that."
     }
   }
 }

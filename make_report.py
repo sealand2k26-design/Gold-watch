@@ -148,7 +148,7 @@ def local_block(snap):
             '<tr><th style="text-align:left;padding:4px 8px;font-size:11px;color:#999;'
             'text-transform:uppercase;letter-spacing:.8px">Purity</th>'
             '<th style="text-align:right;padding:4px 8px;font-size:11px;color:#999;'
-            'text-transform:uppercase;letter-spacing:.8px">World price</th>'
+            'text-transform:uppercase;letter-spacing:.8px">Benchmark</th>'
             '<th style="text-align:right;padding:4px 8px;font-size:11px;color:#8a7a3a;'
             'text-transform:uppercase;letter-spacing:.8px">+ %s %s%%</th></tr>'
             '%s</table>'
@@ -175,8 +175,8 @@ def local_block(snap):
     return (
         '<h2 style="font-size:19px;margin:0 0 4px">What it costs where you are</h2>'
         '<div style="color:#777;font-size:12.5px;margin-bottom:12px">'
-        'The world quotes gold in US dollars per ounce. Shops do not. '
-        'This is the same price converted into what a dealer would quote you.</div>'
+        'Converted from the live <b>spot</b> gold price ($%s an ounce) - the benchmark shops price off, '
+        'not the futures contract quoted at the top of this page.</div>' % format(loc.get("world_usd_oz", 0), ",.2f")
         '%s%s' % ("".join(cards), target)
     )
 

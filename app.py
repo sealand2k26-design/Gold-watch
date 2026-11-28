@@ -777,6 +777,23 @@ def history_worker():
 # --------------------------------------------------------------------------
 # snapshot builder + routes
 # --------------------------------------------------------------------------
+def spot_gold():
+    """Live spot gold (XAU/USD) - the price local shops actually price off.
+
+    GC=F is a COMEX futures contract and trades a little above spot because of
+    carry. The difference is small (~0.5%) but it is a systematic overstatement
+    on every local price, so the per-gram tables use spot instead.
+    Free, no key, no registration.
+    """
+    r = session("plain").get("https://api.gold-api.com/price/XAU", timeout=15)
+    r.raise_for_status()
+    d = r.json()
+    price = float(d["price"])
+    if not 200 < price < 20000:
+        raise ValueError("implausible spot price: %s" % price)
+    return {"price": round(price, 2), "asof": d.get("updatedAt", "")}
+
+
 TROY_OZ_G = 31.1034768
 
 
@@ -788,7 +805,9 @@ def local_prices(indicators, cfg):
     grams, both by karat. This does the arithmetic so the page shows a number
     you could walk into a shop and compare against.
     """
-    gold = (indicators.get("gold") or {}).get("price")
+    futures = (indicators.get("gold") or {}).get("price")
+    spot = (indicators.get("spot") or {}).get("price")
+    gold = spot or futures          # shops price off spot, not the futures contract
     if not gold:
         return {}
 
@@ -797,7 +816,13 @@ def local_prices(indicators, cfg):
         "usdinr": (indicators.get("usdinr") or {}).get("price"),
     }
     conf = cfg.get("local") or {}
-    out = {"fx": fx, "world_usd_oz": round(gold, 2), "markets": []}
+    out = {
+        "fx": fx,
+        "world_usd_oz": round(gold, 2),
+        "basis": "spot" if spot else "futures",
+        "futures_usd_oz": round(futures, 2) if futures else None,
+        "markets": [],
+    }
 
     def rows(per_unit_usd, karats, premium_pct, rate, grams):
         res = []
@@ -875,6 +900,7 @@ def build_snapshot():
         "orcl":   lambda: cached("orcl",   lambda: yahoo("ORCL", "1y")),
         "usdsar": lambda: cached("usdsar", lambda: yahoo("SAR=X", "1mo")),
         "usdinr": lambda: cached("usdinr", lambda: yahoo("INR=X", "1mo")),
+        "spot":   lambda: cached("spot",   spot_gold),
     }
     with ThreadPoolExecutor(max_workers=8) as pool:
         futures = {k: pool.submit(v) for k, v in market_jobs.items()}

@@ -46,20 +46,20 @@
   },
   "dgs10": {
    "base": 4.91,
-   "diff": 0.0,
-   "now": 4.91,
+   "diff": -0.06,
+   "now": 4.85,
    "pct": null
   },
   "dgs2": {
    "base": 4.63,
-   "diff": 0.0,
-   "now": 4.63,
+   "diff": -0.02,
+   "now": 4.61,
    "pct": null
   },
   "dgs30": {
    "base": 5.3,
-   "diff": 0.0,
-   "now": 5.3,
+   "diff": -0.06,
+   "now": 5.24,
    "pct": null
   },
   "dxy": {
@@ -82,20 +82,20 @@
   },
   "ndx": {
    "base": -16.5818,
-   "diff": 0.0,
-   "now": -16.5818,
+   "diff": 2.1762,
+   "now": -14.4056,
    "pct": null
   },
   "nvda": {
    "base": -37.594,
-   "diff": 0.0,
-   "now": -37.594,
+   "diff": 0.4974,
+   "now": -37.0966,
    "pct": null
   },
   "orcl": {
    "base": -58.1382,
-   "diff": 0.0,
-   "now": -58.1382,
+   "diff": 1.3097,
+   "now": -56.8285,
    "pct": null
   },
   "posterior": {
@@ -122,8 +122,8 @@
   },
   "real10": {
    "base": 2.79,
-   "diff": 0.0,
-   "now": 2.79,
+   "diff": -0.06,
+   "now": 2.73,
    "pct": null
   },
   "silver": {
@@ -201,22 +201,22 @@
    "value": 3.26
   },
   "dgs10": {
-   "change": -0.009999999999999787,
-   "date": "2026-11-24",
-   "prev": 4.92,
-   "value": 4.91
+   "change": -0.0600000000000005,
+   "date": "2026-11-25",
+   "prev": 4.91,
+   "value": 4.85
   },
   "dgs2": {
-   "change": 0.0,
-   "date": "2026-11-24",
+   "change": -0.019999999999999574,
+   "date": "2026-11-25",
    "prev": 4.63,
-   "value": 4.63
+   "value": 4.61
   },
   "dgs30": {
-   "change": 0.009999999999999787,
-   "date": "2026-11-24",
-   "prev": 5.29,
-   "value": 5.3
+   "change": -0.05999999999999961,
+   "date": "2026-11-25",
+   "prev": 5.3,
+   "value": 5.24
   },
   "dxy": {
    "asof": "2026-11-27 13:32 UTC",
@@ -229,17 +229,17 @@
   },
   "fedfunds": {
    "change": 0.0,
-   "date": "2026-11-24",
+   "date": "2026-11-26",
    "prev": 3.88,
    "value": 3.88
   },
   "gld": {
-   "asof": "2026-11-25 21:00 UTC",
-   "change_pct": 0.615,
-   "drawdown_pct": -33.968541232054775,
+   "asof": "2026-11-27 18:00 UTC",
+   "change_pct": 2.122,
+   "drawdown_pct": -32.5670489784673,
    "peak": 495.8999938964844,
    "peak_date": "29 Jan 2026",
-   "price": 327.45,
+   "price": 334.4,
    "trough": 322.8699951171875
   },
   "gold": {
@@ -434,37 +434,37 @@
    "trough": 2608.10009765625
   },
   "ndx": {
-   "asof": "2026-11-25 22:15 UTC",
-   "change_pct": -0.638,
-   "drawdown_pct": -16.58178533225486,
+   "asof": "2026-11-27 19:15 UTC",
+   "change_pct": 2.609,
+   "drawdown_pct": -14.405629949316722,
    "peak": 31224.470703125,
    "peak_date": "06 Oct 2026",
-   "price": 26046.896,
+   "price": 26726.389,
    "trough": 22953.380859375
   },
   "nvda": {
-   "asof": "2026-11-25 21:00 UTC",
-   "change_pct": -3.913,
-   "drawdown_pct": -37.594049250986984,
+   "asof": "2026-11-27 18:00 UTC",
+   "change_pct": 0.797,
+   "drawdown_pct": -37.0966408022842,
    "peak": 239.24000549316406,
    "peak_date": "06 Oct 2026",
-   "price": 149.3,
+   "price": 150.49,
    "trough": 125.52999877929688
   },
   "orcl": {
-   "asof": "2026-11-25 21:02 UTC",
-   "change_pct": -5.132,
-   "drawdown_pct": -58.13822181944786,
+   "asof": "2026-11-27 18:02 UTC",
+   "change_pct": 3.129,
+   "drawdown_pct": -56.828530068516045,
    "peak": 248.14999389648438,
    "peak_date": "01 Jun 2026",
-   "price": 103.88,
+   "price": 107.13,
    "trough": 101.19000244140625
   },
   "real10": {
-   "change": 0.0,
-   "date": "2026-11-24",
+   "change": -0.06000000000000005,
+   "date": "2026-11-25",
    "prev": 2.79,
-   "value": 2.79
+   "value": 2.73
   },
   "silver": {
    "asof": "2026-11-27 13:32 UTC",
@@ -548,7 +548,7 @@
    },
    {
     "icon": "!",
-    "text": "AI-linked companies are in real trouble \u2014 Oracle is down 58% from its peak. If their debts start failing, the Fed would be forced to cut rates, which would send gold sharply higher. Watch this.",
+    "text": "AI-linked companies are in real trouble \u2014 Oracle is down 57% from its peak. If their debts start failing, the Fed would be forced to cut rates, which would send gold sharply higher. Watch this.",
     "tone": "bull"
    },
    {
@@ -701,7 +701,7 @@
    "key": "dgs30",
    "label": "30-year Treasury",
    "tone": "neutral",
-   "value": "5.30%",
+   "value": "5.24%",
    "verdict": "5.15\u20135.50% \u2014 elevated but contained",
    "weights": {}
   },
@@ -709,7 +709,7 @@
    "key": "real10",
    "label": "10y real yield",
    "tone": "neutral",
-   "value": "2.79%",
+   "value": "2.73%",
    "verdict": "2.5\u20133.0% \u2014 still a real headwind",
    "weights": {
     "A": 0.3
@@ -729,7 +729,7 @@
    "key": "ndx",
    "label": "Nasdaq 100 drawdown",
    "tone": "neutral",
-   "value": "-16.6% from peak",
+   "value": "-14.4% from peak",
    "verdict": "\u221212% to \u221220% \u2014 correction, not yet systemic",
    "weights": {
     "B": 0.3
@@ -739,7 +739,7 @@
    "key": "orcl",
    "label": "Oracle drawdown (credit proxy)",
    "tone": "bull",
-   "value": "-58.1% from peak",
+   "value": "-56.8% from peak",
    "verdict": "Deeper than \u221255% \u2014 market pricing real default risk",
    "weights": {
     "B": 1.6

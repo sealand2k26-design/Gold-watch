@@ -183,7 +183,7 @@
    }
   ]
  },
- "generated": "2026-11-28 18:26:22 UTC",
+ "generated": "2026-11-28 18:26:25 UTC",
  "indicators": {
   "brent": {
    "asof": "2026-11-27 19:44 UTC",
@@ -234,7 +234,7 @@
    "value": 3.88
   },
   "fxlive": {
-   "asof": "2026-11-28T18:26:17Z",
+   "asof": "2026-11-28T18:26:23Z",
    "inr": 92.9761,
    "n_ok": 3,
    "n_tried": 3,
@@ -252,12 +252,12 @@
     },
     {
      "name": "Currency-API",
-     "price": 92.98,
+     "price": 92.8493,
      "used": true
     }
    ],
-   "spread": 0.0239,
-   "spread_pct": 0.026
+   "spread": 0.1507,
+   "spread_pct": 0.162
   },
   "gld": {
    "asof": "2026-11-27 18:00 UTC",
@@ -488,7 +488,7 @@
   },
   "published": {
    "india": {
-    "asof": "2026-11-28T18:26:19Z",
+    "asof": "2026-11-28T18:26:25Z",
     "karats": {
      "21k": {
       "n": 1,
@@ -511,7 +511,7 @@
     ]
    },
    "ksa": {
-    "asof": "2026-11-28T18:26:19Z",
+    "asof": "2026-11-28T18:26:25Z",
     "karats": {
      "18k": {
       "n": 1,
@@ -556,7 +556,7 @@
    "trough": 40.051998138427734
   },
   "spot": {
-   "asof": "2026-11-28T18:26:17Z",
+   "asof": "2026-11-28T18:26:23Z",
    "n_ok": 2,
    "n_tried": 2,
    "price": 3651.74,
@@ -576,7 +576,7 @@
    "spread_usd": 3.49
   },
   "spotchg": {
-   "asof": "2026-11-28T18:26:17Z",
+   "asof": "2026-11-28T18:26:23Z",
    "change_pct": -0.22
   },
   "usdinr": {
@@ -602,7 +602,7 @@
   "basis": "spot",
   "futures_usd_oz": 3668.5,
   "fx": {
-   "inr_asof": "2026-11-28T18:26:17Z",
+   "inr_asof": "2026-11-28T18:26:23Z",
    "usdinr": 92.9761,
    "usdsar": 3.75,
    "usdsar_market": 3.7512
@@ -669,7 +669,7 @@
    {
     "currency": "INR",
     "fx_label": "1 USD = 92.98 INR",
-    "fx_rate": 92.98,
+    "fx_rate": 92.976,
     "grams": 1,
     "key": "india",
     "label": "India",
@@ -679,8 +679,8 @@
     "rows": [
      {
       "basis": "published",
-      "computed": 10916.43,
-      "gap_pct": 0.359,
+      "computed": 10915.97,
+      "gap_pct": 0.363,
       "karat": "24k",
       "n_sources": 1,
       "purity": 1.0,
@@ -690,8 +690,8 @@
      },
      {
       "basis": "published",
-      "computed": 10006.72,
-      "gap_pct": 0.286,
+      "computed": 10006.3,
+      "gap_pct": 0.29,
       "karat": "22k",
       "n_sources": 1,
       "purity": 0.9166666666666666,
@@ -704,7 +704,7 @@
    }
   ],
   "next_buy": {
-   "india_10g_24k": 103133.49,
+   "india_10g_24k": 103129.16,
    "ksa_gram_24k": 415.95,
    "usd_oz": 3450.0
   },

@@ -182,6 +182,68 @@ def local_block(snap):
     )
 
 
+SOURCE_OF = {
+    "spot":     ("Spot gold (XAU/USD)",        "gold-api.com, live"),
+    "gold":     ("Gold futures (COMEX GC=F)",  "Yahoo Finance"),
+    "usdsar":   ("US dollar / Saudi riyal",    "Yahoo Finance"),
+    "usdinr":   ("US dollar / Indian rupee",   "Yahoo Finance"),
+    "brent":    ("Brent crude oil",            "Yahoo Finance"),
+    "dxy":      ("US dollar index",            "Yahoo Finance"),
+    "silver":   ("Silver",                     "Yahoo Finance"),
+    "ndx":      ("Nasdaq 100",                 "Yahoo Finance"),
+    "orcl":     ("Oracle share price",         "Yahoo Finance"),
+    "nvda":     ("Nvidia share price",         "Yahoo Finance"),
+    "core_pce": ("US core inflation",          "US Federal Reserve (FRED)"),
+    "real10":   ("10-year real yield",         "US Federal Reserve (FRED)"),
+    "dgs30":    ("30-year Treasury yield",     "US Federal Reserve (FRED)"),
+    "dgs10":    ("10-year Treasury yield",     "US Federal Reserve (FRED)"),
+    "fedfunds": ("Fed funds rate",             "US Federal Reserve (FRED)"),
+}
+
+
+def sources_block(snap):
+    """Every number with its own timestamp, so nobody has to be trusted."""
+    ind = snap.get("indicators") or {}
+    rows = []
+    for key, (label, src) in SOURCE_OF.items():
+        v = ind.get(key) or {}
+        val = v.get("price", v.get("value"))
+        asof = v.get("asof")
+        if val is None or not asof:
+            continue
+        rows.append(
+            '<tr>'
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee">%s</td>'
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;'
+            'font-family:ui-monospace,Menlo,monospace">%s</td>'
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;'
+            'font-size:11.5px">%s</td>'
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;'
+            'font-size:11.5px">%s</td></tr>'
+            % (e(label), e(val), e(str(asof)[:16].replace("T", " ")), e(src))
+        )
+    if not rows:
+        return ""
+    return (
+        '<h2 style="font-size:19px;margin:0 0 4px">Where these numbers come from</h2>'
+        '<div style="color:#777;font-size:12.5px;margin-bottom:10px">'
+        'Each figure carries the moment it was published. Check any of them yourself - '
+        'you should not have to take this page on trust. '
+        '<b>Markets close at weekends</b>, so on a Saturday or Sunday the share and futures '
+        'timestamps correctly show Friday.</div>'
+        '<table style="width:100%%;border-collapse:collapse;font-size:13px;margin-bottom:26px">'
+        '<tr><th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;'
+        'text-transform:uppercase;letter-spacing:.8px">What</th>'
+        '<th style="text-align:right;padding:4px 8px;font-size:10.5px;color:#999;'
+        'text-transform:uppercase;letter-spacing:.8px">Value</th>'
+        '<th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;'
+        'text-transform:uppercase;letter-spacing:.8px">Published</th>'
+        '<th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;'
+        'text-transform:uppercase;letter-spacing:.8px">Source</th></tr>'
+        '%s</table>' % "".join(rows)
+    )
+
+
 def render(snap, news):
     """Turn one snapshot + news bundle into a standalone HTML page."""
     ind = snap["indicators"]
@@ -373,6 +435,8 @@ def render(snap, news):
   </div>
   <table style="width:100%%;border-collapse:collapse;max-width:330px;margin-bottom:30px;font-size:14px">%(path)s</table>
 
+  %(sources)s
+
   <h2 style="font-size:19px;margin:0 0 10px">Latest from the Fed</h2>
   <ul style="padding-left:20px;font-size:13.5px;margin-bottom:22px">%(fed)s</ul>
 
@@ -397,6 +461,7 @@ def render(snap, news):
         "atext": e(act.get("text", "")),
         "plan": plan_block(gold.get("price")),
         "local": local_block(snap),
+        "sources": sources_block(snap),
         "headline": e(plain.get("headline", "")),
         "lines": lines,
         "scen": scen_rows,

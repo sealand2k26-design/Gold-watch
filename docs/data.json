@@ -183,7 +183,7 @@
    }
   ]
  },
- "generated": "2026-11-28 16:50:58 UTC",
+ "generated": "2026-11-28 16:56:08 UTC",
  "indicators": {
   "brent": {
    "asof": "2026-11-27 19:44 UTC",
@@ -475,6 +475,10 @@
    "price": 43.702,
    "trough": 40.051998138427734
   },
+  "spot": {
+   "asof": "2026-11-28T16:55:56Z",
+   "price": 3650.0
+  },
   "usdinr": {
    "asof": "2026-11-28 03:30 UTC",
    "change_pct": 0.6004,
@@ -495,6 +499,8 @@
   }
  },
  "local": {
+  "basis": "spot",
+  "futures_usd_oz": 3668.5,
   "fx": {
    "usdinr": 92.99,
    "usdsar": 3.7512
@@ -506,33 +512,33 @@
     "fx_rate": 3.7512,
     "key": "ksa",
     "label": "Saudi Arabia",
-    "note": "Investment bars and coins 99.5%+ are VAT-zero-rated. Jewellery is not - you pay 15% VAT plus a making charge you cannot resell.",
+    "note": "The left column is the benchmark Saudi shops price off. Investment bars and coins 99.5%+ are VAT-zero-rated; jewellery is not - you pay 15% VAT plus a making charge you cannot resell.",
     "premium_label": "typical dealer premium",
     "premium_pct": 2.0,
     "rows": [
      {
       "karat": "24k",
       "purity_pct": 100.0,
-      "raw": 442.44,
-      "with_premium": 451.28
+      "raw": 440.2,
+      "with_premium": 449.01
      },
      {
       "karat": "22k",
       "purity_pct": 91.7,
-      "raw": 405.57,
-      "with_premium": 413.68
+      "raw": 403.52,
+      "with_premium": 411.59
      },
      {
       "karat": "21k",
       "purity_pct": 87.5,
-      "raw": 387.13,
-      "with_premium": 394.87
+      "raw": 385.18,
+      "with_premium": 392.88
      },
      {
       "karat": "18k",
       "purity_pct": 75.0,
-      "raw": 331.83,
-      "with_premium": 338.46
+      "raw": 330.15,
+      "with_premium": 336.76
      }
     ],
     "unit": "per gram"
@@ -543,21 +549,21 @@
     "fx_rate": 92.99,
     "key": "india",
     "label": "India",
-    "note": "Indian retail sits above the world price: roughly 6% import duty plus 3% GST. Jewellers add making charges on top.",
+    "note": "Indian retail sits well above the world price: 6% import duty, 3% GST, plus the local market premium. Jewellers add making charges on top of that.",
     "premium_label": "import duty + GST",
-    "premium_pct": 9.0,
+    "premium_pct": 14.5,
     "rows": [
      {
       "karat": "24k",
       "purity_pct": 100.0,
-      "raw": 109677.07,
-      "with_premium": 119548.0
+      "raw": 109123.97,
+      "with_premium": 124946.95
      },
      {
       "karat": "22k",
       "purity_pct": 91.7,
-      "raw": 100537.31,
-      "with_premium": 109585.67
+      "raw": 100030.31,
+      "with_premium": 114534.7
      }
     ],
     "unit": "per 10 grams"
@@ -568,7 +574,7 @@
    "ksa_gram_24k": 416.08,
    "usd_oz": 3450.0
   },
-  "world_usd_oz": 3668.5
+  "world_usd_oz": 3650.0
  },
  "manual": {
   "cb_buying_tonnes_q": {

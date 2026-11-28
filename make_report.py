@@ -175,9 +175,10 @@ def local_block(snap):
     return (
         '<h2 style="font-size:19px;margin:0 0 4px">What it costs where you are</h2>'
         '<div style="color:#777;font-size:12.5px;margin-bottom:12px">'
-        'Converted from the live <b>spot</b> gold price ($%s an ounce) - the benchmark shops price off, '
-        'not the futures contract quoted at the top of this page.</div>' % format(loc.get("world_usd_oz", 0), ",.2f")
-        '%s%s' % ("".join(cards), target)
+        'Converted from the live <b>spot</b> gold price ($%s an ounce) - the benchmark shops '
+        'price off, not the futures contract quoted at the top of this page.</div>'
+        '%s%s'
+        % (format(loc.get("world_usd_oz", 0), ",.2f"), "".join(cards), target)
     )
 
 

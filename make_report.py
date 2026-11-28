@@ -216,34 +216,73 @@ def local_block(snap):
 
 
 SOURCE_OF = {
-    "spot":     ("Spot gold (XAU/USD)",        "median of 3 feeds, live"),
-    "gold":     ("Gold futures (COMEX GC=F)",  "Yahoo Finance"),
-    "usdsar":   ("US dollar / Saudi riyal",    "Yahoo Finance"),
-    "usdinr":   ("US dollar / Indian rupee",   "Yahoo Finance"),
-    "brent":    ("Brent crude oil",            "Yahoo Finance"),
-    "dxy":      ("US dollar index",            "Yahoo Finance"),
-    "silver":   ("Silver",                     "Yahoo Finance"),
-    "ndx":      ("Nasdaq 100",                 "Yahoo Finance"),
-    "orcl":     ("Oracle share price",         "Yahoo Finance"),
-    "nvda":     ("Nvidia share price",         "Yahoo Finance"),
-    "core_pce": ("US core inflation",          "US Federal Reserve (FRED)"),
-    "real10":   ("10-year real yield",         "US Federal Reserve (FRED)"),
-    "dgs30":    ("30-year Treasury yield",     "US Federal Reserve (FRED)"),
-    "dgs10":    ("10-year Treasury yield",     "US Federal Reserve (FRED)"),
-    "fedfunds": ("Fed funds rate",             "US Federal Reserve (FRED)"),
+    "spot":     ("Spot gold (XAU/USD)",        "", "market24"),
+    "gold":     ("Gold futures (COMEX GC=F)",  "Yahoo Finance", "market"),
+    "spotchg":  ("Gold move since midnight",   "Kraken, 24-hour market", "market24"),
+    "brent":    ("Brent crude oil",            "Yahoo Finance", "market"),
+    "dxy":      ("US dollar index",            "Yahoo Finance", "market"),
+    "silver":   ("Silver",                     "Yahoo Finance", "market"),
+    "ndx":      ("Nasdaq 100",                 "Yahoo Finance", "market"),
+    "gld":      ("GLD gold ETF",               "Yahoo Finance", "market"),
+    "orcl":     ("Oracle share price",         "Yahoo Finance", "market"),
+    "nvda":     ("Nvidia share price",         "Yahoo Finance", "market"),
+    "dgs30":    ("30-year Treasury yield",     "US Federal Reserve (FRED)", "fred"),
+    "dgs10":    ("10-year Treasury yield",     "US Federal Reserve (FRED)", "fred"),
+    "dgs2":     ("2-year Treasury yield",      "US Federal Reserve (FRED)", "fred"),
+    "real10":   ("10-year real yield",         "US Federal Reserve (FRED)", "fred"),
+    "fedfunds": ("Fed funds rate",             "US Federal Reserve (FRED)", "fred"),
+    "core_pce": ("US core inflation",          "US Federal Reserve (FRED)", "monthly"),
 }
 
 
-def sources_block(snap):
-    """Every number with its own timestamp, so nobody has to be trusted."""
-    ind = snap.get("indicators") or {}
-    rows = []
-    for key, (label, src) in SOURCE_OF.items():
-        v = ind.get(key) or {}
-        val = v.get("price", v.get("value"))
-        asof = v.get("asof")
-        if val is None or not asof:
+def _age_hours(stamp):
+    """Hours since a timestamp, whatever shape it arrived in."""
+    t = str(stamp or "").strip()
+    for fmt in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d %H:%M UTC", "%Y-%m-%dT%H:%M:%S",
+                "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
+        try:
+            dt = datetime.strptime(t[:len(datetime.now().strftime(fmt))], fmt)
+            return (datetime.utcnow() - dt).total_seconds() / 3600.0
+        except Exception:                                  # noqa: BLE001
             continue
+    return None
+
+
+def _freshness(kind, hrs):
+    """Say in plain words why a number carries the timestamp it does."""
+    if hrs is None:
+        return ("&mdash;", "#999")
+    if hrs < 2:
+        return ("live", "#2f9e44")
+    if kind == "market24":
+        return ("%.0fh ago" % hrs, "#e8a33d" if hrs > 6 else "#2f9e44")
+    if kind == "market":
+        if hrs < 26:
+            return ("last close", "#2f9e44")
+        return ("market shut since Friday", "#2f9e44" if hrs < 80 else "#e8a33d")
+    if kind == "fred":
+        return ("latest FRED has", "#2f9e44" if hrs < 120 else "#e8a33d")
+    if kind == "monthly":
+        return ("monthly release", "#2f9e44" if hrs < 1500 else "#e8a33d")
+    return ("%.0fh ago" % hrs, "#999")
+
+
+def sources_block(snap):
+    """Every number on the page, with its own timestamp, source and freshness.
+
+    Built from the data itself rather than a hand-kept list, so a row can never
+    quietly go missing again when an indicator changes shape.
+    """
+    ind = snap.get("indicators") or {}
+    loc = snap.get("local") or {}
+    rows, oldest, oldest_name = [], 0.0, ""
+
+    def add(label, val, stamp, src, kind):
+        nonlocal oldest, oldest_name
+        hrs = _age_hours(stamp)
+        tag, colour = _freshness(kind, hrs)
+        if hrs is not None and kind in ("market24", "market") and hrs > oldest:
+            oldest, oldest_name = hrs, label
         rows.append(
             '<tr>'
             '<td style="padding:6px 8px;border-bottom:1px solid #eee">%s</td>'
@@ -251,29 +290,74 @@ def sources_block(snap):
             'font-family:ui-monospace,Menlo,monospace">%s</td>'
             '<td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;'
             'font-size:11.5px">%s</td>'
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;font-size:11.5px;'
+            'color:%s">%s</td>'
             '<td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;'
             'font-size:11.5px">%s</td></tr>'
-            % (e(label), e(val), e(str(asof)[:16].replace("T", " ")), e(src))
+            % (e(label), e(val), e(str(stamp or "-")[:16].replace("T", " ")),
+               colour, tag, e(src))
         )
+
+    for key, (label, src, kind) in SOURCE_OF.items():
+        v = ind.get(key) or {}
+        if key == "spotchg":
+            val = v.get("change_pct")
+            val = ("%+.2f%%" % val) if val is not None else None
+        else:
+            val = v.get("price", v.get("value"))
+        stamp = v.get("asof") or v.get("date")
+        if val is None or not stamp:
+            continue
+        if key == "spot":
+            src = "median of %s independent feeds" % (v.get("n_ok") or "?")
+        add(label, val, stamp, src, kind)
+
+    # the exchange rates actually used, not the ones merely fetched
+    fx = loc.get("fx") or {}
+    fxl = ind.get("fxlive") or {}
+    if fx.get("usdsar"):
+        add("US dollar / Saudi riyal", fx["usdsar"], "fixed by SAMA",
+            "official peg - what Saudi gold shops price off", "peg")
+    if fx.get("usdinr"):
+        add("US dollar / Indian rupee", round(fx["usdinr"], 4),
+            fxl.get("asof") or "-", "median of %s feeds" % (fxl.get("n_ok") or "?"), "market24")
+
+    # the published local rate tables the page now reads directly
+    pub = ind.get("published") or {}
+    for mkey, mlabel in (("ksa", "Saudi 24k, per gram"), ("india", "India 24k, per gram")):
+        blk = pub.get(mkey) or {}
+        k = (blk.get("karats") or {}).get("24k") or {}
+        if k.get("value"):
+            add(mlabel, format(k["value"], ",.2f"), blk.get("asof"),
+                ", ".join(blk.get("sources") or []) or "local price sites", "market24")
+
     if not rows:
         return ""
+
+    note = ("Every figure above carries the moment it was published and the freshness is "
+            "spelled out, so nothing here has to be taken on trust. ")
+    if oldest > 26:
+        note += ("The market numbers show Friday because the exchanges are shut for the "
+                 "weekend - that is correct, not stuck. ")
+    note += ("Treasury yields come from the Federal Reserve, which publishes with a lag and "
+             "skipped the Thanksgiving holiday; inflation is a monthly release.")
+
     return (
         '<h2 style="font-size:19px;margin:0 0 4px">Where these numbers come from</h2>'
-        '<div style="color:#777;font-size:12.5px;margin-bottom:10px">'
-        'Each figure carries the moment it was published. Check any of them yourself - '
-        'you should not have to take this page on trust. '
-        '<b>Markets close at weekends</b>, so on a Saturday or Sunday the share and futures '
-        'timestamps correctly show Friday.</div>'
+        '<div style="color:#777;font-size:12.5px;margin-bottom:10px">%s</div>'
         '<table style="width:100%%;border-collapse:collapse;font-size:13px;margin-bottom:26px">'
-        '<tr><th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;'
+        '<tr>'
+        '<th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;'
         'text-transform:uppercase;letter-spacing:.8px">What</th>'
         '<th style="text-align:right;padding:4px 8px;font-size:10.5px;color:#999;'
         'text-transform:uppercase;letter-spacing:.8px">Value</th>'
         '<th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;'
         'text-transform:uppercase;letter-spacing:.8px">Published</th>'
         '<th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;'
+        'text-transform:uppercase;letter-spacing:.8px">State</th>'
+        '<th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;'
         'text-transform:uppercase;letter-spacing:.8px">Source</th></tr>'
-        '%s</table>' % "".join(rows)
+        '%s</table>' % (note, "".join(rows))
     )
 
 
@@ -345,7 +429,7 @@ def live_block(snap):
                          "calSar22": cal_sar22, "calInr22": cal_inr22, "inrUnitG": 1,
                          "adjFx": adj_fx, "adjGa": adj_ga})
 
-    return """
+    return ("""
 <div id="lvBox" style="border:1px solid #e3e3e3;border-left:4px solid #c9a227;border-radius:8px;
      padding:14px 16px;margin:0 0 22px;background:#fffdf7">
   <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px">
@@ -355,15 +439,15 @@ def live_block(snap):
               background:#2f9e44;margin-right:6px"></span>LIVE NOW
       </div>
       <div style="font-size:30px;font-weight:800;color:#1a1a1a;line-height:1.15;
-           font-family:ui-monospace,Menlo,monospace" id="lvPrice">&mdash;</div>
-      <div style="font-size:12.5px;margin-top:2px" id="lvChg">connecting&hellip;</div>
+           font-family:ui-monospace,Menlo,monospace" id="lvPrice">$PREFILL_USD</div>
+      <div style="font-size:12.5px;margin-top:2px" id="lvChg"><span style="color:#888">connecting to the live feed&hellip;</span></div>
     </div>
     <div style="text-align:right;font-size:12.5px;color:#555;line-height:1.75">
-      <div><b id="lvSar">&mdash;</b> <span style="color:#777">SAR / gram 24k</span></div>
-      <div><b id="lvSar22">&mdash;</b> <span style="color:#777">SAR / gram 22k</span></div>
+      <div><b id="lvSar">PREFILL_SAR</b> <span style="color:#777">SAR / gram 24k</span></div>
+      <div><b id="lvSar22">PREFILL_SAR22</b> <span style="color:#777">SAR / gram 22k</span></div>
       <div style="height:6px"></div>
-      <div><b id="lvInr">&mdash;</b> <span style="color:#777">INR / gram 24k</span></div>
-      <div><b id="lvInr22">&mdash;</b> <span style="color:#777">INR / gram 22k</span></div>
+      <div><b id="lvInr">PREFILL_INR</b> <span style="color:#777">INR / gram 24k</span></div>
+      <div><b id="lvInr22">PREFILL_INR22</b> <span style="color:#777">INR / gram 22k</span></div>
       <div style="color:#999;font-size:11px;margin-top:3px" id="lvTime"></div>
     </div>
   </div>
@@ -478,6 +562,11 @@ def live_block(snap):
 })();
 </script>
 """.replace("CONFIG_JSON", cfg_js)
+             .replace("PREFILL_USD", format(base, ",.2f"))
+             .replace("PREFILL_SAR22", format(base / 31.1034768 * sar * (22.0 / 24.0) * cal_sar22, ",.2f"))
+             .replace("PREFILL_SAR", format(base / 31.1034768 * sar * cal_sar, ",.2f"))
+             .replace("PREFILL_INR22", format(base / 31.1034768 * (inr or 0) * (22.0 / 24.0) * cal_inr22, ",.0f"))
+             .replace("PREFILL_INR", format(base / 31.1034768 * (inr or 0) * cal_inr, ",.0f")))
 
 
 def accuracy_block(snap):
@@ -966,10 +1055,15 @@ def render(snap, news):
     def feed(items, n=5):
         out = []
         for it in items[:n]:
+            title, link = e(it.get("title", "")), (it.get("link") or "").strip()
+            if link.startswith("http"):
+                title = ('<a href="%s" target="_blank" rel="noopener noreferrer" '
+                         'style="color:#1a1a1a;text-decoration:none;border-bottom:1px solid #d8d8d8">'
+                         '%s</a>' % (e(link), title))
             out.append(
                 '<li style="margin-bottom:7px;line-height:1.45">%s'
                 '<span style="color:#999;font-size:11.5px"> &middot; %s</span></li>'
-                % (e(it.get("title", "")), e((it.get("published") or "")[:22]))
+                % (title, e((it.get("published") or "")[:22]))
             )
         return "".join(out) or '<li style="color:#999">none returned</li>'
 
@@ -1086,7 +1180,7 @@ def render(snap, news):
 </div>
 """ % {
         "stamp": now.strftime("%d %b %Y, %H:%M UTC"),
-        "price": money(headline),
+        "price": ("$%s" % format(headline, ",.2f")) if headline else "-",
         "chg": chg_txt,
         "chgcol": "#2f9e44" if chg_val >= 0 else "#d6336c",
         "asof": e(asof_txt),

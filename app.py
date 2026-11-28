@@ -832,6 +832,7 @@ def local_prices(indicators, cfg):
             res.append({
                 "karat": "%dk" % k,
                 "purity_pct": round(purity * 100, 1),
+                "purity": purity,
                 "raw": round(base, 2),
                 "with_premium": round(base * (1 + premium_pct / 100.0), 2),
             })

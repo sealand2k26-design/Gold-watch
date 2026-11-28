@@ -183,7 +183,7 @@
    }
   ]
  },
- "generated": "2026-11-28 17:11:40 UTC",
+ "generated": "2026-11-28 17:14:57 UTC",
  "indicators": {
   "brent": {
    "asof": "2026-11-27 19:44 UTC",
@@ -476,7 +476,7 @@
    "trough": 40.051998138427734
   },
   "spot": {
-   "asof": "2026-11-28T17:11:26Z",
+   "asof": "2026-11-28T17:14:56Z",
    "price": 3650.0
   },
   "usdinr": {
@@ -518,24 +518,28 @@
     "rows": [
      {
       "karat": "24k",
+      "purity": 1.0,
       "purity_pct": 100.0,
       "raw": 440.2,
       "with_premium": 449.01
      },
      {
       "karat": "22k",
+      "purity": 0.9166666666666666,
       "purity_pct": 91.7,
       "raw": 403.52,
       "with_premium": 411.59
      },
      {
       "karat": "21k",
+      "purity": 0.875,
       "purity_pct": 87.5,
       "raw": 385.18,
       "with_premium": 392.88
      },
      {
       "karat": "18k",
+      "purity": 0.75,
       "purity_pct": 75.0,
       "raw": 330.15,
       "with_premium": 336.76
@@ -555,12 +559,14 @@
     "rows": [
      {
       "karat": "24k",
+      "purity": 1.0,
       "purity_pct": 100.0,
       "raw": 109123.97,
       "with_premium": 124946.95
      },
      {
       "karat": "22k",
+      "purity": 0.9166666666666666,
       "purity_pct": 91.7,
       "raw": 100030.31,
       "with_premium": 114534.7

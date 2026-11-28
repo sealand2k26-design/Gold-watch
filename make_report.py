@@ -127,7 +127,7 @@ def local_block(snap):
         dp = 0 if grams == 10 else 2
         for r in m["rows"]:
             attrs = ('data-lv="1" data-fx="%s" data-g="%s" data-pur="%s" data-dp="%s"'
-                     % (m["fx_rate"], grams, r["purity_pct"] / 100.0, dp))
+                     % (m["fx_rate"], grams, r.get("purity", r["purity_pct"] / 100.0), dp))
             rows.append(
                 '<tr>'
                 '<td style="padding:7px 8px;border-bottom:1px solid #eee"><b>%s</b>'
@@ -271,7 +271,7 @@ def live_block(snap):
     if not base:
         return ""
 
-    cfg_js = json.dumps({"sar": sar, "inr": inr, "base": base, "oz": 31.1034768})
+    cfg_js = json.dumps({"sar": sar, "inr": inr, "base": base, "oz": 31.1034768, "k22": 22.0 / 24.0})
 
     return """
 <div id="lvBox" style="border:1px solid #e3e3e3;border-left:4px solid #c9a227;border-radius:8px;
@@ -287,9 +287,12 @@ def live_block(snap):
       <div style="font-size:12.5px;margin-top:2px" id="lvChg">connecting&hellip;</div>
     </div>
     <div style="text-align:right;font-size:12.5px;color:#555;line-height:1.75">
-      <div><b id="lvSar">&mdash;</b> SAR per gram 24k</div>
-      <div><b id="lvInr">&mdash;</b> INR per 10g 24k</div>
-      <div style="color:#999;font-size:11px" id="lvTime"></div>
+      <div><b id="lvSar">&mdash;</b> <span style="color:#777">SAR / gram 24k</span></div>
+      <div><b id="lvSar22">&mdash;</b> <span style="color:#777">SAR / gram 22k</span></div>
+      <div style="height:6px"></div>
+      <div><b id="lvInr">&mdash;</b> <span style="color:#777">INR / 10g 24k</span></div>
+      <div><b id="lvInr22">&mdash;</b> <span style="color:#777">INR / 10g 22k</span></div>
+      <div style="color:#999;font-size:11px;margin-top:3px" id="lvTime"></div>
     </div>
   </div>
   <svg id="lvSpark" width="100%" height="34" viewBox="0 0 300 34" preserveAspectRatio="none"
@@ -324,8 +327,14 @@ def live_block(snap):
     $('lvChg').innerHTML = '<span style="color:' + (up ? '#2f9e44' : '#d6336c') + ';font-weight:700">'
       + (up ? '\u25b2' : '\u25bc') + ' $' + f(Math.abs(d), 2) + ' (' + (up ? '+' : '-')
       + f(Math.abs(d / C.base * 100), 2) + '%)</span> <span style="color:#888">since this page was built</span>';
-    $('lvSar').textContent = f(p / C.oz * C.sar, 2);
-    if (C.inr) $('lvInr').textContent = f(p / C.oz * 10 * C.inr, 0);
+    var gSar = p / C.oz * C.sar;
+    $('lvSar').textContent = f(gSar, 2);
+    $('lvSar22').textContent = f(gSar * C.k22, 2);
+    if (C.inr){
+      var tInr = p / C.oz * 10 * C.inr;
+      $('lvInr').textContent = f(tInr, 0);
+      $('lvInr22').textContent = f(tInr * C.k22, 0);
+    }
 
     var cells = document.querySelectorAll('[data-lv]');
     for (var i = 0; i < cells.length; i++){

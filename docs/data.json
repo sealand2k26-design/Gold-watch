@@ -64,9 +64,9 @@
   },
   "dxy": {
    "base": 103.713,
-   "diff": 0.301,
-   "now": 104.014,
-   "pct": 0.29
+   "diff": 0.322,
+   "now": 104.035,
+   "pct": 0.31
   },
   "fedfunds": {
    "base": 3.88,
@@ -183,7 +183,7 @@
    }
   ]
  },
- "generated": "2026-11-28 17:01:50 UTC",
+ "generated": "2026-11-28 17:06:49 UTC",
  "indicators": {
   "brent": {
    "asof": "2026-11-27 19:44 UTC",
@@ -220,11 +220,11 @@
   },
   "dxy": {
    "asof": "2026-11-27 21:59 UTC",
-   "change_pct": 0.0,
-   "drawdown_pct": -0.29332792917886596,
+   "change_pct": 0.02,
+   "drawdown_pct": -0.2731975610218096,
    "peak": 104.31999969482422,
    "peak_date": "23 Nov 2026",
-   "price": 104.014,
+   "price": 104.035,
    "trough": 96.22000122070312
   },
   "fedfunds": {
@@ -476,7 +476,7 @@
    "trough": 40.051998138427734
   },
   "spot": {
-   "asof": "2026-11-28T17:01:26Z",
+   "asof": "2026-11-28T17:06:26Z",
    "price": 3650.0
   },
   "usdinr": {
@@ -819,7 +819,7 @@
    "key": "dxy",
    "label": "Dollar index",
    "tone": "neutral",
-   "value": "104.01",
+   "value": "104.03",
    "verdict": "101\u2013105 \u2014 strong, capping any gold rally",
    "weights": {
     "A": 0.3

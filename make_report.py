@@ -244,6 +244,113 @@ def sources_block(snap):
     )
 
 
+def live_block(snap):
+    """A ticker that keeps moving between hourly rebuilds.
+
+    The page itself is static - GitHub rebuilds it roughly hourly. But gold
+    never stops: tokenised gold (PAXG) trades 24/7, so its bid/ask moves even
+    on a Saturday when COMEX is shut. This block runs in the reader's browser,
+    polls two open feeds directly, and updates the number in front of them.
+
+    If either feed is unreachable the static numbers simply stay put - nothing
+    on the page breaks.
+    """
+    loc = snap.get("local") or {}
+    fx = loc.get("fx") or {}
+    sar = fx.get("usdsar") or 3.75
+    inr = fx.get("usdinr") or 0
+    base = loc.get("world_usd_oz") or (snap.get("indicators", {}).get("gold") or {}).get("price") or 0
+    if not base:
+        return ""
+
+    cfg_js = json.dumps({"sar": sar, "inr": inr, "base": base, "oz": 31.1034768})
+
+    return """
+<div id="lvBox" style="border:1px solid #e3e3e3;border-left:4px solid #c9a227;border-radius:8px;
+     padding:14px 16px;margin:0 0 22px;background:#fffdf7">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px">
+    <div>
+      <div style="font-size:10.5px;letter-spacing:1.8px;color:#8a7a3a;font-weight:700">
+        <span id="lvDot" style="display:inline-block;width:7px;height:7px;border-radius:50%;
+              background:#2f9e44;margin-right:6px"></span>LIVE NOW
+      </div>
+      <div style="font-size:30px;font-weight:800;color:#1a1a1a;line-height:1.15;
+           font-family:ui-monospace,Menlo,monospace" id="lvPrice">&mdash;</div>
+      <div style="font-size:12.5px;margin-top:2px" id="lvChg">connecting&hellip;</div>
+    </div>
+    <div style="text-align:right;font-size:12.5px;color:#555;line-height:1.75">
+      <div><b id="lvSar">&mdash;</b> SAR per gram 24k</div>
+      <div><b id="lvInr">&mdash;</b> INR per 10g 24k</div>
+      <div style="color:#999;font-size:11px" id="lvTime"></div>
+    </div>
+  </div>
+  <svg id="lvSpark" width="100%" height="34" viewBox="0 0 300 34" preserveAspectRatio="none"
+       style="margin-top:10px;display:block"><polyline id="lvLine" fill="none"
+       stroke="#c9a227" stroke-width="1.6" points=""></polyline></svg>
+  <div style="color:#888;font-size:11.5px;margin-top:6px" id="lvNote">
+    Tracks tokenised gold, which trades 24 hours a day - so it keeps moving at weekends
+    when the futures market is closed.
+  </div>
+</div>
+<script>
+(function(){
+  var C = CONFIG_JSON;
+  var $ = function(i){ return document.getElementById(i); };
+  var ticks = [], last = null;
+  function f(n, d){ return n.toLocaleString(undefined, {minimumFractionDigits:d, maximumFractionDigits:d}); }
+
+  function draw(){
+    if (ticks.length < 2) return;
+    var lo = Math.min.apply(null, ticks), hi = Math.max.apply(null, ticks);
+    var span = (hi - lo) || 1, n = ticks.length;
+    var pts = ticks.map(function(v, i){
+      return (i * (300 / (n - 1))).toFixed(1) + ',' + (31 - ((v - lo) / span) * 28).toFixed(1);
+    }).join(' ');
+    $('lvLine').setAttribute('points', pts);
+    $('lvLine').setAttribute('stroke', ticks[n-1] >= ticks[0] ? '#2f9e44' : '#d6336c');
+  }
+
+  function paint(p){
+    $('lvPrice').textContent = '$' + f(p, 2);
+    var d = p - C.base, up = d >= 0;
+    $('lvChg').innerHTML = '<span style="color:' + (up ? '#2f9e44' : '#d6336c') + ';font-weight:700">'
+      + (up ? '\u25b2' : '\u25bc') + ' $' + f(Math.abs(d), 2) + ' (' + (up ? '+' : '-')
+      + f(Math.abs(d / C.base * 100), 2) + '%)</span> <span style="color:#888">since this page was built</span>';
+    $('lvSar').textContent = f(p / C.oz * C.sar, 2);
+    if (C.inr) $('lvInr').textContent = f(p / C.oz * 10 * C.inr, 0);
+    $('lvTime').textContent = 'updated ' + new Date().toLocaleTimeString();
+    if (last !== null && p !== last){
+      var c = p > last ? '#2f9e44' : '#d6336c';
+      $('lvPrice').style.transition = 'none'; $('lvPrice').style.color = c;
+      setTimeout(function(){ $('lvPrice').style.transition = 'color 1.2s'; $('lvPrice').style.color = '#1a1a1a'; }, 60);
+    }
+    last = p;
+    ticks.push(p); if (ticks.length > 150) ticks.shift();
+    draw();
+  }
+
+  function fail(){
+    $('lvDot').style.background = '#d6336c';
+    $('lvChg').innerHTML = '<span style="color:#888">live feed unreachable - the figures below are still valid</span>';
+  }
+
+  function pull(){
+    fetch('https://api.kraken.com/0/public/Ticker?pair=PAXGUSD', {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        var k = Object.keys(j.result)[0], t = j.result[k];
+        var mid = (parseFloat(t.b[0]) + parseFloat(t.a[0])) / 2;
+        if (mid > 100) { $('lvDot').style.background = '#2f9e44'; paint(mid); }
+      })
+      .catch(fail);
+  }
+  pull();
+  setInterval(pull, 5000);
+})();
+</script>
+""".replace("CONFIG_JSON", cfg_js)
+
+
 def render(snap, news):
     """Turn one snapshot + news bundle into a standalone HTML page."""
     ind = snap["indicators"]
@@ -412,6 +519,8 @@ def render(snap, news):
     <div style="font-size:15.5px">%(atext)s</div>
   </div>
 
+  %(live)s
+
   %(plan)s
 
   %(local)s
@@ -459,6 +568,7 @@ def render(snap, news):
         "acol": acol,
         "alabel": e(act.get("label", "")),
         "atext": e(act.get("text", "")),
+        "live": live_block(snap),
         "plan": plan_block(gold.get("price")),
         "local": local_block(snap),
         "sources": sources_block(snap),

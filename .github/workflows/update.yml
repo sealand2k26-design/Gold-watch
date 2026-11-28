@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: write           # needed to commit the rebuilt page
+  issues: write             # needed to raise a price alert you get emailed about
 
 concurrency:
   group: update-site
@@ -35,11 +36,16 @@ jobs:
       - name: Build the page
         run: python3 build_site.py
 
+      - name: Check the alert levels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 alerts.py || echo "alert check failed, carrying on"
+
       - name: Commit if anything changed
         run: |
           git config user.name  "gold-bot"
           git config user.email "gold-bot@users.noreply.github.com"
-          git add docs/
+          git add docs/ alert_state.json
           if git diff --staged --quiet; then
             echo "no change this run"
           else

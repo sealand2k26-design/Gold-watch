@@ -1,230 +1,236 @@
 {
-  "forecast": {
-    "locked_on": "2026-11-27",
-    "key_bet": "Gold trades below $3,400 before it trades above $4,000 (70%)",
-    "invalidation": 3268,
-    "path": [
-      {
-        "date": "2026-11-27",
-        "gold": 3630,
-        "label": "Locked"
-      },
-      {
-        "date": "2026-12-09",
-        "gold": 3480,
-        "label": "FOMC"
-      },
-      {
-        "date": "2026-12-31",
-        "gold": 3500,
-        "label": "Year end"
-      },
-      {
-        "date": "2027-02-15",
-        "gold": 3280,
-        "label": "The low"
-      },
-      {
-        "date": "2027-03-31",
-        "gold": 3450,
-        "label": "Basing"
-      },
-      {
-        "date": "2027-06-30",
-        "gold": 3900,
-        "label": "Recovery"
-      },
-      {
-        "date": "2027-09-30",
-        "gold": 4150,
-        "label": "Run begins"
-      },
-      {
-        "date": "2027-12-31",
-        "gold": 4400,
-        "label": "Target"
-      }
-    ]
-  },
-  "thresholds": {
-    "brent_bear": 110,
-    "brent_bull": 85,
-    "core_pce_bear": 3.5,
-    "core_pce_bull": 2.8,
-    "dgs30_fiscal": 5.75,
-    "dxy_bull": 100,
-    "ndx_dd_credit": 30,
-    "oracle_cds_trigger": 400,
-    "gold_invalidation": 3268,
-    "real10_bear": 3.0
-  },
-  "manual": {
-    "oracle_cds_bp": {
-      "value": 304.0,
-      "asof": "2026-11-27",
-      "label": "Oracle 5y CDS",
-      "unit": "bp",
-      "note": "No free feed. Reported 288-320bp late Nov 2026. Trigger for scenario B is 400bp.",
-      "source": "press reports"
-    },
-    "coreweave_2031_yield": {
-      "value": 17.9,
-      "asof": "2026-11-26",
-      "label": "CoreWeave 2031 bond yield",
-      "unit": "%",
-      "note": "Weakest link in AI financing. Above 20% signals real distress.",
-      "source": "press reports"
-    },
-    "cb_buying_tonnes_q": {
-      "value": 321,
-      "asof": "2026-11-04",
-      "label": "Central bank buying, latest quarter",
-      "unit": "t",
-      "note": "Q3 2026, +42% YoY. WGC publishes quarterly. Below 250t and the floor thesis weakens.",
-      "source": "World Gold Council"
-    },
-    "gld_tonnes": {
-      "value": 1031,
-      "asof": "2026-11-24",
-      "label": "GLD holdings",
-      "unit": "t",
-      "note": "US ETF selling pressure. Stabilisation here lifts the ceiling.",
-      "source": "SPDR"
-    },
-    "fed_hike_odds_dec": {
-      "value": 98.0,
-      "asof": "2026-11-26",
-      "label": "Dec FOMC hike odds",
-      "unit": "%",
-      "note": "CME FedWatch. Fully priced means the hike itself moves nothing; guidance is the event.",
-      "source": "CME FedWatch"
-    }
-  },
-  "baseline": {
+ "forecast": {
+  "locked_on": "2026-11-27",
+  "key_bet": "Gold trades below $3,400 before it trades above $4,000 (70%)",
+  "invalidation": 3268,
+  "path": [
+   {
     "date": "2026-11-27",
-    "note": "Locked the day the forecast was made. Everything is measured against this.",
-    "values": {
-      "gold": 3675.3,
-      "silver": 44.43,
-      "brent": 92.5,
-      "dxy": 103.713,
-      "dgs30": 5.3,
-      "dgs10": 4.91,
-      "dgs2": 4.63,
-      "real10": 2.79,
-      "fedfunds": 3.88,
-      "core_pce": 3.26,
-      "ndx": -16.58178533225486,
-      "orcl": -58.13822181944786,
-      "nvda": -37.594049250986984
-    },
-    "posterior": {
-      "A": 30.5,
-      "B": 44.9,
-      "C": 18.2,
-      "D": 6.4
-    }
+    "gold": 3630,
+    "label": "Locked"
+   },
+   {
+    "date": "2026-12-09",
+    "gold": 3480,
+    "label": "FOMC"
+   },
+   {
+    "date": "2026-12-31",
+    "gold": 3500,
+    "label": "Year end"
+   },
+   {
+    "date": "2027-02-15",
+    "gold": 3280,
+    "label": "The low"
+   },
+   {
+    "date": "2027-03-31",
+    "gold": 3450,
+    "label": "Basing"
+   },
+   {
+    "date": "2027-06-30",
+    "gold": 3900,
+    "label": "Recovery"
+   },
+   {
+    "date": "2027-09-30",
+    "gold": 4150,
+    "label": "Run begins"
+   },
+   {
+    "date": "2027-12-31",
+    "gold": 4400,
+    "label": "Target"
+   }
+  ]
+ },
+ "thresholds": {
+  "brent_bear": 110,
+  "brent_bull": 85,
+  "core_pce_bear": 3.5,
+  "core_pce_bull": 2.8,
+  "dgs30_fiscal": 5.75,
+  "dxy_bull": 100,
+  "ndx_dd_credit": 30,
+  "oracle_cds_trigger": 400,
+  "gold_invalidation": 3268,
+  "real10_bear": 3.0
+ },
+ "manual": {
+  "oracle_cds_bp": {
+   "value": 304.0,
+   "asof": "2026-11-27",
+   "label": "Oracle 5y CDS",
+   "unit": "bp",
+   "note": "No free feed. Reported 288-320bp late Nov 2026. Trigger for scenario B is 400bp.",
+   "source": "press reports"
   },
-  "events": [
-    {
-      "date": "2026-11-29",
-      "label": "OPEC+ meeting",
-      "why": "Q1 2027 output targets. A cut lifts oil, hurts gold."
-    },
-    {
-      "date": "2026-12-09",
-      "label": "FOMC decision",
-      "why": "Hike is ~98% priced. The 2027 guidance is the event.",
-      "key": true
-    },
-    {
-      "date": "2026-12-10",
-      "label": "November CPI",
-      "why": "First read on whether oil pass-through is fading."
-    },
-    {
-      "date": "2026-12-19",
-      "label": "November core PCE",
-      "why": "Warsh's preferred gauge. Feeds straight into the engine."
-    },
-    {
-      "date": "2027-01-27",
-      "label": "FOMC decision",
-      "why": "~60% priced for a second hike. A vs C separates here.",
-      "key": true
-    },
-    {
-      "date": "2027-02-15",
-      "label": "Forecast low",
-      "why": "My locked call says gold bottoms near $3,280 around now.",
-      "key": true
-    }
-  ],
-  "plan": {
-    "who": "Retail saver - Eastern Province (Dammam / Khobar), Saudi Arabia",
-    "style": "Physical gold, bought in three parts. Not leveraged, not trading, not in a hurry.",
-    "tranches": [
-      {
-        "n": 1,
-        "status": "done",
-        "label": "First third",
-        "when": "27 Nov 2026",
-        "price": 3630,
-        "note": "Bought. Don't second-guess it - you are in the market."
-      },
-      {
-        "n": 2,
-        "status": "waiting",
-        "label": "Second third",
-        "trigger_low": 3400,
-        "trigger_high": 3450,
-        "note": "Buy on a drop to $3,400-3,450, or after the 9 Dec Fed meeting if it sells off."
-      },
-      {
-        "n": 3,
-        "status": "waiting",
-        "label": "Final third",
-        "trigger_low": 0,
-        "trigger_high": 0,
-        "note": "Q1 2027, or earlier if the Fed signals it has stopped raising rates."
-      }
-    ],
-    "rules": [
-      "Do not chase above $3,750. Paying up is how you turn a good plan into a bad one.",
-      "Stop buying entirely below $3,268. That level means the thesis was wrong - preserve the cash.",
-      "Missing a rally is not a loss. Buying the top is."
-    ],
-    "buying_notes": [
-      "Buy 999 bars or coins, not jewellery. Jewellery charges you for craftsmanship you cannot resell.",
-      "Investment-grade gold (99.5%+) is VAT-zero-rated in Saudi Arabia. Confirm it before paying - do not accept 15% VAT on investment bars.",
-      "Use established Dammam / Khobar dealers and keep every invoice. You need them to resell cleanly.",
-      "The riyal is pegged to the dollar, so the dollar price above is your price. There is no currency bet here."
-    ]
+  "coreweave_2031_yield": {
+   "value": 17.9,
+   "asof": "2026-11-26",
+   "label": "CoreWeave 2031 bond yield",
+   "unit": "%",
+   "note": "Weakest link in AI financing. Above 20% signals real distress.",
+   "source": "press reports"
   },
-  "local": {
-    "ksa": {
-      "label": "Saudi Arabia",
-      "currency": "SAR",
-      "unit": "per gram",
-      "karats": [
-        24,
-        22,
-        21,
-        18
-      ],
-      "dealer_premium_pct": 2.0,
-      "note": "The left column is the benchmark Saudi shops price off. Investment bars and coins 99.5%+ are VAT-zero-rated; jewellery is not - you pay 15% VAT plus a making charge you cannot resell."
-    },
-    "india": {
-      "label": "India",
-      "currency": "INR",
-      "unit": "per 10 grams",
-      "karats": [
-        24,
-        22
-      ],
-      "import_duty_gst_pct": 14.5,
-      "note": "Indian retail sits well above the world price: 6% import duty, 3% GST, plus the local market premium. Jewellers add making charges on top of that."
-    }
+  "cb_buying_tonnes_q": {
+   "value": 321,
+   "asof": "2026-11-04",
+   "label": "Central bank buying, latest quarter",
+   "unit": "t",
+   "note": "Q3 2026, +42% YoY. WGC publishes quarterly. Below 250t and the floor thesis weakens.",
+   "source": "World Gold Council"
+  },
+  "gld_tonnes": {
+   "value": 1031,
+   "asof": "2026-11-24",
+   "label": "GLD holdings",
+   "unit": "t",
+   "note": "US ETF selling pressure. Stabilisation here lifts the ceiling.",
+   "source": "SPDR"
+  },
+  "fed_hike_odds_dec": {
+   "value": 98.0,
+   "asof": "2026-11-26",
+   "label": "Dec FOMC hike odds",
+   "unit": "%",
+   "note": "CME FedWatch. Fully priced means the hike itself moves nothing; guidance is the event.",
+   "source": "CME FedWatch"
   }
+ },
+ "baseline": {
+  "date": "2026-11-27",
+  "note": "Locked the day the forecast was made. Everything is measured against this.",
+  "values": {
+   "gold": 3675.3,
+   "silver": 44.43,
+   "brent": 92.5,
+   "dxy": 103.713,
+   "dgs30": 5.3,
+   "dgs10": 4.91,
+   "dgs2": 4.63,
+   "real10": 2.79,
+   "fedfunds": 3.88,
+   "core_pce": 3.26,
+   "ndx": -16.58178533225486,
+   "orcl": -58.13822181944786,
+   "nvda": -37.594049250986984
+  },
+  "posterior": {
+   "A": 30.5,
+   "B": 44.9,
+   "C": 18.2,
+   "D": 6.4
+  }
+ },
+ "events": [
+  {
+   "date": "2026-11-29",
+   "label": "OPEC+ meeting",
+   "why": "Q1 2027 output targets. A cut lifts oil, hurts gold."
+  },
+  {
+   "date": "2026-12-09",
+   "label": "FOMC decision",
+   "why": "Hike is ~98% priced. The 2027 guidance is the event.",
+   "key": true
+  },
+  {
+   "date": "2026-12-10",
+   "label": "November CPI",
+   "why": "First read on whether oil pass-through is fading."
+  },
+  {
+   "date": "2026-12-19",
+   "label": "November core PCE",
+   "why": "Warsh's preferred gauge. Feeds straight into the engine."
+  },
+  {
+   "date": "2027-01-27",
+   "label": "FOMC decision",
+   "why": "~60% priced for a second hike. A vs C separates here.",
+   "key": true
+  },
+  {
+   "date": "2027-02-15",
+   "label": "Forecast low",
+   "why": "My locked call says gold bottoms near $3,280 around now.",
+   "key": true
+  }
+ ],
+ "plan": {
+  "who": "Retail saver - Eastern Province (Dammam / Khobar), Saudi Arabia",
+  "style": "Physical gold, bought in three parts. Not leveraged, not trading, not in a hurry.",
+  "tranches": [
+   {
+    "n": 1,
+    "status": "done",
+    "label": "First third",
+    "when": "27 Nov 2026",
+    "price": 3630,
+    "note": "Bought. Don't second-guess it - you are in the market."
+   },
+   {
+    "n": 2,
+    "status": "waiting",
+    "label": "Second third",
+    "trigger_low": 3400,
+    "trigger_high": 3450,
+    "note": "Buy on a drop to $3,400-3,450, or after the 9 Dec Fed meeting if it sells off."
+   },
+   {
+    "n": 3,
+    "status": "waiting",
+    "label": "Final third",
+    "trigger_low": 0,
+    "trigger_high": 0,
+    "note": "Q1 2027, or earlier if the Fed signals it has stopped raising rates."
+   }
+  ],
+  "rules": [
+   "Do not chase above $3,750. Paying up is how you turn a good plan into a bad one.",
+   "Stop buying entirely below $3,268. That level means the thesis was wrong - preserve the cash.",
+   "Missing a rally is not a loss. Buying the top is."
+  ],
+  "buying_notes": [
+   "Buy 999 bars or coins, not jewellery. Jewellery charges you for craftsmanship you cannot resell.",
+   "Investment-grade gold (99.5%+) is VAT-zero-rated in Saudi Arabia. Confirm it before paying - do not accept 15% VAT on investment bars.",
+   "Use established Dammam / Khobar dealers and keep every invoice. You need them to resell cleanly.",
+   "The riyal is pegged to the dollar, so the dollar price above is your price. There is no currency bet here."
+  ]
+ },
+ "local": {
+  "ksa": {
+   "label": "Saudi Arabia",
+   "currency": "SAR",
+   "unit": "per gram",
+   "karats": [
+    24,
+    22,
+    21,
+    18
+   ],
+   "dealer_premium_pct": 2.0,
+   "note": "The left column is the benchmark Saudi shops price off. Investment bars and coins 99.5%+ are VAT-zero-rated; jewellery is not - you pay 15% VAT plus a making charge you cannot resell."
+  },
+  "india": {
+   "label": "India",
+   "currency": "INR",
+   "unit": "per 10 grams",
+   "karats": [
+    24,
+    22
+   ],
+   "import_duty_gst_pct": 14.5,
+   "note": "Indian retail sits well above the world price: 6% import duty, 3% GST, plus the local market premium. Jewellers add making charges on top of that."
+  }
+ },
+ "alerts": {
+  "buy_second": 3450,
+  "invalidate": 3268,
+  "dont_chase": 3750,
+  "_note": "Levels the hourly robot watches. Change a number here on GitHub and the alarm changes with it."
+ }
 }

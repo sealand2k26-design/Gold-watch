@@ -1,6 +1,12 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Gold%20Watch%22%2C%22short_name%22%3A%22Gold%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%231a1a1a%22%2C%22start_url%22%3A%22.%22%7D">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='34' fill='%231a1a1a'/%3E%3Ctext x='96' y='128' font-size='104' font-family='Georgia,serif' font-weight='bold' text-anchor='middle' fill='%23c9a227'%3EAu%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='34' fill='%231a1a1a'/%3E%3Ctext x='96' y='128' font-size='104' font-family='Georgia,serif' font-weight='bold' text-anchor='middle' fill='%23c9a227'%3EAu%3C/text%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gold">
+<meta name="theme-color" content="#1a1a1a">
 <meta name="robots" content="noindex,nofollow">
 <meta http-equiv="refresh" content="900">
 <title>Gold - is it time to buy?</title>
@@ -19,7 +25,7 @@
     </div>
     <h1 style="margin:6px 0 4px;font-size:30px;letter-spacing:-.5px">Is it time to buy?</h1>
     <div style="color:#777;font-size:13px">
-      Last checked <b>28 Nov 2026, 17:24 UTC</b>. This page checks the market and rewrites itself
+      Last checked <b>28 Nov 2026, 17:31 UTC</b>. This page checks the market and rewrites itself
       about once an hour - you do not need to do anything. If that time stops moving
       forward for a day, something has broken.
     </div>
@@ -42,6 +48,27 @@
     <div style="font-size:26px;font-weight:800;color:#666;margin-bottom:10px;letter-spacing:-.4px">HOLD — NOTHING TO DO</div>
     <div style="font-size:15.5px">$3,668 is the normal range. If you have bought your first third, just wait. The next real decision point is the Fed meeting on 9 December.</div>
   </div>
+
+  
+<div id="stale" style="display:none;border:1px solid #f1c0c7;background:#fff5f6;border-radius:8px;
+     padding:11px 14px;margin:0 0 16px;font-size:13.5px;color:#9b2c3a"></div>
+<script>
+(function(){
+  var built = 1795887099 * 1000;
+  function check(){
+    var hrs = (Date.now() - built) / 3600000;
+    var el = document.getElementById('stale');
+    if (hrs > 3){
+      el.style.display = 'block';
+      el.innerHTML = '<b>This page has not refreshed for ' + hrs.toFixed(1) + ' hours.</b><br>'
+        + 'The hourly robot may be stuck. The live price box above is still correct because your '
+        + 'browser fetches that itself, but the analysis below is going stale.';
+    } else { el.style.display = 'none'; }
+  }
+  check(); setInterval(check, 60000);
+})();
+</script>
+
 
   
 <div id="lvBox" style="border:1px solid #e3e3e3;border-left:4px solid #c9a227;border-radius:8px;
@@ -76,7 +103,7 @@
 </div>
 <script>
 (function(){
-  var C = {"sar": 3.7512, "inr": 92.99, "base": 3653.49, "oz": 31.1034768, "k22": 0.9166666666666666, "basis": 11.51, "adjFx": -1.02, "adjGa": 3.49};
+  var C = {"sar": 3.7512, "inr": 92.99, "base": 3653.49, "oz": 31.1034768, "k22": 0.9166666666666666, "basis": 11.23, "adjFx": -1.02, "adjGa": 3.49};
   var $ = function(i){ return document.getElementById(i); };
   var ticks = [], last = null;
   function f(n, d){ return n.toLocaleString(undefined, {minimumFractionDigits:d, maximumFractionDigits:d}); }
@@ -106,6 +133,9 @@
       $('lvInr').textContent = f(tInr, 0);
       $('lvInr22').textContent = f(tInr * C.k22, 0);
     }
+
+    if (window.lvHooks){ for (var hk = 0; hk < window.lvHooks.length; hk++){
+      try { window.lvHooks[hk](p); } catch(e){} } }
 
     var cells = document.querySelectorAll('[data-lv]');
     for (var i = 0; i < cells.length; i++){
@@ -202,15 +232,125 @@
   </div>
   <table style="width:100%;border-collapse:collapse;max-width:330px;margin-bottom:30px;font-size:14px"><tr><td style="padding:7px 10px;border-bottom:1px solid #eee">2026-11-27</td><td style="padding:7px 10px;border-bottom:1px solid #eee;font-family:ui-monospace,Menlo,monospace;text-align:right">$3,630</td></tr><tr><td style="padding:7px 10px;border-bottom:1px solid #eee">2026-12-09</td><td style="padding:7px 10px;border-bottom:1px solid #eee;font-family:ui-monospace,Menlo,monospace;text-align:right">$3,480</td></tr><tr><td style="padding:7px 10px;border-bottom:1px solid #eee">2026-12-31</td><td style="padding:7px 10px;border-bottom:1px solid #eee;font-family:ui-monospace,Menlo,monospace;text-align:right">$3,500</td></tr><tr><td style="padding:7px 10px;border-bottom:1px solid #eee">2027-02-15</td><td style="padding:7px 10px;border-bottom:1px solid #eee;font-family:ui-monospace,Menlo,monospace;text-align:right">$3,280</td></tr><tr><td style="padding:7px 10px;border-bottom:1px solid #eee">2027-03-31</td><td style="padding:7px 10px;border-bottom:1px solid #eee;font-family:ui-monospace,Menlo,monospace;text-align:right">$3,450</td></tr><tr><td style="padding:7px 10px;border-bottom:1px solid #eee">2027-06-30</td><td style="padding:7px 10px;border-bottom:1px solid #eee;font-family:ui-monospace,Menlo,monospace;text-align:right">$3,900</td></tr><tr><td style="padding:7px 10px;border-bottom:1px solid #eee">2027-09-30</td><td style="padding:7px 10px;border-bottom:1px solid #eee;font-family:ui-monospace,Menlo,monospace;text-align:right">$4,150</td></tr><tr><td style="padding:7px 10px;border-bottom:1px solid #eee">2027-12-31</td><td style="padding:7px 10px;border-bottom:1px solid #eee;font-family:ui-monospace,Menlo,monospace;text-align:right">$4,400</td></tr></table>
 
+  
+<h2 style="font-size:19px;margin:26px 0 4px">What your gold is worth today
+  <span style="font-size:10.5px;letter-spacing:1.5px;color:#2f9e44;font-weight:700;
+        vertical-align:middle">&#9679; LIVE</span></h2>
+<div style="color:#666;font-size:13px;margin:0 0 10px">
+  You bought your first third on 27 Nov 2026 at about $3,630 an ounce, which was
+  <b>437.79 riyals a gram</b> for 24k. Type in how many grams you actually bought and this
+  works out the rest by itself.</div>
+<div style="border:1px solid #e3e3e3;border-radius:8px;padding:14px 16px;background:#fafafa">
+  <label style="font-size:13px;color:#555">Grams of 24k you hold
+    <input id="pgGrams" type="number" value="100" min="0" step="1"
+       style="width:92px;margin-left:8px;padding:5px 7px;border:1px solid #ccc;border-radius:5px;
+              font-size:14px;font-family:ui-monospace,Menlo,monospace">
+  </label>
+  <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:12px">
+    <tr><td style="padding:5px 0;color:#555">What you paid</td>
+        <td id="pgCost" style="padding:5px 0;text-align:right;
+            font-family:ui-monospace,Menlo,monospace">&mdash;</td></tr>
+    <tr><td style="padding:5px 0;color:#555">What it is worth now</td>
+        <td id="pgNow" style="padding:5px 0;text-align:right;
+            font-family:ui-monospace,Menlo,monospace">&mdash;</td></tr>
+    <tr><td style="padding:7px 0;border-top:1px solid #ddd"><b>Difference</b></td>
+        <td id="pgPnl" style="padding:7px 0;border-top:1px solid #ddd;text-align:right;
+            font-family:ui-monospace,Menlo,monospace;font-weight:700">&mdash;</td></tr>
+  </table>
+  <div style="color:#888;font-size:12px;margin-top:8px">
+    Metal value only, at the benchmark price. It ignores what the dealer charged you on top,
+    which you do not get back when you sell.</div>
+</div>
+<script>
+(function(){
+  var ENTRY = 437.79208631750134, oz = 31.1034768, fx = 3.7512;
+  window.lvHooks = window.lvHooks || [];
+  function f(n,d){ return n.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  var lastP = null;
+  function upd(p){
+    lastP = p;
+    var g = parseFloat(document.getElementById('pgGrams').value);
+    if (!(g >= 0)) g = 0;
+    var cost = ENTRY * g, now = p / oz * fx * g, d = now - cost;
+    document.getElementById('pgCost').textContent = f(cost,2) + ' SAR';
+    document.getElementById('pgNow').textContent  = f(now,2) + ' SAR';
+    var el = document.getElementById('pgPnl');
+    el.style.color = d >= 0 ? '#2f9e44' : '#d6336c';
+    el.textContent = (d >= 0 ? '+' : '-') + f(Math.abs(d),2) + ' SAR  ('
+                   + (d >= 0 ? '+' : '-') + f(Math.abs(cost ? d/cost*100 : 0),2) + '%)';
+  }
+  window.lvHooks.push(upd);
+  document.getElementById('pgGrams').addEventListener('input', function(){ if (lastP) upd(lastP); });
+})();
+</script>
+
+
+  
+<h2 style="font-size:19px;margin:26px 0 4px">Is the dealer&rsquo;s price fair?</h2>
+<div style="color:#666;font-size:13px;margin:0 0 10px">
+  In the shop, type in the price per gram they just quoted you and pick the karat.
+  This tells you how much over the metal you are being asked to pay, against the live
+  price this second.</div>
+<div style="border:1px solid #e3e3e3;border-radius:8px;padding:14px 16px;background:#fafafa">
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+    <label style="font-size:13px;color:#555">Quoted SAR per gram
+      <input id="dqPrice" type="number" value="" placeholder="e.g. 455" min="0" step="0.01"
+        style="width:110px;margin-left:8px;padding:6px 8px;border:1px solid #ccc;border-radius:5px;
+               font-size:15px;font-family:ui-monospace,Menlo,monospace"></label>
+    <label style="font-size:13px;color:#555">Karat
+      <select id="dqKarat" style="margin-left:6px;padding:6px 8px;border:1px solid #ccc;
+              border-radius:5px;font-size:14px">
+        <option value="24">24k</option><option value="22" selected>22k</option>
+        <option value="21">21k</option><option value="18">18k</option></select></label>
+  </div>
+  <div id="dqOut" style="margin-top:12px;font-size:14px;color:#888">
+    Enter a price to check it.</div>
+</div>
+<script>
+(function(){
+  var oz = 31.1034768, fx = 3.7512, live = null;
+  window.lvHooks = window.lvHooks || [];
+  function f(n,d){ return n.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  function calc(){
+    var out = document.getElementById('dqOut');
+    var q = parseFloat(document.getElementById('dqPrice').value);
+    var k = parseFloat(document.getElementById('dqKarat').value);
+    if (!live){ out.innerHTML = '<span style="color:#888">waiting for the live price&hellip;</span>'; return; }
+    if (!(q > 0)){ out.innerHTML = '<span style="color:#888">Enter a price to check it.</span>'; return; }
+    var bench = live / oz * fx * (k / 24);
+    var prem = (q / bench - 1) * 100;
+    var verdict, colour;
+    if (prem < 0)       { verdict = 'Below the metal price. Check the karat and the weight carefully.'; colour = '#e8a33d'; }
+    else if (prem <= 3) { verdict = 'Good. This is about as close to the metal as retail gets.'; colour = '#2f9e44'; }
+    else if (prem <= 6) { verdict = 'Fair for a small bar or coin. Worth asking for a little off.'; colour = '#2f9e44'; }
+    else if (prem <= 12){ verdict = 'High. Normal for jewellery, too much for a plain bar. Haggle or walk.'; colour = '#e8a33d'; }
+    else                { verdict = 'Very high. You are paying mostly for making charges, not gold.'; colour = '#d6336c'; }
+    out.innerHTML =
+      '<div style="font-size:13px;color:#555">Metal is worth <b>' + f(bench,2) + ' SAR/gram</b> at ' + k + 'k right now.</div>'
+      + '<div style="margin-top:4px;font-size:22px;font-weight:800;color:' + colour + '">'
+      + (prem >= 0 ? '+' : '') + f(prem,1) + '% over the metal</div>'
+      + '<div style="font-size:13px;color:#555;margin-top:2px">That is '
+      + (prem >= 0 ? '' : 'minus ') + f(Math.abs(q - bench),2) + ' SAR a gram'
+      + ' &middot; on 10 grams, ' + f(Math.abs(q - bench) * 10, 0) + ' SAR.</div>'
+      + '<div style="margin-top:7px;padding:8px 10px;border-left:3px solid ' + colour
+      + ';background:#fff;border-radius:0 5px 5px 0;font-size:13.5px">' + verdict + '</div>';
+  }
+  window.lvHooks.push(function(p){ live = p; calc(); });
+  document.getElementById('dqPrice').addEventListener('input', calc);
+  document.getElementById('dqKarat').addEventListener('change', calc);
+})();
+</script>
+
+
   <h2 style="font-size:19px;margin:26px 0 4px">How accurate is this right now</h2><div style="color:#666;font-size:13px;margin:0 0 10px">Three independent providers are asked for the gold price every single rebuild. If one rounds its number or freezes at a weekend value, it gets outvoted by the other two instead of being believed.</div><table style="width:100%;border-collapse:collapse;font-size:13.5px"><tr style="text-align:left;color:#888;font-size:11.5px;letter-spacing:.4px"><th style="padding:0 8px 5px">Provider</th><th style="padding:0 8px 5px;text-align:right">USD / ounce</th><th style="padding:0 8px 5px;text-align:right">SAR / gram 24k</th><th style="padding:0 8px 5px;text-align:right">&nbsp;</th></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Swissquote bank feed</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">$3,653.49</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">440.63</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;color:#2f9e44;font-size:12px">counted</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">FXRatesAPI</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">$3,654.51</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">440.75</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;color:#2f9e44;font-size:12px">counted</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">gold-api.com</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">$3,650.00</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">440.20</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;color:#2f9e44;font-size:12px">counted</td></tr></table><div style="margin-top:10px;padding:10px 12px;border-left:3px solid #2f9e44;background:#fafafa;border-radius:0 6px 6px 0;font-size:13px"><b style="color:#2f9e44">Feeds agree. The figure below is the middle one.</b><br><span style="color:#666">3 of 3 feeds answered &middot; widest disagreement <b>$4.51</b> an ounce = <b>54 halalas</b> a gram &middot; that is <b>0.123%</b>. A dealer&rsquo;s own margin is many times larger than this.</span></div>
 
-  <h2 style="font-size:19px;margin:0 0 4px">Where these numbers come from</h2><div style="color:#777;font-size:12.5px;margin-bottom:10px">Each figure carries the moment it was published. Check any of them yourself - you should not have to take this page on trust. <b>Markets close at weekends</b>, so on a Saturday or Sunday the share and futures timestamps correctly show Friday.</div><table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:26px"><tr><th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;text-transform:uppercase;letter-spacing:.8px">What</th><th style="text-align:right;padding:4px 8px;font-size:10.5px;color:#999;text-transform:uppercase;letter-spacing:.8px">Value</th><th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;text-transform:uppercase;letter-spacing:.8px">Published</th><th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;text-transform:uppercase;letter-spacing:.8px">Source</th></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Spot gold (XAU/USD)</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">3653.49</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-28 17:24</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">median of 3 feeds, live</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Gold futures (COMEX GC=F)</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">3668.5</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 19:44</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">US dollar / Saudi riyal</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">3.7512</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 22:09</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">US dollar / Indian rupee</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">92.99</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-28 03:30</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Brent crude oil</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">90.84</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 19:44</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">US dollar index</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">104.035</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 21:59</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Silver</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">43.702</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 19:44</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Nasdaq 100</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">26726.389</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 19:15</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Oracle share price</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">107.13</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 18:02</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Nvidia share price</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">150.49</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 18:00</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr></table>
+  <h2 style="font-size:19px;margin:0 0 4px">Where these numbers come from</h2><div style="color:#777;font-size:12.5px;margin-bottom:10px">Each figure carries the moment it was published. Check any of them yourself - you should not have to take this page on trust. <b>Markets close at weekends</b>, so on a Saturday or Sunday the share and futures timestamps correctly show Friday.</div><table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:26px"><tr><th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;text-transform:uppercase;letter-spacing:.8px">What</th><th style="text-align:right;padding:4px 8px;font-size:10.5px;color:#999;text-transform:uppercase;letter-spacing:.8px">Value</th><th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;text-transform:uppercase;letter-spacing:.8px">Published</th><th style="text-align:left;padding:4px 8px;font-size:10.5px;color:#999;text-transform:uppercase;letter-spacing:.8px">Source</th></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Spot gold (XAU/USD)</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">3653.49</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-28 17:31</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">median of 3 feeds, live</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Gold futures (COMEX GC=F)</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">3668.5</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 19:44</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">US dollar / Saudi riyal</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">3.7512</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 22:09</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">US dollar / Indian rupee</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">92.99</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-28 03:30</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Brent crude oil</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">90.84</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 19:44</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">US dollar index</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">104.035</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 21:59</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Silver</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">43.702</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 19:44</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Nasdaq 100</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">26726.389</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 19:15</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Oracle share price</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">107.13</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 18:02</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr><tr><td style="padding:6px 8px;border-bottom:1px solid #eee">Nvidia share price</td><td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:ui-monospace,Menlo,monospace">150.49</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#777;font-size:11.5px">2026-11-27 18:00</td><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#999;font-size:11.5px">Yahoo Finance</td></tr></table>
 
   <h2 style="font-size:19px;margin:0 0 10px">Latest from the Fed</h2>
   <ul style="padding-left:20px;font-size:13.5px;margin-bottom:22px"><li style="margin-bottom:7px;line-height:1.45">Minutes of the Board&#x27;s discount rate meetings on October 19 and October 28, 2026<span style="color:#999;font-size:11.5px"> &middot; Tue, 24 Nov 2026 19:00</span></li><li style="margin-bottom:7px;line-height:1.45">Minutes of the Federal Open Market Committee, October 27-28, 2026<span style="color:#999;font-size:11.5px"> &middot; Wed, 18 Nov 2026 19:00</span></li><li style="margin-bottom:7px;line-height:1.45">Federal Reserve announces revised tentative schedule of Federal Open Market Committee meetings in 2027<span style="color:#999;font-size:11.5px"> &middot; Thu, 12 Nov 2026 17:45</span></li><li style="margin-bottom:7px;line-height:1.45">Federal Reserve issues FOMC statement<span style="color:#999;font-size:11.5px"> &middot; Wed, 28 Oct 2026 18:00</span></li><li style="margin-bottom:7px;line-height:1.45">Minutes of the Board&#x27;s discount rate meetings on August 17, September 9, and September 16, 2026<span style="color:#999;font-size:11.5px"> &middot; Tue, 13 Oct 2026 18:00</span></li></ul>
 
   <h2 style="font-size:19px;margin:0 0 10px">Latest headlines</h2>
-  <ul style="padding-left:20px;font-size:13.5px;margin-bottom:30px"><li style="margin-bottom:7px;line-height:1.45">Gold price today, Tuesday, September 29, 2026: Gold opens near 2-month low, but Brent crude also moving lower - Yahoo Finance<span style="color:#999;font-size:11.5px"> &middot; Tue, 29 Sep 2026 07:00</span></li><li style="margin-bottom:7px;line-height:1.45">Stock Market Today (Nov 25, 2026): Nasdaq Trims Losses, Gold Price Falls, Brent Oil $91 - Eurasia Business News<span style="color:#999;font-size:11.5px"> &middot; Wed, 25 Nov 2026 22:13</span></li><li style="margin-bottom:7px;line-height:1.45">Gold edges down as US-Iran escalation lifts oil prices, rate hike bets - Reuters<span style="color:#999;font-size:11.5px"> &middot; Mon, 20 Jul 2026 07:00</span></li><li style="margin-bottom:7px;line-height:1.45">Crude Oil Hits Gold, But Comex Trading Most Bullish Since Record Price Peak - BullionVault<span style="color:#999;font-size:11.5px"> &middot; Mon, 20 Jul 2026 07:00</span></li><li style="margin-bottom:7px;line-height:1.45">Gold price holds above $4,330 as Hormuz diplomacy pressures oil - Kitco AM Report - Kitco<span style="color:#999;font-size:11.5px"> &middot; Tue, 22 Sep 2026 07:00</span></li><li style="margin-bottom:7px;line-height:1.45">Brent Crude Jumps 3.5% on Middle East Supply Fears; Gold Falls - bloomingbit<span style="color:#999;font-size:11.5px"> &middot; Thu, 26 Nov 2026 01:02</span></li></ul>
+  <ul style="padding-left:20px;font-size:13.5px;margin-bottom:30px"><li style="margin-bottom:7px;line-height:1.45">Gold price rallies above $3,600 as AI selloff reshapes Fed outlook - Kitco AM Report - Kitco<span style="color:#999;font-size:11.5px"> &middot; Mon, 23 Nov 2026 14:18</span></li><li style="margin-bottom:7px;line-height:1.45">Stock Market Today (Nov 25, 2026): Nasdaq Trims Losses, Gold Price Falls, Brent Oil $91 - Eurasia Business News<span style="color:#999;font-size:11.5px"> &middot; Wed, 25 Nov 2026 22:13</span></li><li style="margin-bottom:7px;line-height:1.45">Gold drops as strong US payrolls boost dollar, yields - Reuters<span style="color:#999;font-size:11.5px"> &middot; Fri, 06 Nov 2026 08:00</span></li><li style="margin-bottom:7px;line-height:1.45">Brent Crude Jumps 3.5% on Middle East Supply Fears; Gold Falls - bloomingbit<span style="color:#999;font-size:11.5px"> &middot; Thu, 26 Nov 2026 01:02</span></li><li style="margin-bottom:7px;line-height:1.45">Gold drops to over one-year low as fading Middle East peace hopes fan inflation fears - CNBC<span style="color:#999;font-size:11.5px"> &middot; Wed, 11 Nov 2026 08:00</span></li><li style="margin-bottom:7px;line-height:1.45">Soybeans climb, oil surges and gold loses its shine: What&#x27;s next for farmers? - AgroLatam<span style="color:#999;font-size:11.5px"> &middot; Thu, 26 Nov 2026 13:34</span></li></ul>
 
   <div style="border-top:1px solid #ddd;padding-top:14px;color:#888;font-size:12px">
     Prices from Yahoo Finance; interest rates and inflation from the US Federal Reserve's database.

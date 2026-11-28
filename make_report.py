@@ -18,6 +18,7 @@ import html
 import json
 import os
 import sys
+import time
 import urllib.request
 from datetime import datetime, timezone
 
@@ -44,6 +45,16 @@ def money(v, dp=0):
         return "$" + format(float(v), ",." + str(dp) + "f")
     except (TypeError, ValueError):
         return "-"
+
+
+def load_cfg():
+    """Read config.json once, tolerate it being missing."""
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+    try:
+        with open(p, encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:                                      # noqa: BLE001
+        return {}
 
 
 def plan_block(price):
@@ -370,6 +381,9 @@ def live_block(snap):
       $('lvInr22').textContent = f(tInr * C.k22, 0);
     }
 
+    if (window.lvHooks){ for (var hk = 0; hk < window.lvHooks.length; hk++){
+      try { window.lvHooks[hk](p); } catch(e){} } }
+
     var cells = document.querySelectorAll('[data-lv]');
     for (var i = 0; i < cells.length; i++){
       var el = cells[i], ds = el.dataset;
@@ -512,6 +526,179 @@ def accuracy_block(snap):
     )
 
 
+def staleness_block(snap):
+    """Warn the reader if the robot has stopped refreshing this page.
+
+    A static page cannot tell you it is stale - it just sits there looking
+    confident. This compares the build time against the clock in the reader's
+    own browser and says so plainly once the page is more than three hours old.
+    """
+    built = int(time.time())
+    html = """
+<div id="stale" style="display:none;border:1px solid #f1c0c7;background:#fff5f6;border-radius:8px;
+     padding:11px 14px;margin:0 0 16px;font-size:13.5px;color:#9b2c3a"></div>
+<script>
+(function(){
+  var built = BUILT_EPOCH * 1000;
+  function check(){
+    var hrs = (Date.now() - built) / 3600000;
+    var el = document.getElementById('stale');
+    if (hrs > 3){
+      el.style.display = 'block';
+      el.innerHTML = '<b>This page has not refreshed for ' + hrs.toFixed(1) + ' hours.</b><br>'
+        + 'The hourly robot may be stuck. The live price box above is still correct because your '
+        + 'browser fetches that itself, but the analysis below is going stale.';
+    } else { el.style.display = 'none'; }
+  }
+  check(); setInterval(check, 60000);
+})();
+</script>
+"""
+    return html.replace("BUILT_EPOCH", str(built))
+
+
+def position_block(snap, cfg):
+    """What the reader's own gold is worth today, in riyals, live.
+
+    Abstract dollar-per-ounce moves mean nothing to someone holding grams. This
+    turns the plan's first tranche into: this is what you paid, this is what it
+    is worth now, this is the difference.
+    """
+    plan = (cfg.get("plan") or {})
+    done = [t for t in (plan.get("tranches") or []) if t.get("status") == "done" and t.get("price")]
+    if not done:
+        return ""
+    t = done[0]
+    entry = float(t["price"])
+    fx = ((snap.get("local") or {}).get("fx") or {}).get("usdsar") or 3.75
+    oz = 31.1034768
+    entry_sar = entry / oz * fx
+
+    html = """
+<h2 style="font-size:19px;margin:26px 0 4px">What your gold is worth today
+  <span style="font-size:10.5px;letter-spacing:1.5px;color:#2f9e44;font-weight:700;
+        vertical-align:middle">&#9679; LIVE</span></h2>
+<div style="color:#666;font-size:13px;margin:0 0 10px">
+  You bought your first third on ENTRY_WHEN at about $ENTRY_USD an ounce, which was
+  <b>ENTRY_SAR riyals a gram</b> for 24k. Type in how many grams you actually bought and this
+  works out the rest by itself.</div>
+<div style="border:1px solid #e3e3e3;border-radius:8px;padding:14px 16px;background:#fafafa">
+  <label style="font-size:13px;color:#555">Grams of 24k you hold
+    <input id="pgGrams" type="number" value="100" min="0" step="1"
+       style="width:92px;margin-left:8px;padding:5px 7px;border:1px solid #ccc;border-radius:5px;
+              font-size:14px;font-family:ui-monospace,Menlo,monospace">
+  </label>
+  <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:12px">
+    <tr><td style="padding:5px 0;color:#555">What you paid</td>
+        <td id="pgCost" style="padding:5px 0;text-align:right;
+            font-family:ui-monospace,Menlo,monospace">&mdash;</td></tr>
+    <tr><td style="padding:5px 0;color:#555">What it is worth now</td>
+        <td id="pgNow" style="padding:5px 0;text-align:right;
+            font-family:ui-monospace,Menlo,monospace">&mdash;</td></tr>
+    <tr><td style="padding:7px 0;border-top:1px solid #ddd"><b>Difference</b></td>
+        <td id="pgPnl" style="padding:7px 0;border-top:1px solid #ddd;text-align:right;
+            font-family:ui-monospace,Menlo,monospace;font-weight:700">&mdash;</td></tr>
+  </table>
+  <div style="color:#888;font-size:12px;margin-top:8px">
+    Metal value only, at the benchmark price. It ignores what the dealer charged you on top,
+    which you do not get back when you sell.</div>
+</div>
+<script>
+(function(){
+  var ENTRY = ENTRY_SAR_JS, oz = 31.1034768, fx = FX_JS;
+  window.lvHooks = window.lvHooks || [];
+  function f(n,d){ return n.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  var lastP = null;
+  function upd(p){
+    lastP = p;
+    var g = parseFloat(document.getElementById('pgGrams').value);
+    if (!(g >= 0)) g = 0;
+    var cost = ENTRY * g, now = p / oz * fx * g, d = now - cost;
+    document.getElementById('pgCost').textContent = f(cost,2) + ' SAR';
+    document.getElementById('pgNow').textContent  = f(now,2) + ' SAR';
+    var el = document.getElementById('pgPnl');
+    el.style.color = d >= 0 ? '#2f9e44' : '#d6336c';
+    el.textContent = (d >= 0 ? '+' : '-') + f(Math.abs(d),2) + ' SAR  ('
+                   + (d >= 0 ? '+' : '-') + f(Math.abs(cost ? d/cost*100 : 0),2) + '%)';
+  }
+  window.lvHooks.push(upd);
+  document.getElementById('pgGrams').addEventListener('input', function(){ if (lastP) upd(lastP); });
+})();
+</script>
+"""
+    return (html.replace("ENTRY_WHEN", e(str(t.get("when", "your entry"))))
+                .replace("ENTRY_USD", format(entry, ",.0f"))
+                .replace("ENTRY_SAR_JS", repr(entry_sar))
+                .replace("ENTRY_SAR", format(entry_sar, ",.2f"))
+                .replace("FX_JS", repr(float(fx))))
+
+
+def dealer_block(snap):
+    """Check a shop's quote against the live benchmark, standing in the shop.
+
+    This is the one number a physical buyer actually needs and can never work
+    out on the spot: how much over the metal is this dealer charging me.
+    """
+    fx = ((snap.get("local") or {}).get("fx") or {}).get("usdsar") or 3.75
+    html = """
+<h2 style="font-size:19px;margin:26px 0 4px">Is the dealer&rsquo;s price fair?</h2>
+<div style="color:#666;font-size:13px;margin:0 0 10px">
+  In the shop, type in the price per gram they just quoted you and pick the karat.
+  This tells you how much over the metal you are being asked to pay, against the live
+  price this second.</div>
+<div style="border:1px solid #e3e3e3;border-radius:8px;padding:14px 16px;background:#fafafa">
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+    <label style="font-size:13px;color:#555">Quoted SAR per gram
+      <input id="dqPrice" type="number" value="" placeholder="e.g. 455" min="0" step="0.01"
+        style="width:110px;margin-left:8px;padding:6px 8px;border:1px solid #ccc;border-radius:5px;
+               font-size:15px;font-family:ui-monospace,Menlo,monospace"></label>
+    <label style="font-size:13px;color:#555">Karat
+      <select id="dqKarat" style="margin-left:6px;padding:6px 8px;border:1px solid #ccc;
+              border-radius:5px;font-size:14px">
+        <option value="24">24k</option><option value="22" selected>22k</option>
+        <option value="21">21k</option><option value="18">18k</option></select></label>
+  </div>
+  <div id="dqOut" style="margin-top:12px;font-size:14px;color:#888">
+    Enter a price to check it.</div>
+</div>
+<script>
+(function(){
+  var oz = 31.1034768, fx = FX_JS, live = null;
+  window.lvHooks = window.lvHooks || [];
+  function f(n,d){ return n.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d}); }
+  function calc(){
+    var out = document.getElementById('dqOut');
+    var q = parseFloat(document.getElementById('dqPrice').value);
+    var k = parseFloat(document.getElementById('dqKarat').value);
+    if (!live){ out.innerHTML = '<span style="color:#888">waiting for the live price&hellip;</span>'; return; }
+    if (!(q > 0)){ out.innerHTML = '<span style="color:#888">Enter a price to check it.</span>'; return; }
+    var bench = live / oz * fx * (k / 24);
+    var prem = (q / bench - 1) * 100;
+    var verdict, colour;
+    if (prem < 0)       { verdict = 'Below the metal price. Check the karat and the weight carefully.'; colour = '#e8a33d'; }
+    else if (prem <= 3) { verdict = 'Good. This is about as close to the metal as retail gets.'; colour = '#2f9e44'; }
+    else if (prem <= 6) { verdict = 'Fair for a small bar or coin. Worth asking for a little off.'; colour = '#2f9e44'; }
+    else if (prem <= 12){ verdict = 'High. Normal for jewellery, too much for a plain bar. Haggle or walk.'; colour = '#e8a33d'; }
+    else                { verdict = 'Very high. You are paying mostly for making charges, not gold.'; colour = '#d6336c'; }
+    out.innerHTML =
+      '<div style="font-size:13px;color:#555">Metal is worth <b>' + f(bench,2) + ' SAR/gram</b> at ' + k + 'k right now.</div>'
+      + '<div style="margin-top:4px;font-size:22px;font-weight:800;color:' + colour + '">'
+      + (prem >= 0 ? '+' : '') + f(prem,1) + '% over the metal</div>'
+      + '<div style="font-size:13px;color:#555;margin-top:2px">That is '
+      + (prem >= 0 ? '' : 'minus ') + f(Math.abs(q - bench),2) + ' SAR a gram'
+      + ' &middot; on 10 grams, ' + f(Math.abs(q - bench) * 10, 0) + ' SAR.</div>'
+      + '<div style="margin-top:7px;padding:8px 10px;border-left:3px solid ' + colour
+      + ';background:#fff;border-radius:0 5px 5px 0;font-size:13.5px">' + verdict + '</div>';
+  }
+  window.lvHooks.push(function(p){ live = p; calc(); });
+  document.getElementById('dqPrice').addEventListener('input', calc);
+  document.getElementById('dqKarat').addEventListener('change', calc);
+})();
+</script>
+"""
+    return html.replace("FX_JS", repr(float(fx)))
+
+
 def render(snap, news):
     """Turn one snapshot + news bundle into a standalone HTML page."""
     ind = snap["indicators"]
@@ -638,6 +825,12 @@ def render(snap, news):
     doc = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="data:application/manifest+json,%%7B%%22name%%22%%3A%%22Gold%%20Watch%%22%%2C%%22short_name%%22%%3A%%22Gold%%22%%2C%%22display%%22%%3A%%22standalone%%22%%2C%%22background_color%%22%%3A%%22%%23ffffff%%22%%2C%%22theme_color%%22%%3A%%22%%231a1a1a%%22%%2C%%22start_url%%22%%3A%%22.%%22%%7D">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%%3E%%3Crect width='192' height='192' rx='34' fill='%%231a1a1a'/%%3E%%3Ctext x='96' y='128' font-size='104' font-family='Georgia,serif' font-weight='bold' text-anchor='middle' fill='%%23c9a227'%%3EAu%%3C/text%%3E%%3C/svg%%3E">
+<link rel="icon" href="data:image/svg+xml,%%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%%3E%%3Crect width='192' height='192' rx='34' fill='%%231a1a1a'/%%3E%%3Ctext x='96' y='128' font-size='104' font-family='Georgia,serif' font-weight='bold' text-anchor='middle' fill='%%23c9a227'%%3EAu%%3C/text%%3E%%3C/svg%%3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gold">
+<meta name="theme-color" content="#1a1a1a">
 <meta name="robots" content="noindex,nofollow">
 <meta http-equiv="refresh" content="900">
 <title>Gold - is it time to buy?</title>
@@ -680,6 +873,8 @@ def render(snap, news):
     <div style="font-size:15.5px">%(atext)s</div>
   </div>
 
+  %(stale)s
+
   %(live)s
 
   %(plan)s
@@ -704,6 +899,10 @@ def render(snap, news):
     Locked %(locked)s. Headline bet: %(bet)s. Thesis dies on a close below %(inval)s.
   </div>
   <table style="width:100%%;border-collapse:collapse;max-width:330px;margin-bottom:30px;font-size:14px">%(path)s</table>
+
+  %(position)s
+
+  %(dealer)s
 
   %(accuracy)s
 
@@ -734,6 +933,9 @@ def render(snap, news):
         "live": live_block(snap),
         "plan": plan_block(gold.get("price")),
         "local": local_block(snap),
+        "stale": staleness_block(snap),
+        "position": position_block(snap, load_cfg()),
+        "dealer": dealer_block(snap),
         "accuracy": accuracy_block(snap),
         "sources": sources_block(snap),
         "headline": e(plain.get("headline", "")),

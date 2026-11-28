@@ -134,6 +134,7 @@ def local_block(snap):
     cards = []
     for m in loc["markets"]:
         rows = []
+        _sess = (snap.get("indicators") or {}).get("session") or {}
         n_pub = sum(1 for r in m["rows"] if r.get("basis") == "published")
         if n_pub:
             srcs = ((snap.get("indicators") or {}).get("published") or {}).get(m.get("key"), {})
@@ -203,15 +204,21 @@ def local_block(snap):
             % (format(nb["usd_oz"], ",.0f"), format(nb["ksa_gram_24k"], ",.2f"), india)
         )
 
+    _open = bool(((snap.get("indicators") or {}).get("session") or {}).get("open"))
+    badge_col, badge_txt = ("#2f9e44", "LIVE") if _open else ("#9aa0a6", "FRIDAY&rsquo;S CLOSE")
+    src_line = ("Converted from the live <b>spot</b> gold price" if _open else
+                "Friday&rsquo;s closing <b>spot</b> gold price")
+
     return (
         '<h2 style="font-size:19px;margin:0 0 4px">What it costs where you are '
-        '<span style="font-size:10.5px;letter-spacing:1.5px;color:#2f9e44;'
-        'font-weight:700;vertical-align:middle">&#9679; LIVE</span></h2>'
+        '<span style="font-size:10.5px;letter-spacing:1.5px;color:%s;'
+        'font-weight:700;vertical-align:middle">&#9679; %s</span></h2>'
         '<div style="color:#777;font-size:12.5px;margin-bottom:12px">'
-        'Converted from the live <b>spot</b> gold price ($%s an ounce) - the benchmark shops '
-        'price off, not the futures contract quoted at the top of this page.</div>'
+        '%s ($%s an ounce) - the benchmark shops price off, not the futures '
+        'contract quoted at the top of this page.</div>'
         '%s%s'
-        % (format(loc.get("world_usd_oz", 0), ",.2f"), "".join(cards), target)
+        % (badge_col, badge_txt, src_line,
+           format(loc.get("world_usd_oz", 0), ",.2f"), "".join(cards), target)
     )
 
 
@@ -423,7 +430,15 @@ def live_block(snap):
     except Exception:
         pass
 
+    sess = (snap.get("indicators") or {}).get("session") or {}
+    spot_i = (snap.get("indicators") or {}).get("spot") or {}
+    bid, ask = spot_i.get("bid"), spot_i.get("ask")
+    bidask = ("buy at $%s  /  sell at $%s" % (format(ask, ",.2f"), format(bid, ",.2f"))
+              if bid and ask else "")
+
     cfg_js = json.dumps({"sar": sar, "inr": inr, "base": base, "oz": 31.1034768,
+                         "open": bool(sess.get("open")),
+                         "nextChange": sess.get("next_change_epoch") or 0,
                          "k22": 22.0 / 24.0, "basis": basis,
                          "calSar": cal_sar, "calInr": cal_inr,
                          "calSar22": cal_sar22, "calInr22": cal_inr22, "inrUnitG": 1,
@@ -436,7 +451,7 @@ def live_block(snap):
     <div>
       <div style="font-size:10.5px;letter-spacing:1.8px;color:#8a7a3a;font-weight:700">
         <span id="lvDot" style="display:inline-block;width:7px;height:7px;border-radius:50%;
-              background:#2f9e44;margin-right:6px"></span>LIVE NOW
+              background:#2f9e44;margin-right:6px"></span><span id="lvBadge">LIVE NOW</span>
       </div>
       <div style="font-size:30px;font-weight:800;color:#1a1a1a;line-height:1.15;
            font-family:ui-monospace,Menlo,monospace" id="lvPrice">$PREFILL_USD</div>
@@ -454,6 +469,8 @@ def live_block(snap):
   <svg id="lvSpark" width="100%" height="34" viewBox="0 0 300 34" preserveAspectRatio="none"
        style="margin-top:10px;display:block"><polyline id="lvLine" fill="none"
        stroke="#c9a227" stroke-width="1.6" points=""></polyline></svg>
+  <div id="lvQuote" style="color:#555;font-size:12.5px;margin-top:7px;
+       font-family:ui-monospace,Menlo,monospace">BIDASK</div>
   <div style="color:#888;font-size:11.5px;margin-top:6px" id="lvNote">
     Priced off the median of three independent spot feeds, with movement from the 24-hour gold token market - so it keeps
     ticking at weekends when COMEX is shut. Spot feeds differ by a dollar or two between
@@ -543,6 +560,13 @@ def live_block(snap):
       .catch(function(){});
   }
 
+  function closedText(){
+    var secs = C.nextChange - Math.floor(Date.now()/1000);
+    if (secs < 0) return '';
+    var h = Math.floor(secs/3600), m = Math.floor((secs%3600)/60);
+    return 'Gold trading reopens in ' + h + 'h ' + m + 'm.';
+  }
+
   function pull(){
     fetch('https://api.kraken.com/0/public/Ticker?pair=PAXGUSD', {cache:'no-store'})
       .then(function(r){ return r.json(); })
@@ -550,18 +574,39 @@ def live_block(snap):
         var k = Object.keys(j.result)[0], t = j.result[k];
         var mid = (parseFloat(t.b[0]) + parseFloat(t.a[0])) / 2;
         if (!(mid > 100)) return;
-        if (reanchor && spotNow){ basis = spotNow - mid; reanchor = false; }
-        $('lvDot').style.background = '#2f9e44';
-        paint(mid + basis);
+        if (C.open){
+          if (reanchor && spotNow){ basis = spotNow - mid; reanchor = false; }
+          $('lvDot').style.background = '#2f9e44';
+          paint(mid + basis);
+        } else {
+          // market shut: the only thing still trading is the gold token, and
+          // that is not the price a Saudi shop will quote on Sunday morning
+          $('lvChg').innerHTML = '<span style="color:#888">Friday\u2019s closing price. '
+            + closedText() + '</span>';
+        }
       })
       .catch(fail);
   }
-  pullSpot(); pull();
-  setInterval(pull, 5000);
-  setInterval(pullSpot, 60000);
+  pullSpot();
+  if (C.open) pull();
+  setInterval(pull, C.open ? 5000 : 60000);
+  if (C.open) setInterval(pullSpot, 60000);
+
+  if (!C.open){
+    $('lvDot').style.background = '#9aa0a6';
+    $('lvBadge').textContent = 'MARKET CLOSED';
+    $('lvChg').innerHTML = '<span style="color:#888">Friday\u2019s closing price. ' + closedText() + '</span>';
+    $('lvTime').textContent = '';
+    $('lvNote').innerHTML = 'Spot gold is an over-the-counter market: it trades Sunday 22:00 UTC '
+      + 'to Friday 22:00 UTC. Right now it is shut, so <b>there is no live price anywhere</b> - '
+      + 'every site, including this one, is showing its own last tick from Friday. That is why '
+      + 'two sites can differ by a few halalas today and agree once trading resumes.';
+    var sp = document.getElementById('lvSpark'); if (sp) sp.style.display = 'none';
+  }
 })();
 </script>
 """.replace("CONFIG_JSON", cfg_js)
+             .replace("BIDASK", bidask)
              .replace("PREFILL_USD", format(base, ",.2f"))
              .replace("PREFILL_SAR22", format(base / 31.1034768 * sar * (22.0 / 24.0) * cal_sar22, ",.2f"))
              .replace("PREFILL_SAR", format(base / 31.1034768 * sar * cal_sar, ",.2f"))
@@ -795,8 +840,8 @@ def position_block(snap, cfg):
 
     html = """
 <h2 style="font-size:19px;margin:26px 0 4px">What your gold is worth today
-  <span style="font-size:10.5px;letter-spacing:1.5px;color:#2f9e44;font-weight:700;
-        vertical-align:middle">&#9679; LIVE</span></h2>
+  <span style="font-size:10.5px;letter-spacing:1.5px;color:BADGE_COL;font-weight:700;
+        vertical-align:middle">&#9679; BADGE_TXT</span></h2>
 <div style="color:#666;font-size:13px;margin:0 0 10px">
   You bought your first third on ENTRY_WHEN at about $ENTRY_USD an ounce, which was
   <b>ENTRY_SAR riyals a gram</b> for 24k. Type in how many grams you actually bought and this
@@ -845,6 +890,9 @@ def position_block(snap, cfg):
 })();
 </script>
 """
+    _open = bool(((snap.get("indicators") or {}).get("session") or {}).get("open"))
+    html = (html.replace("BADGE_COL", "#2f9e44" if _open else "#9aa0a6")
+                .replace("BADGE_TXT", "LIVE" if _open else "FRIDAY&rsquo;S CLOSE"))
     return (html.replace("ENTRY_WHEN", e(str(t.get("when", "your entry"))))
                 .replace("ENTRY_USD", format(entry, ",.0f"))
                 .replace("ENTRY_SAR_JS", repr(entry_sar))

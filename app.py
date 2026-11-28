@@ -22,7 +22,7 @@ import re
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import requests
 from flask import Flask, Response, jsonify, request, send_from_directory
@@ -798,6 +798,9 @@ def spot_change():
             "asof": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
 
 
+SQ_QUOTE = {}
+
+
 def _sq_xau():
     """Swissquote's public bank feed. Real dealable XAU/USD bid/ask."""
     r = session("plain").get(
@@ -811,9 +814,10 @@ def _sq_xau():
             if ask <= bid:
                 continue
             if best is None or (ask - bid) < best[1]:
-                best = ((bid + ask) / 2.0, ask - bid)
+                best = ((bid + ask) / 2.0, ask - bid, bid, ask)
     if best is None:
         raise ValueError("no swissquote quote")
+    SQ_QUOTE["bid"], SQ_QUOTE["ask"] = round(best[2], 2), round(best[3], 2)
     return best[0]
 
 
@@ -1017,6 +1021,37 @@ def _gpt_saudi():
     return out
 
 
+def market_state():
+    """Is the spot gold market trading right now?
+
+    Spot gold is over-the-counter, not an exchange. It runs from Sunday 22:00
+    UTC to Friday 22:00 UTC. Outside that there is no live price anywhere in
+    the world - every website is showing Friday's last tick or its own frozen
+    estimate. Saying "live" at the weekend is simply untrue, so the page stops
+    saying it.
+    """
+    now = datetime.now(timezone.utc)
+    wd, hr = now.weekday(), now.hour            # Mon=0 .. Sun=6
+    is_open = not (
+        (wd == 4 and hr >= 22) or               # Friday after 22:00
+        wd == 5 or                              # all Saturday
+        (wd == 6 and hr < 22)                   # Sunday before 22:00
+    )
+    nxt = now.replace(minute=0, second=0, microsecond=0)
+    for _ in range(1, 24 * 8):
+        nxt = nxt + timedelta(hours=1)
+        w, h = nxt.weekday(), nxt.hour
+        o = not ((w == 4 and h >= 22) or w == 5 or (w == 6 and h < 22))
+        if o != is_open:
+            break
+    return {
+        "open": is_open,
+        "next_change": nxt.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "next_change_epoch": int(nxt.timestamp()),
+        "asof": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+
+
 def spot_gold():
     """Spot gold (XAU/USD) from three independent feeds, median of whatever answers.
 
@@ -1061,6 +1096,8 @@ def spot_gold():
     return {
         "price": round(mid, 2),
         "asof": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "bid": SQ_QUOTE.get("bid"),
+        "ask": SQ_QUOTE.get("ask"),
         "sources": quotes,
         "n_ok": len(used),
         "n_tried": len(SPOT_SOURCES),
@@ -1213,6 +1250,7 @@ def build_snapshot():
         "spot":   lambda: cached("spot",   spot_gold),
         "fxlive": lambda: cached("fxlive", fx_live),
         "spotchg": lambda: cached("spotchg", spot_change),
+        "session": lambda: market_state(),
         "published": lambda: cached("published", published_rates),
     }
     with ThreadPoolExecutor(max_workers=8) as pool:

@@ -271,7 +271,19 @@ def live_block(snap):
     if not base:
         return ""
 
-    cfg_js = json.dumps({"sar": sar, "inr": inr, "base": base, "oz": 31.1034768, "k22": 22.0 / 24.0})
+    basis = 0.0
+    try:
+        import urllib.request as _u
+        _r = _u.urlopen("https://api.kraken.com/0/public/Ticker?pair=PAXGUSD", timeout=8)
+        _t = list(json.load(_r)["result"].values())[0]
+        _paxg = (float(_t["b"][0]) + float(_t["a"][0])) / 2.0
+        if 100 < _paxg < 20000:
+            basis = round(base - _paxg, 2)
+    except Exception:
+        basis = 0.0
+
+    cfg_js = json.dumps({"sar": sar, "inr": inr, "base": base, "oz": 31.1034768,
+                         "k22": 22.0 / 24.0, "basis": basis})
 
     return """
 <div id="lvBox" style="border:1px solid #e3e3e3;border-left:4px solid #c9a227;border-radius:8px;
@@ -299,8 +311,9 @@ def live_block(snap):
        style="margin-top:10px;display:block"><polyline id="lvLine" fill="none"
        stroke="#c9a227" stroke-width="1.6" points=""></polyline></svg>
   <div style="color:#888;font-size:11.5px;margin-top:6px" id="lvNote">
-    Tracks tokenised gold, which trades 24 hours a day - so it keeps moving at weekends
-    when the futures market is closed.
+    Priced off live spot gold, with movement from the 24-hour gold token market - so it keeps
+    ticking at weekends when COMEX is shut. Spot feeds differ by a dollar or two between
+    providers, so a search may show a figure within about 0.1% of this one.
   </div>
 </div>
 <script>
@@ -367,18 +380,37 @@ def live_block(snap):
     $('lvChg').innerHTML = '<span style="color:#888">live feed unreachable - the figures below are still valid</span>';
   }
 
+  // The 24/7 token feed gives movement; the spot feed gives the correct level.
+  // We hold the gap between them and re-anchor only when spot genuinely changes,
+  // so the number both MOVES and matches what you see when you search.
+  var basis = C.basis, spotNow = null, reanchor = false;
+
+  function pullSpot(){
+    fetch('https://api.gold-api.com/price/XAU', {cache:'no-store'})
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        var sp = parseFloat(j.price);
+        if (sp > 100 && sp !== spotNow){ spotNow = sp; reanchor = true; }
+      })
+      .catch(function(){});
+  }
+
   function pull(){
     fetch('https://api.kraken.com/0/public/Ticker?pair=PAXGUSD', {cache:'no-store'})
       .then(function(r){ return r.json(); })
       .then(function(j){
         var k = Object.keys(j.result)[0], t = j.result[k];
         var mid = (parseFloat(t.b[0]) + parseFloat(t.a[0])) / 2;
-        if (mid > 100) { $('lvDot').style.background = '#2f9e44'; paint(mid); }
+        if (!(mid > 100)) return;
+        if (reanchor && spotNow){ basis = spotNow - mid; reanchor = false; }
+        $('lvDot').style.background = '#2f9e44';
+        paint(mid + basis);
       })
       .catch(fail);
   }
-  pull();
+  pullSpot(); pull();
   setInterval(pull, 5000);
+  setInterval(pullSpot, 60000);
 })();
 </script>
 """.replace("CONFIG_JSON", cfg_js)

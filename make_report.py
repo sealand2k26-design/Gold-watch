@@ -342,7 +342,7 @@ def live_block(snap):
     cfg_js = json.dumps({"sar": sar, "inr": inr, "base": base, "oz": 31.1034768,
                          "k22": 22.0 / 24.0, "basis": basis,
                          "calSar": cal_sar, "calInr": cal_inr,
-                         "calSar22": cal_sar22, "calInr22": cal_inr22, "pavan": 8,
+                         "calSar22": cal_sar22, "calInr22": cal_inr22, "inrUnitG": 1,
                          "adjFx": adj_fx, "adjGa": adj_ga})
 
     return """
@@ -362,8 +362,8 @@ def live_block(snap):
       <div><b id="lvSar">&mdash;</b> <span style="color:#777">SAR / gram 24k</span></div>
       <div><b id="lvSar22">&mdash;</b> <span style="color:#777">SAR / gram 22k</span></div>
       <div style="height:6px"></div>
-      <div><b id="lvInr">&mdash;</b> <span style="color:#777">INR / pavan 24k</span></div>
-      <div><b id="lvInr22">&mdash;</b> <span style="color:#777">INR / pavan 22k</span></div>
+      <div><b id="lvInr">&mdash;</b> <span style="color:#777">INR / gram 24k</span></div>
+      <div><b id="lvInr22">&mdash;</b> <span style="color:#777">INR / gram 22k</span></div>
       <div style="color:#999;font-size:11px;margin-top:3px" id="lvTime"></div>
     </div>
   </div>
@@ -404,7 +404,7 @@ def live_block(snap):
     $('lvSar').textContent = f(gSar * (C.calSar || 1), 2);
     $('lvSar22').textContent = f(gSar * C.k22 * (C.calSar22 || 1), 2);
     if (C.inr){
-      var tInr = p / C.oz * C.pavan * C.inr;
+      var tInr = p / C.oz * C.inrUnitG * C.inr;
       $('lvInr').textContent = f(tInr * (C.calInr || 1), 0);
       $('lvInr22').textContent = f(tInr * C.k22 * (C.calInr22 || 1), 0);
     }
@@ -770,6 +770,84 @@ def dealer_block(snap):
     return html.replace("FX_JS", repr(float(fx)))
 
 
+def reactive_block(snap, cfg):
+    """Re-decide the whole page on every tick, not once an hour.
+
+    The live price was moving while the advice beside it stayed frozen until the
+    next rebuild. Everything that depends on the price - the headline, the
+    change, how far the plan is off, and above all WHAT TO DO TODAY - is worked
+    out again in the browser each time the price moves, from the same thresholds
+    the server uses.
+    """
+    th = (cfg.get("thresholds") or {})
+    inval = th.get("gold_invalidation", 3268)
+    fc = (snap.get("forecast") or {}).get("expected_today")
+    schg = (snap.get("indicators") or {}).get("spotchg") or {}
+    open_usd = 0.0
+    if schg.get("change_pct") is not None:
+        spot = ((snap.get("indicators") or {}).get("spot") or {}).get("price") or 0
+        try:
+            open_usd = spot / (1 + schg["change_pct"] / 100.0)
+        except ZeroDivisionError:
+            open_usd = 0.0
+
+    cfg_js = json.dumps({"inval": inval, "exp": fc or 0, "open": round(open_usd, 2)})
+    return """
+<script>
+(function(){
+  var C = CFG_JSON;
+  window.lvHooks = window.lvHooks || [];
+  function $(i){ return document.getElementById(i); }
+  function f(n,d){ return n.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d}); }
+
+  function decide(g){
+    if (g < C.inval) return {l:'STOP BUYING', c:'#d6336c',
+      t:'Gold has fallen below $' + f(C.inval,0) + '. That was the line where the whole plan was wrong. '
+        + 'Do not buy more. Reassess from scratch.'};
+    if (g < 3400) return {l:'BUY YOUR SECOND THIRD', c:'#2f9e44',
+      t:'At $' + f(g,0) + ' you are in the zone the plan was waiting for. '
+        + 'This is a good level to put the next tranche in.'};
+    if (g <= 3750) return {l:'HOLD \u2014 NOTHING TO DO', c:'#1a1a1a',
+      t:'$' + f(g,0) + ' is the normal range. If you have bought your first third, just wait. '
+        + 'The next real decision point is the Fed meeting on 9 December.'};
+    return {l:"DON'T CHASE IT", c:'#e8a33d',
+      t:'At $' + f(g,0) + ' gold has run above the buying zone. Do not pile in here. '
+        + 'Wait for it to come back \u2014 there is always another entry.'};
+  }
+
+  var prevLabel = null;
+  window.lvHooks.push(function(p){
+    var hp = $('heroPrice');
+    if (hp) hp.textContent = '$' + f(p, 2);
+
+    if (C.open > 0 && $('heroChg')){
+      var pc = (p / C.open - 1) * 100;
+      $('heroChg').textContent = (pc >= 0 ? '+' : '') + f(pc,2) + '% since midnight';
+      $('heroChg').style.color = pc >= 0 ? '#2f9e44' : '#d6336c';
+    }
+    if (C.exp > 0 && $('heroErr')){
+      var er = (p / C.exp - 1) * 100;
+      $('heroErr').textContent = (er >= 0 ? '+' : '') + f(er,2) + '%';
+    }
+
+    var d = decide(p);
+    if ($('actLabel')){
+      $('actLabel').textContent = d.l; $('actLabel').style.color = d.c;
+      $('actText').textContent  = d.t;
+      if ($('actHead')) $('actHead').style.color = d.c;
+      if (prevLabel && prevLabel !== d.l){
+        var box = $('actLabel').parentNode;
+        box.style.transition = 'none'; box.style.boxShadow = '0 0 0 3px ' + d.c;
+        setTimeout(function(){ box.style.transition = 'box-shadow 1.5s'; box.style.boxShadow = 'none'; }, 60);
+      }
+      prevLabel = d.l;
+    }
+  });
+})();
+</script>
+""".replace("CFG_JSON", cfg_js)
+
+
 def render(snap, news):
     """Turn one snapshot + news bundle into a standalone HTML page."""
     ind = snap["indicators"]
@@ -943,20 +1021,22 @@ def render(snap, news):
   <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px;margin-bottom:24px">
     <div>
       <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1.5px">Gold, per ounce</div>
-      <div style="font-size:42px;font-weight:800;color:#c9a227;line-height:1.1">%(price)s</div>
-      <div style="color:%(chgcol)s;font-weight:700;font-size:14px">%(chg)s</div>
+      <div id="heroPrice" style="font-size:42px;font-weight:800;color:#c9a227;line-height:1.1">%(price)s</div>
+      <div id="heroChg" style="color:%(chgcol)s;font-weight:700;font-size:14px">%(chg)s</div>
     </div>
     <div style="text-align:right;color:#777;font-size:12.5px">
       market timestamp %(asof)s<br>
-      plan expected %(exp)s &middot; off by <b>%(err)s</b>
+      plan expected %(exp)s &middot; off by <b id="heroErr">%(err)s</b>
     </div>
   </div>
 
   <div style="border:2px solid %(acol)s;border-radius:10px;padding:20px 22px;margin-bottom:30px;background:#fcfcfa">
-    <div style="font-size:10.5px;letter-spacing:2px;color:%(acol)s;font-weight:700;margin-bottom:7px">WHAT TO DO TODAY</div>
-    <div style="font-size:26px;font-weight:800;color:%(acol)s;margin-bottom:10px;letter-spacing:-.4px">%(alabel)s</div>
-    <div style="font-size:15.5px">%(atext)s</div>
+    <div id="actHead" style="font-size:10.5px;letter-spacing:2px;color:%(acol)s;font-weight:700;margin-bottom:7px">WHAT TO DO TODAY</div>
+    <div id="actLabel" style="font-size:26px;font-weight:800;color:%(acol)s;margin-bottom:10px;letter-spacing:-.4px">%(alabel)s</div>
+    <div id="actText" style="font-size:15.5px">%(atext)s</div>
   </div>
+
+  %(reactive)s
 
   %(stale)s
 
@@ -1018,6 +1098,7 @@ def render(snap, news):
         "live": live_block(snap),
         "plan": plan_block(headline),
         "local": local_block(snap),
+        "reactive": reactive_block(snap, load_cfg()),
         "stale": staleness_block(snap),
         "position": position_block(snap, load_cfg()),
         "dealer": dealer_block(snap),

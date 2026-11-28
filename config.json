@@ -218,14 +218,14 @@
   "india": {
    "label": "India",
    "currency": "INR",
-   "unit": "per 8 g (1 pavan)",
+   "unit": "per gram",
    "karats": [
     24,
     22
    ],
    "import_duty_gst_pct": 14.5,
    "note": "Indian retail sits well above the world price: 6% import duty, 3% GST, plus the local market premium. Jewellers add making charges on top of that.",
-   "grams": 8
+   "grams": 1
   }
  },
  "alerts": {

@@ -1021,6 +1021,48 @@ def _gpt_saudi():
     return out
 
 
+def token_gold():
+    """The gold market that never shuts: tokenised gold, median of three venues.
+
+    When the OTC spot market is closed - every weekend - this is the only gold
+    price on earth that is genuinely moving. It trades a little under spot, so
+    it is never used as the shop price, but it is the honest answer to "what is
+    gold doing right now" on a Saturday.
+    """
+    out = []
+    try:
+        t = list(session("plain").get(
+            "https://api.kraken.com/0/public/Ticker?pair=PAXGUSD",
+            timeout=(5, 8)).json()["result"].values())[0]
+        out.append(("Kraken PAXG", (float(t["b"][0]) + float(t["a"][0])) / 2))
+    except Exception:                                      # noqa: BLE001
+        pass
+    try:
+        t = list(session("plain").get(
+            "https://api.kraken.com/0/public/Ticker?pair=XAUTUSD",
+            timeout=(5, 8)).json()["result"].values())[0]
+        out.append(("Kraken XAUT", (float(t["b"][0]) + float(t["a"][0])) / 2))
+    except Exception:                                      # noqa: BLE001
+        pass
+    try:
+        d = session("plain").get(
+            "https://www.okx.com/api/v5/market/ticker?instId=PAXG-USDT",
+            timeout=(5, 8)).json()["data"][0]
+        out.append(("OKX PAXG", float(d["last"])))
+    except Exception:                                      # noqa: BLE001
+        pass
+    out = [(n, p) for n, p in out if 100 < p < 20000]
+    if not out:
+        raise ValueError("no token venue answered")
+    vals = sorted(p for _, p in out)
+    n = len(vals)
+    mid = vals[n // 2] if n % 2 else (vals[n // 2 - 1] + vals[n // 2]) / 2.0
+    return {"price": round(mid, 2),
+            "venues": [{"name": n_, "price": round(p, 2)} for n_, p in out],
+            "n_ok": len(out),
+            "asof": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+
+
 def market_state():
     """Is the spot gold market trading right now?
 
@@ -1251,6 +1293,7 @@ def build_snapshot():
         "fxlive": lambda: cached("fxlive", fx_live),
         "spotchg": lambda: cached("spotchg", spot_change),
         "session": lambda: market_state(),
+        "token":   lambda: cached("token", token_gold),
         "published": lambda: cached("published", published_rates),
     }
     with ThreadPoolExecutor(max_workers=8) as pool:

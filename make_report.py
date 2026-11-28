@@ -457,7 +457,15 @@ def live_block(snap):
            font-family:ui-monospace,Menlo,monospace" id="lvPrice">$PREFILL_USD</div>
       <div style="font-size:12.5px;margin-top:2px" id="lvChg"><span style="color:#888">connecting to the live feed&hellip;</span></div>
     </div>
-    <div style="text-align:right;font-size:12.5px;color:#555;line-height:1.75">
+    <div style="text-align:right;font-size:12.5px;color:#555;line-height:1.7">
+      <div id="lvShopHead" style="display:none;font-size:10px;letter-spacing:1.2px;
+           color:#8a7a3a;font-weight:700">WHAT SHOPS QUOTE TODAY</div>
+      <div id="lvShop" style="display:none;line-height:1.6">
+        <b>PREFILL_SAR</b> <span style="color:#777">SAR / gram 24k</span><br>
+        <b>PREFILL_SAR22</b> <span style="color:#777">SAR / gram 22k</span>
+      </div>
+      <div id="lvLiveHead" style="display:none;font-size:10px;letter-spacing:1.2px;
+           color:#2f9e44;font-weight:700;margin-top:7px">LIVE MARKET IMPLIES</div>
       <div><b id="lvSar">PREFILL_SAR</b> <span style="color:#777">SAR / gram 24k</span></div>
       <div><b id="lvSar22">PREFILL_SAR22</b> <span style="color:#777">SAR / gram 22k</span></div>
       <div style="height:6px"></div>
@@ -574,34 +582,59 @@ def live_block(snap):
         var k = Object.keys(j.result)[0], t = j.result[k];
         var mid = (parseFloat(t.b[0]) + parseFloat(t.a[0])) / 2;
         if (!(mid > 100)) return;
+        $('lvDot').style.background = '#2f9e44';
         if (C.open){
           if (reanchor && spotNow){ basis = spotNow - mid; reanchor = false; }
-          $('lvDot').style.background = '#2f9e44';
           paint(mid + basis);
         } else {
-          // market shut: the only thing still trading is the gold token, and
-          // that is not the price a Saudi shop will quote on Sunday morning
-          $('lvChg').innerHTML = '<span style="color:#888">Friday\u2019s closing price. '
-            + closedText() + '</span>';
+          paintToken(mid);
         }
       })
       .catch(fail);
   }
+  function paintToken(p){
+    $('lvPrice').textContent = '$' + f(p, 2);
+    var d = p - C.base;
+    $('lvChg').innerHTML = '<span style="color:' + (d >= 0 ? '#2f9e44' : '#d6336c')
+      + ';font-weight:700">' + (d >= 0 ? '\u25b2' : '\u25bc') + ' $' + f(Math.abs(d), 2)
+      + '</span> <span style="color:#888">vs Friday\u2019s close of $' + f(C.base, 2)
+      + ' \u00b7 ' + closedText() + '</span>';
+    $('lvSar').textContent   = f(p / C.oz * C.sar * (C.calSar || 1), 2);
+    $('lvSar22').textContent = f(p / C.oz * C.sar * C.k22 * (C.calSar22 || 1), 2);
+    if (C.inr){
+      $('lvInr').textContent   = f(p / C.oz * C.inrUnitG * C.inr * (C.calInr || 1), 0);
+      $('lvInr22').textContent = f(p / C.oz * C.inrUnitG * C.inr * C.k22 * (C.calInr22 || 1), 0);
+    }
+    $('lvTime').textContent = 'updated ' + new Date().toLocaleTimeString();
+    if (last !== null && p !== last){
+      var c = p > last ? '#2f9e44' : '#d6336c';
+      $('lvPrice').style.transition = 'none'; $('lvPrice').style.color = c;
+      setTimeout(function(){ $('lvPrice').style.transition = 'color 1.2s';
+                             $('lvPrice').style.color = '#1a1a1a'; }, 60);
+    }
+    last = p;
+    ticks.push(p); if (ticks.length > 150) ticks.shift();
+    draw();
+  }
+
   pullSpot();
-  if (C.open) pull();
-  setInterval(pull, C.open ? 5000 : 60000);
+  pull();
+  setInterval(pull, 5000);
   if (C.open) setInterval(pullSpot, 60000);
 
   if (!C.open){
-    $('lvDot').style.background = '#9aa0a6';
-    $('lvBadge').textContent = 'MARKET CLOSED';
-    $('lvChg').innerHTML = '<span style="color:#888">Friday\u2019s closing price. ' + closedText() + '</span>';
-    $('lvTime').textContent = '';
-    $('lvNote').innerHTML = 'Spot gold is an over-the-counter market: it trades Sunday 22:00 UTC '
-      + 'to Friday 22:00 UTC. Right now it is shut, so <b>there is no live price anywhere</b> - '
-      + 'every site, including this one, is showing its own last tick from Friday. That is why '
-      + 'two sites can differ by a few halalas today and agree once trading resumes.';
-    var sp = document.getElementById('lvSpark'); if (sp) sp.style.display = 'none';
+    // The bank market is shut, but tokenised gold trades around the clock and
+    // genuinely moves. Show that as the live number, and keep the Friday close
+    // alongside it, because the Friday close is what a shop will quote today.
+    $('lvBadge').textContent = 'LIVE \u00b7 24-HOUR GOLD MARKET';
+    $('lvShopHead').style.display = 'block';
+    $('lvShop').style.display = 'block';
+    $('lvLiveHead').style.display = 'block';
+    $('lvNote').innerHTML = 'The bank market for gold is shut until <b>Sunday 22:00 UTC</b> '
+      + '(Monday 01:00 in Saudi Arabia), so every price site - including the ones you would '
+      + 'find by searching - is frozen on Friday\u2019s close. The number above is the gold '
+      + 'token market, which trades 24 hours and is the only gold price actually moving right '
+      + 'now. It runs a little under spot, so use the shop figures for a purchase today.';
   }
 })();
 </script>

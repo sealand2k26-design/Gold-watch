@@ -14,9 +14,11 @@ lives in config.json and is edited by hand, with a visible "stale" marker.
 
 import csv
 import io
+import html as html_mod
 import json
 import math
 import os
+import re
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -816,6 +818,106 @@ SPOT_SOURCES = [
 ]
 
 
+def _fx_fxratesapi():
+    r = session("plain").get("https://api.fxratesapi.com/latest?base=USD&currencies=INR", timeout=10)
+    r.raise_for_status()
+    return float(r.json()["rates"]["INR"])
+
+
+def _fx_erapi():
+    r = session("plain").get("https://open.er-api.com/v6/latest/USD", timeout=10)
+    r.raise_for_status()
+    return float(r.json()["rates"]["INR"])
+
+
+def _fx_frankfurter():
+    r = session("plain").get("https://api.frankfurter.dev/v1/latest?base=USD&symbols=INR", timeout=10)
+    r.raise_for_status()
+    return float(r.json()["rates"]["INR"])
+
+
+def _fx_jsdelivr():
+    r = session("plain").get(
+        "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json",
+        timeout=10)
+    r.raise_for_status()
+    return float(r.json()["usd"]["inr"])
+
+
+INR_SOURCES = [
+    ("FXRatesAPI", _fx_fxratesapi),
+    ("open.er-api.com", _fx_erapi),
+    ("Frankfurter", _fx_frankfurter),
+    ("Currency-API", _fx_jsdelivr),
+]
+
+
+def fx_live():
+    """USD/INR as the median of four feeds; USD/SAR is the official peg.
+
+    Yahoo's FX quote can be fourteen hours stale by evening, which quietly
+    shifts every rupee figure on the page. Four independent feeds disagree in
+    the third decimal, so the middle one is used rather than whichever
+    provider answered first.
+    """
+    quotes = []
+    for name, fn in INR_SOURCES:
+        try:
+            v = float(fn())
+            if 10 < v < 500:
+                quotes.append({"name": name, "price": round(v, 4)})
+        except Exception as exc:                           # noqa: BLE001
+            print("   fx source %s failed: %s" % (name, exc))
+    if not quotes:
+        raise ValueError("every fx source failed")
+
+    vals = sorted(q["price"] for q in quotes)
+    n = len(vals)
+    mid = vals[n // 2] if n % 2 else (vals[n // 2 - 1] + vals[n // 2]) / 2.0
+    for q in quotes:
+        q["used"] = abs(q["price"] - mid) / mid <= 0.02
+    spread = max(vals) - min(vals)
+
+    return {
+        "inr": round(mid, 4),
+        "sar": 3.75,
+        "asof": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "sources": quotes,
+        "n_ok": len(quotes),
+        "n_tried": len(INR_SOURCES),
+        "spread": round(spread, 4),
+        "spread_pct": round(spread / mid * 100, 3) if mid else 0.0,
+    }
+
+
+def published_ksa():
+    """Read the Saudi rate table that local price sites publish.
+
+    The page computes its own number from spot. This fetches what a Saudi gold
+    site is publishing at the same moment, so the two can be shown side by side
+    and the reader can see the gap rather than be told it is small.
+    """
+    r = session("browser").get("https://goldpricetoday-saudi.com/en/", timeout=15)
+    r.raise_for_status()
+    txt = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", r.text, flags=re.S | re.I)
+    txt = html_mod.unescape(re.sub(r"<[^>]+>", "|", txt))
+    txt = re.sub(r"[|\s]*\|[|\s]*", "|", txt)
+    out = {}
+    for k in (24, 22, 21, 18):
+        m = re.search(r"\|%dK\|[^|]*\|([0-9][0-9.,]*)\|" % k, txt)
+        if m:
+            try:
+                v = float(m.group(1).replace(",", ""))
+                if 10 < v < 5000:
+                    out["%dk" % k] = v
+            except ValueError:
+                pass
+    if not out:
+        raise ValueError("could not read published table")
+    out["source"] = "goldpricetoday-saudi.com"
+    return out
+
+
 def spot_gold():
     """Spot gold (XAU/USD) from three independent feeds, median of whatever answers.
 
@@ -880,11 +982,19 @@ def local_prices(indicators, cfg):
     if not gold:
         return {}
 
-    fx = {
-        "usdsar": (indicators.get("usdsar") or {}).get("price") or 3.75,
-        "usdinr": (indicators.get("usdinr") or {}).get("price"),
-    }
     conf = cfg.get("local") or {}
+    live = indicators.get("fxlive") or {}
+
+    # Saudi gold shops price off the official 3.75 peg, not the interbank rate
+    # that drifts to 3.7512. Using the market rate put every riyal figure
+    # 0.03% high against every price site in the country.
+    peg = (conf.get("ksa") or {}).get("peg", 3.75)
+    fx = {
+        "usdsar": peg,
+        "usdinr": live.get("inr") or (indicators.get("usdinr") or {}).get("price"),
+        "usdsar_market": (indicators.get("usdsar") or {}).get("price"),
+        "inr_asof": live.get("asof", ""),
+    }
     out = {
         "fx": fx,
         "world_usd_oz": round(gold, 2),
@@ -915,7 +1025,7 @@ def local_prices(indicators, cfg):
             "currency": ksa.get("currency", "SAR"),
             "unit": ksa.get("unit", "per gram"),
             "fx_rate": round(fx["usdsar"], 4),
-            "fx_label": "1 USD = %.4f SAR (pegged)" % fx["usdsar"],
+            "fx_label": "1 USD = %.2f SAR (the official peg, which is what Saudi gold shops price off)" % fx["usdsar"],
             "premium_pct": ksa.get("dealer_premium_pct", 0),
             "premium_label": "typical dealer premium",
             "rows": rows(None, ksa.get("karats", [24]), ksa.get("dealer_premium_pct", 0),
@@ -971,6 +1081,8 @@ def build_snapshot():
         "usdsar": lambda: cached("usdsar", lambda: yahoo("SAR=X", "1mo")),
         "usdinr": lambda: cached("usdinr", lambda: yahoo("INR=X", "1mo")),
         "spot":   lambda: cached("spot",   spot_gold),
+        "fxlive": lambda: cached("fxlive", fx_live),
+        "pubksa": lambda: cached("pubksa", published_ksa),
     }
     with ThreadPoolExecutor(max_workers=8) as pool:
         futures = {k: pool.submit(v) for k, v in market_jobs.items()}

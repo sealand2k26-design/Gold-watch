@@ -501,6 +501,53 @@ def accuracy_block(snap):
     else:
         verdict, colour = "Only one feed answered. Cross-check before you trade on it.", "#d6336c"
 
+    pub = (snap.get("indicators") or {}).get("pubksa") or {}
+    check = ""
+    if pub:
+        ksa_rows = []
+        for m in ((snap.get("local") or {}).get("markets") or []):
+            if m.get("key") == "ksa":
+                ksa_rows = m.get("rows") or []
+        lines, worst = [], 0.0
+        for r in ksa_rows:
+            p = pub.get(r.get("karat"))
+            if not p:
+                continue
+            diff = (r["raw"] / p - 1) * 100
+            worst = max(worst, abs(diff))
+            lines.append(
+                '<tr>'
+                '<td style="padding:5px 8px;border-bottom:1px solid #eee">%s</td>'
+                '<td style="padding:5px 8px;border-bottom:1px solid #eee;text-align:right;'
+                'font-family:ui-monospace,Menlo,monospace">%s</td>'
+                '<td style="padding:5px 8px;border-bottom:1px solid #eee;text-align:right;'
+                'font-family:ui-monospace,Menlo,monospace">%s</td>'
+                '<td style="padding:5px 8px;border-bottom:1px solid #eee;text-align:right;'
+                'font-family:ui-monospace,Menlo,monospace;color:%s">%s%%</td>'
+                '</tr>'
+                % (e(r["karat"]), format(r["raw"], ",.2f"), format(p, ",.2f"),
+                   "#2f9e44" if abs(diff) < 0.1 else "#e8a33d",
+                   ("%+.3f" % diff) if abs(diff) > 0.0005 else "0.000")
+            )
+        if lines:
+            check = (
+                '<div style="margin-top:16px;font-size:13px;color:#666">'
+                'And here is the page checking itself. Every rebuild it reads the rate table '
+                'published by <b>%s</b> - a Saudi price site, the kind you would find by '
+                'searching - and compares it against its own arithmetic.</div>'
+                '<table style="width:100%%;border-collapse:collapse;font-size:13.5px;margin-top:8px">'
+                '<tr style="text-align:left;color:#888;font-size:11.5px;letter-spacing:.4px">'
+                '<th style="padding:0 8px 5px">Karat</th>'
+                '<th style="padding:0 8px 5px;text-align:right">This page</th>'
+                '<th style="padding:0 8px 5px;text-align:right">Published locally</th>'
+                '<th style="padding:0 8px 5px;text-align:right">Gap</th></tr>%s</table>'
+                '<div style="margin-top:8px;font-size:12.5px;color:%s">%s</div>'
+                % (e(pub.get("source", "a Saudi price site")), "".join(lines),
+                   "#2f9e44" if worst < 0.1 else "#e8a33d",
+                   ("Largest gap <b>%.3f%%</b>. These are the same number." % worst) if worst < 0.1
+                   else ("Largest gap <b>%.3f%%</b> - wider than usual today." % worst))
+            )
+
     return (
         '<h2 style="font-size:19px;margin:26px 0 4px">How accurate is this right now</h2>'
         '<div style="color:#666;font-size:13px;margin:0 0 10px">'
@@ -523,6 +570,7 @@ def accuracy_block(snap):
         % ("".join(rows), colour, colour, verdict, n_ok, n_tried,
            format(spread_usd, ",.2f"), format(spread_sar * 100, ",.0f"),
            format(spread_pct, ".3f"))
+        + check
     )
 
 

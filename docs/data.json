@@ -183,7 +183,7 @@
    }
   ]
  },
- "generated": "2026-11-28 17:55:16 UTC",
+ "generated": "2026-11-28 18:00:39 UTC",
  "indicators": {
   "brent": {
    "asof": "2026-11-27 19:44 UTC",
@@ -234,7 +234,7 @@
    "value": 3.88
   },
   "fxlive": {
-   "asof": "2026-11-28T17:55:13Z",
+   "asof": "2026-11-28T18:00:35Z",
    "inr": 92.9881,
    "n_ok": 4,
    "n_tried": 4,
@@ -491,12 +491,59 @@
    "price": 107.13,
    "trough": 101.19000244140625
   },
-  "pubksa": {
-   "18k": 330.36,
-   "21k": 385.42,
-   "22k": 403.78,
-   "24k": 440.44,
-   "source": "goldpricetoday-saudi.com"
+  "published": {
+   "india": {
+    "asof": "2026-11-28T18:00:37Z",
+    "karats": {
+     "21k": {
+      "n": 1,
+      "spread_pct": 0.0,
+      "value": 9586.14
+     },
+     "22k": {
+      "n": 1,
+      "spread_pct": 0.0,
+      "value": 10035.32
+     },
+     "24k": {
+      "n": 1,
+      "spread_pct": 0.0,
+      "value": 10955.59
+     }
+    },
+    "sources": [
+     "livepriceofgold.com"
+    ]
+   },
+   "ksa": {
+    "asof": "2026-11-28T18:00:37Z",
+    "karats": {
+     "18k": {
+      "n": 1,
+      "spread_pct": 0.0,
+      "value": 330.36
+     },
+     "21k": {
+      "n": 2,
+      "spread_pct": 0.075,
+      "value": 385.56
+     },
+     "22k": {
+      "n": 2,
+      "spread_pct": 0.002,
+      "value": 403.78
+     },
+     "24k": {
+      "n": 2,
+      "spread_pct": 0.086,
+      "value": 440.63
+     }
+    },
+    "sources": [
+     "goldpricetoday-saudi.com",
+     "livepriceofgold.com"
+    ]
+   }
   },
   "real10": {
    "change": -0.06000000000000005,
@@ -514,7 +561,7 @@
    "trough": 40.051998138427734
   },
   "spot": {
-   "asof": "2026-11-28T17:55:13Z",
+   "asof": "2026-11-28T18:00:35Z",
    "n_ok": 3,
    "n_tried": 3,
    "price": 3653.49,
@@ -561,7 +608,7 @@
   "basis": "spot",
   "futures_usd_oz": 3668.5,
   "fx": {
-   "inr_asof": "2026-11-28T17:55:13Z",
+   "inr_asof": "2026-11-28T18:00:35Z",
    "usdinr": 92.9881,
    "usdsar": 3.75,
    "usdsar_market": 3.7512
@@ -578,28 +625,44 @@
     "premium_pct": 2.0,
     "rows": [
      {
+      "basis": "published",
+      "computed": 440.48,
+      "gap_pct": 0.033,
       "karat": "24k",
+      "n_sources": 2,
       "purity": 1.0,
       "purity_pct": 100.0,
-      "raw": 440.48,
-      "with_premium": 449.29
+      "raw": 440.63,
+      "with_premium": 449.44
      },
      {
+      "basis": "published",
+      "computed": 403.78,
+      "gap_pct": 0.001,
       "karat": "22k",
+      "n_sources": 2,
       "purity": 0.9166666666666666,
       "purity_pct": 91.7,
       "raw": 403.78,
-      "with_premium": 411.85
+      "with_premium": 411.86
      },
      {
+      "basis": "published",
+      "computed": 385.42,
+      "gap_pct": 0.035,
       "karat": "21k",
+      "n_sources": 2,
       "purity": 0.875,
       "purity_pct": 87.5,
-      "raw": 385.42,
-      "with_premium": 393.13
+      "raw": 385.56,
+      "with_premium": 393.27
      },
      {
+      "basis": "published",
+      "computed": 330.36,
+      "gap_pct": -0.001,
       "karat": "18k",
+      "n_sources": 1,
       "purity": 0.75,
       "purity_pct": 75.0,
       "raw": 330.36,
@@ -619,18 +682,26 @@
     "premium_pct": 14.5,
     "rows": [
      {
+      "basis": "published",
+      "computed": 109226.08,
+      "gap_pct": 0.302,
       "karat": "24k",
+      "n_sources": 1,
       "purity": 1.0,
       "purity_pct": 100.0,
-      "raw": 109226.08,
-      "with_premium": 125063.86
+      "raw": 109555.9,
+      "with_premium": 125441.51
      },
      {
+      "basis": "published",
+      "computed": 100123.91,
+      "gap_pct": 0.229,
       "karat": "22k",
+      "n_sources": 1,
       "purity": 0.9166666666666666,
       "purity_pct": 91.7,
-      "raw": 100123.91,
-      "with_premium": 114641.88
+      "raw": 100353.2,
+      "with_premium": 114904.41
      }
     ],
     "unit": "per 10 grams"

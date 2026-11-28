@@ -134,11 +134,25 @@ def local_block(snap):
     cards = []
     for m in loc["markets"]:
         rows = []
+        n_pub = sum(1 for r in m["rows"] if r.get("basis") == "published")
+        if n_pub:
+            srcs = ((snap.get("indicators") or {}).get("published") or {}).get(m.get("key"), {})
+            names = ", ".join(srcs.get("sources") or [])
+            head = ("Read straight off %s - the rate being published in the market right now, "
+                    "not worked out from the dollar price." % (names or "local price sites"))
+        else:
+            head = ("Local sites could not be read this time, so these are converted from "
+                    "the spot price instead.")
+        rows.append('<tr><td colspan="3" style="padding:2px 8px 9px;color:#777;font-size:12px">'
+                    + e(head) + '</td></tr>')
+
         grams = 10 if "10" in (m.get("unit") or "") else 1
         dp = 0 if grams == 10 else 2
         for r in m["rows"]:
-            attrs = ('data-lv="1" data-fx="%s" data-g="%s" data-pur="%s" data-dp="%s"'
-                     % (m["fx_rate"], grams, r.get("purity", r["purity_pct"] / 100.0), dp))
+            cal = (r["raw"] / r["computed"]) if r.get("computed") else 1.0
+            attrs = ('data-lv="1" data-fx="%s" data-g="%s" data-pur="%s" data-dp="%s" data-cal="%s"'
+                     % (m["fx_rate"], grams, r.get("purity", r["purity_pct"] / 100.0), dp,
+                        round(cal, 6)))
             rows.append(
                 '<tr>'
                 '<td style="padding:7px 8px;border-bottom:1px solid #eee"><b>%s</b>'
@@ -288,6 +302,24 @@ def live_block(snap):
         _rq = _u.Request(url, headers={"User-Agent": "curl/8.5.0", "Accept": "*/*"})
         return json.load(_u.urlopen(_rq, timeout=8))
 
+    # how far the published local rate sits from our own arithmetic, so the live
+    # figures tick from the published level rather than drifting back to ours
+    cal_sar, cal_inr, cal_sar22, cal_inr22 = 1.0, 1.0, 1.0, 1.0
+    for _m in ((snap.get("local") or {}).get("markets") or []):
+        for _r in (_m.get("rows") or []):
+            if not _r.get("computed"):
+                continue
+            _c = round(_r["raw"] / _r["computed"], 6)
+            _k, _mk = _r.get("karat"), _m.get("key")
+            if _mk == "ksa" and _k == "24k":
+                cal_sar = _c
+            elif _mk == "ksa" and _k == "22k":
+                cal_sar22 = _c
+            elif _mk == "india" and _k == "24k":
+                cal_inr = _c
+            elif _mk == "india" and _k == "22k":
+                cal_inr22 = _c
+
     basis = 0.0
     try:
         _t = list(_get("https://api.kraken.com/0/public/Ticker?pair=PAXGUSD")["result"].values())[0]
@@ -315,6 +347,8 @@ def live_block(snap):
 
     cfg_js = json.dumps({"sar": sar, "inr": inr, "base": base, "oz": 31.1034768,
                          "k22": 22.0 / 24.0, "basis": basis,
+                         "calSar": cal_sar, "calInr": cal_inr,
+                         "calSar22": cal_sar22, "calInr22": cal_inr22,
                          "adjFx": adj_fx, "adjGa": adj_ga})
 
     return """
@@ -373,12 +407,12 @@ def live_block(snap):
       + (up ? '\u25b2' : '\u25bc') + ' $' + f(Math.abs(d), 2) + ' (' + (up ? '+' : '-')
       + f(Math.abs(d / C.base * 100), 2) + '%)</span> <span style="color:#888">since this page was built</span>';
     var gSar = p / C.oz * C.sar;
-    $('lvSar').textContent = f(gSar, 2);
-    $('lvSar22').textContent = f(gSar * C.k22, 2);
+    $('lvSar').textContent = f(gSar * (C.calSar || 1), 2);
+    $('lvSar22').textContent = f(gSar * C.k22 * (C.calSar22 || 1), 2);
     if (C.inr){
       var tInr = p / C.oz * 10 * C.inr;
-      $('lvInr').textContent = f(tInr, 0);
-      $('lvInr22').textContent = f(tInr * C.k22, 0);
+      $('lvInr').textContent = f(tInr * (C.calInr || 1), 0);
+      $('lvInr22').textContent = f(tInr * C.k22 * (C.calInr22 || 1), 0);
     }
 
     if (window.lvHooks){ for (var hk = 0; hk < window.lvHooks.length; hk++){
@@ -388,7 +422,7 @@ def live_block(snap):
     for (var i = 0; i < cells.length; i++){
       var el = cells[i], ds = el.dataset;
       var v = p / C.oz * parseFloat(ds.g) * parseFloat(ds.pur) * parseFloat(ds.fx)
-              * (1 + parseFloat(ds.prem) / 100);
+              * (1 + parseFloat(ds.prem) / 100) * parseFloat(ds.cal || 1);
       var dp = parseInt(ds.dp, 10);
       var txt = f(v, dp);
       var tgt = el.querySelector('b') || el;
@@ -893,13 +927,11 @@ def render(snap, news):
 
   <div style="border-bottom:3px solid #c9a227;padding-bottom:16px;margin-bottom:26px">
     <div style="font-size:11px;letter-spacing:2.5px;color:#c9a227;font-weight:700;text-transform:uppercase">
-      Gold tracker &middot; updates by itself
+      Gold tracker
     </div>
     <h1 style="margin:6px 0 4px;font-size:30px;letter-spacing:-.5px">Is it time to buy?</h1>
     <div style="color:#777;font-size:13px">
-      Last checked <b>%(stamp)s</b>. This page checks the market and rewrites itself
-      about once an hour - you do not need to do anything. If that time stops moving
-      forward for a day, something has broken.
+      Last checked <b>%(stamp)s</b>.
     </div>
   </div>
 

@@ -890,7 +890,76 @@ def fx_live():
     }
 
 
-def published_ksa():
+def _lpog(country):
+    """livepriceofgold.com publishes a live per-gram table per country."""
+    r = session("browser").get(
+        "https://www.livepriceofgold.com/%s-gold-price.html" % country, timeout=15)
+    r.raise_for_status()
+    t = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", r.text, flags=re.S | re.I)
+    t = html_mod.unescape(re.sub(r"<[^>]+>", "|", t))
+    t = re.sub(r"[|\s]*\|[|\s]*", "|", t)
+    out = {}
+    for k in (24, 22, 21, 18):
+        m = re.search(r"\|%dK Gold/gram\|[^|]*\|([0-9][0-9,]*\.?[0-9]*)\|" % k, t)
+        if m:
+            try:
+                v = float(m.group(1).replace(",", ""))
+                if v > 1:
+                    out["%dk" % k] = v
+            except ValueError:
+                pass
+    if not out:
+        raise ValueError("no table for %s" % country)
+    return out
+
+
+def published_rates():
+    """What local gold price sites are quoting right now, per gram.
+
+    The page used to work the local price out from spot and a currency rate.
+    That is sound arithmetic, but it is not what somebody sees when they search
+    for the price in their own country. This reads the published tables instead,
+    from more than one site, and takes the middle value - so the figure on the
+    page is the figure in the market, not a derivation of it.
+    """
+    feeds = [
+        ("ksa", "goldpricetoday-saudi.com", _gpt_saudi),
+        ("ksa", "livepriceofgold.com", lambda: _lpog("saudi-arabia")),
+        ("india", "livepriceofgold.com", lambda: _lpog("india")),
+    ]
+    got = {}
+    for market, name, fn in feeds:
+        try:
+            table = fn()
+            got.setdefault(market, []).append({"source": name, "rows": table})
+        except Exception as exc:                           # noqa: BLE001
+            print("   published %s/%s failed: %s" % (market, name, exc))
+
+    out = {}
+    for market, entries in got.items():
+        karats = {}
+        for k in ("24k", "22k", "21k", "18k"):
+            vals = sorted(e["rows"][k] for e in entries if k in e["rows"])
+            if not vals:
+                continue
+            n = len(vals)
+            karats[k] = {
+                "value": round(vals[n // 2] if n % 2 else (vals[n // 2 - 1] + vals[n // 2]) / 2.0, 2),
+                "n": n,
+                "spread_pct": round((max(vals) - min(vals)) / vals[0] * 100, 3) if n > 1 else 0.0,
+            }
+        if karats:
+            out[market] = {
+                "karats": karats,
+                "sources": [e["source"] for e in entries],
+                "asof": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            }
+    if not out:
+        raise ValueError("no published tables readable")
+    return out
+
+
+def _gpt_saudi():
     """Read the Saudi rate table that local price sites publish.
 
     The page computes its own number from spot. This fetches what a Saudi gold
@@ -914,7 +983,6 @@ def published_ksa():
                 pass
     if not out:
         raise ValueError("could not read published table")
-    out["source"] = "goldpricetoday-saudi.com"
     return out
 
 
@@ -1003,16 +1071,33 @@ def local_prices(indicators, cfg):
         "markets": [],
     }
 
-    def rows(per_unit_usd, karats, premium_pct, rate, grams):
+    pub_all = indicators.get("published") or {}
+
+    def rows(market_key, karats, premium_pct, rate, grams):
+        """Prefer the rate local price sites are publishing; compute only as backup."""
+        pub = ((pub_all.get(market_key) or {}).get("karats") or {})
         res = []
         for k in karats:
             purity = k / 24.0
-            base = gold / TROY_OZ_G * grams * purity * rate
+            computed = gold / TROY_OZ_G * grams * purity * rate
+            p = pub.get("%dk" % k)
+            if p and p.get("value"):
+                base = float(p["value"]) * grams          # published figures are per gram
+                src = "published"
+                n_src = p.get("n", 1)
+            else:
+                base = computed
+                src = "computed"
+                n_src = 0
             res.append({
                 "karat": "%dk" % k,
                 "purity_pct": round(purity * 100, 1),
                 "purity": purity,
                 "raw": round(base, 2),
+                "computed": round(computed, 2),
+                "gap_pct": round((base / computed - 1) * 100, 3) if computed else 0.0,
+                "basis": src,
+                "n_sources": n_src,
                 "with_premium": round(base * (1 + premium_pct / 100.0), 2),
             })
         return res
@@ -1028,7 +1113,7 @@ def local_prices(indicators, cfg):
             "fx_label": "1 USD = %.2f SAR (the official peg, which is what Saudi gold shops price off)" % fx["usdsar"],
             "premium_pct": ksa.get("dealer_premium_pct", 0),
             "premium_label": "typical dealer premium",
-            "rows": rows(None, ksa.get("karats", [24]), ksa.get("dealer_premium_pct", 0),
+            "rows": rows("ksa", ksa.get("karats", [24]), ksa.get("dealer_premium_pct", 0),
                          fx["usdsar"], 1),
             "note": ksa.get("note", ""),
         })
@@ -1044,7 +1129,7 @@ def local_prices(indicators, cfg):
             "fx_label": "1 USD = %.2f INR" % fx["usdinr"],
             "premium_pct": ind.get("import_duty_gst_pct", 0),
             "premium_label": "import duty + GST",
-            "rows": rows(None, ind.get("karats", [24]), ind.get("import_duty_gst_pct", 0),
+            "rows": rows("india", ind.get("karats", [24]), ind.get("import_duty_gst_pct", 0),
                          fx["usdinr"], 10),
             "note": ind.get("note", ""),
         })
@@ -1082,7 +1167,7 @@ def build_snapshot():
         "usdinr": lambda: cached("usdinr", lambda: yahoo("INR=X", "1mo")),
         "spot":   lambda: cached("spot",   spot_gold),
         "fxlive": lambda: cached("fxlive", fx_live),
-        "pubksa": lambda: cached("pubksa", published_ksa),
+        "published": lambda: cached("published", published_rates),
     }
     with ThreadPoolExecutor(max_workers=8) as pool:
         futures = {k: pool.submit(v) for k, v in market_jobs.items()}

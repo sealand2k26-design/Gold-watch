@@ -777,21 +777,90 @@ def history_worker():
 # --------------------------------------------------------------------------
 # snapshot builder + routes
 # --------------------------------------------------------------------------
-def spot_gold():
-    """Live spot gold (XAU/USD) - the price local shops actually price off.
-
-    GC=F is a COMEX futures contract and trades a little above spot because of
-    carry. The difference is small (~0.5%) but it is a systematic overstatement
-    on every local price, so the per-gram tables use spot instead.
-    Free, no key, no registration.
-    """
-    r = session("plain").get("https://api.gold-api.com/price/XAU", timeout=15)
+def _sq_xau():
+    """Swissquote's public bank feed. Real dealable XAU/USD bid/ask."""
+    r = session("plain").get(
+        "https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD",
+        timeout=12)
     r.raise_for_status()
-    d = r.json()
-    price = float(d["price"])
-    if not 200 < price < 20000:
-        raise ValueError("implausible spot price: %s" % price)
-    return {"price": round(price, 2), "asof": d.get("updatedAt", "")}
+    best = None
+    for blk in r.json():
+        for sp in blk.get("spreadProfilePrices", []):
+            bid, ask = float(sp["bid"]), float(sp["ask"])
+            if ask <= bid:
+                continue
+            if best is None or (ask - bid) < best[1]:
+                best = ((bid + ask) / 2.0, ask - bid)
+    if best is None:
+        raise ValueError("no swissquote quote")
+    return best[0]
+
+
+def _fxr_xau():
+    r = session("plain").get(
+        "https://api.fxratesapi.com/latest?base=XAU&currencies=USD", timeout=12)
+    r.raise_for_status()
+    return float(r.json()["rates"]["USD"])
+
+
+def _goldapi_xau():
+    r = session("plain").get("https://api.gold-api.com/price/XAU", timeout=12)
+    r.raise_for_status()
+    return float(r.json()["price"])
+
+
+SPOT_SOURCES = [
+    ("Swissquote bank feed", _sq_xau),
+    ("FXRatesAPI", _fxr_xau),
+    ("gold-api.com", _goldapi_xau),
+]
+
+
+def spot_gold():
+    """Spot gold (XAU/USD) from three independent feeds, median of whatever answers.
+
+    One feed can round, freeze at a weekend value, or simply go down. Taking the
+    median of three means any single bad source is outvoted rather than believed,
+    and the page can show you how closely they agree.
+
+    GC=F is a COMEX futures contract and trades ~0.5% above spot because of carry,
+    so the per-gram tables use spot, never futures.
+    """
+    quotes = []
+    for name, fn in SPOT_SOURCES:
+        try:
+            p = float(fn())
+            if 200 < p < 20000:
+                quotes.append({"name": name, "price": round(p, 2)})
+        except Exception as exc:
+            print("   spot source %s failed: %s" % (name, exc))
+
+    if not quotes:
+        raise ValueError("every spot source failed")
+
+    vals = sorted(q["price"] for q in quotes)
+    mid = vals[len(vals) // 2] if len(vals) % 2 else (vals[len(vals) // 2 - 1] + vals[len(vals) // 2]) / 2.0
+
+    # outvote anything more than 1% from the median, then re-take the median
+    kept = [q for q in quotes if abs(q["price"] - mid) / mid <= 0.01]
+    for q in quotes:
+        q["used"] = q in kept
+    if kept:
+        kv = sorted(q["price"] for q in kept)
+        mid = kv[len(kv) // 2] if len(kv) % 2 else (kv[len(kv) // 2 - 1] + kv[len(kv) // 2]) / 2.0
+
+    used = [q["price"] for q in quotes if q["used"]]
+    spread = (max(used) - min(used)) if len(used) > 1 else 0.0
+
+    return {
+        "price": round(mid, 2),
+        "asof": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "sources": quotes,
+        "n_ok": len(used),
+        "n_tried": len(SPOT_SOURCES),
+        "spread_usd": round(spread, 2),
+        "spread_pct": round(spread / mid * 100, 3) if mid else 0.0,
+    }
 
 
 TROY_OZ_G = 31.1034768

@@ -183,7 +183,7 @@
    }
   ]
  },
- "generated": "2026-11-28 17:18:30 UTC",
+ "generated": "2026-11-28 17:24:07 UTC",
  "indicators": {
   "brent": {
    "asof": "2026-11-27 19:44 UTC",
@@ -476,8 +476,29 @@
    "trough": 40.051998138427734
   },
   "spot": {
-   "asof": "2026-11-28T17:17:56Z",
-   "price": 3650.0
+   "asof": "2026-11-28T17:24:07Z",
+   "n_ok": 3,
+   "n_tried": 3,
+   "price": 3653.49,
+   "sources": [
+    {
+     "name": "Swissquote bank feed",
+     "price": 3653.49,
+     "used": true
+    },
+    {
+     "name": "FXRatesAPI",
+     "price": 3654.51,
+     "used": true
+    },
+    {
+     "name": "gold-api.com",
+     "price": 3650.0,
+     "used": true
+    }
+   ],
+   "spread_pct": 0.123,
+   "spread_usd": 4.51
   },
   "usdinr": {
    "asof": "2026-11-28 03:30 UTC",
@@ -520,29 +541,29 @@
       "karat": "24k",
       "purity": 1.0,
       "purity_pct": 100.0,
-      "raw": 440.2,
-      "with_premium": 449.01
+      "raw": 440.63,
+      "with_premium": 449.44
      },
      {
       "karat": "22k",
       "purity": 0.9166666666666666,
       "purity_pct": 91.7,
-      "raw": 403.52,
-      "with_premium": 411.59
+      "raw": 403.91,
+      "with_premium": 411.98
      },
      {
       "karat": "21k",
       "purity": 0.875,
       "purity_pct": 87.5,
-      "raw": 385.18,
-      "with_premium": 392.88
+      "raw": 385.55,
+      "with_premium": 393.26
      },
      {
       "karat": "18k",
       "purity": 0.75,
       "purity_pct": 75.0,
-      "raw": 330.15,
-      "with_premium": 336.76
+      "raw": 330.47,
+      "with_premium": 337.08
      }
     ],
     "unit": "per gram"
@@ -561,15 +582,15 @@
       "karat": "24k",
       "purity": 1.0,
       "purity_pct": 100.0,
-      "raw": 109123.97,
-      "with_premium": 124946.95
+      "raw": 109228.31,
+      "with_premium": 125066.42
      },
      {
       "karat": "22k",
       "purity": 0.9166666666666666,
       "purity_pct": 91.7,
-      "raw": 100030.31,
-      "with_premium": 114534.7
+      "raw": 100125.96,
+      "with_premium": 114644.22
      }
     ],
     "unit": "per 10 grams"
@@ -580,7 +601,7 @@
    "ksa_gram_24k": 416.08,
    "usd_oz": 3450.0
   },
-  "world_usd_oz": 3650.0
+  "world_usd_oz": 3653.49
  },
  "manual": {
   "cb_buying_tonnes_q": {

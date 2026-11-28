@@ -191,7 +191,7 @@ def local_block(snap):
 
 
 SOURCE_OF = {
-    "spot":     ("Spot gold (XAU/USD)",        "gold-api.com, live"),
+    "spot":     ("Spot gold (XAU/USD)",        "median of 3 feeds, live"),
     "gold":     ("Gold futures (COMEX GC=F)",  "Yahoo Finance"),
     "usdsar":   ("US dollar / Saudi riyal",    "Yahoo Finance"),
     "usdinr":   ("US dollar / Indian rupee",   "Yahoo Finance"),
@@ -271,19 +271,40 @@ def live_block(snap):
     if not base:
         return ""
 
+    import urllib.request as _u
+
+    def _get(url):
+        _rq = _u.Request(url, headers={"User-Agent": "curl/8.5.0", "Accept": "*/*"})
+        return json.load(_u.urlopen(_rq, timeout=8))
+
     basis = 0.0
     try:
-        import urllib.request as _u
-        _r = _u.urlopen("https://api.kraken.com/0/public/Ticker?pair=PAXGUSD", timeout=8)
-        _t = list(json.load(_r)["result"].values())[0]
+        _t = list(_get("https://api.kraken.com/0/public/Ticker?pair=PAXGUSD")["result"].values())[0]
         _paxg = (float(_t["b"][0]) + float(_t["a"][0])) / 2.0
         if 100 < _paxg < 20000:
             basis = round(base - _paxg, 2)
     except Exception:
         basis = 0.0
 
+    # The browser cannot reach Swissquote (no CORS), so it anchors on the feed it
+    # can reach and applies the standing offset to that feed's own median error.
+    adj_fx, adj_ga = 0.0, 0.0
+    try:
+        _v = float(_get("https://api.fxratesapi.com/latest?base=XAU&currencies=USD")["rates"]["USD"])
+        if 100 < _v < 20000:
+            adj_fx = round(base - _v, 2)
+    except Exception:
+        pass
+    try:
+        _v = float(_get("https://api.gold-api.com/price/XAU")["price"])
+        if 100 < _v < 20000:
+            adj_ga = round(base - _v, 2)
+    except Exception:
+        pass
+
     cfg_js = json.dumps({"sar": sar, "inr": inr, "base": base, "oz": 31.1034768,
-                         "k22": 22.0 / 24.0, "basis": basis})
+                         "k22": 22.0 / 24.0, "basis": basis,
+                         "adjFx": adj_fx, "adjGa": adj_ga})
 
     return """
 <div id="lvBox" style="border:1px solid #e3e3e3;border-left:4px solid #c9a227;border-radius:8px;
@@ -311,7 +332,7 @@ def live_block(snap):
        style="margin-top:10px;display:block"><polyline id="lvLine" fill="none"
        stroke="#c9a227" stroke-width="1.6" points=""></polyline></svg>
   <div style="color:#888;font-size:11.5px;margin-top:6px" id="lvNote">
-    Priced off live spot gold, with movement from the 24-hour gold token market - so it keeps
+    Priced off the median of three independent spot feeds, with movement from the 24-hour gold token market - so it keeps
     ticking at weekends when COMEX is shut. Spot feeds differ by a dollar or two between
     providers, so a search may show a figure within about 0.1% of this one.
   </div>
@@ -385,14 +406,20 @@ def live_block(snap):
   // so the number both MOVES and matches what you see when you search.
   var basis = C.basis, spotNow = null, reanchor = false;
 
+  function setSpot(v){
+    if (v > 100 && v !== spotNow){ spotNow = v; reanchor = true; }
+  }
   function pullSpot(){
-    fetch('https://api.gold-api.com/price/XAU', {cache:'no-store'})
+    // primary anchor, corrected to the three-feed median measured at build time
+    fetch('https://api.fxratesapi.com/latest?base=XAU&currencies=USD', {cache:'no-store'})
       .then(function(r){ return r.json(); })
-      .then(function(j){
-        var sp = parseFloat(j.price);
-        if (sp > 100 && sp !== spotNow){ spotNow = sp; reanchor = true; }
-      })
-      .catch(function(){});
+      .then(function(j){ setSpot(parseFloat(j.rates.USD) + C.adjFx); })
+      .catch(function(){
+        fetch('https://api.gold-api.com/price/XAU', {cache:'no-store'})
+          .then(function(r){ return r.json(); })
+          .then(function(j){ setSpot(parseFloat(j.price) + C.adjGa); })
+          .catch(function(){});
+      });
   }
 
   function pull(){
@@ -414,6 +441,75 @@ def live_block(snap):
 })();
 </script>
 """.replace("CONFIG_JSON", cfg_js)
+
+
+def accuracy_block(snap):
+    """Show how closely the independent spot feeds agree, right now.
+
+    Precision is not something the reader should take on faith. Three separate
+    providers are queried every rebuild; this prints all three, says which were
+    used, and states the spread between them in both dollars and riyals.
+    """
+    sp = (snap.get("indicators") or {}).get("spot") or {}
+    srcs = sp.get("sources") or []
+    if not srcs:
+        return ""
+    oz = 31.1034768
+    fx = ((snap.get("local") or {}).get("fx") or {}).get("usdsar") or 3.75
+
+    rows = []
+    for q in srcs:
+        ok = q.get("used")
+        rows.append(
+            '<tr>'
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee">%s</td>'
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;'
+            'font-family:ui-monospace,Menlo,monospace">$%s</td>'
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;'
+            'font-family:ui-monospace,Menlo,monospace">%s</td>'
+            '<td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;'
+            'color:%s;font-size:12px">%s</td>'
+            '</tr>'
+            % (e(q.get("name", "")), format(q.get("price", 0), ",.2f"),
+               format(q.get("price", 0) / oz * fx, ",.2f"),
+               "#2f9e44" if ok else "#d6336c",
+               "counted" if ok else "outvoted")
+        )
+
+    n_ok, n_tried = sp.get("n_ok", 0), sp.get("n_tried", 0)
+    spread_usd, spread_pct = sp.get("spread_usd", 0), sp.get("spread_pct", 0)
+    spread_sar = spread_usd / oz * fx
+
+    if n_ok >= 2 and spread_pct < 0.25:
+        verdict, colour = "Feeds agree. The figure below is the middle one.", "#2f9e44"
+    elif n_ok >= 2:
+        verdict, colour = "Feeds disagree more than usual - treat the last decimal loosely.", "#e8a33d"
+    else:
+        verdict, colour = "Only one feed answered. Cross-check before you trade on it.", "#d6336c"
+
+    return (
+        '<h2 style="font-size:19px;margin:26px 0 4px">How accurate is this right now</h2>'
+        '<div style="color:#666;font-size:13px;margin:0 0 10px">'
+        'Three independent providers are asked for the gold price every single rebuild. '
+        'If one rounds its number or freezes at a weekend value, it gets outvoted by the '
+        'other two instead of being believed.</div>'
+        '<table style="width:100%%;border-collapse:collapse;font-size:13.5px">'
+        '<tr style="text-align:left;color:#888;font-size:11.5px;letter-spacing:.4px">'
+        '<th style="padding:0 8px 5px">Provider</th>'
+        '<th style="padding:0 8px 5px;text-align:right">USD / ounce</th>'
+        '<th style="padding:0 8px 5px;text-align:right">SAR / gram 24k</th>'
+        '<th style="padding:0 8px 5px;text-align:right">&nbsp;</th></tr>'
+        '%s</table>'
+        '<div style="margin-top:10px;padding:10px 12px;border-left:3px solid %s;'
+        'background:#fafafa;border-radius:0 6px 6px 0;font-size:13px">'
+        '<b style="color:%s">%s</b><br>'
+        '<span style="color:#666">%s of %s feeds answered &middot; widest disagreement '
+        '<b>$%s</b> an ounce = <b>%s halalas</b> a gram &middot; that is <b>%s%%</b>. '
+        'A dealer&rsquo;s own margin is many times larger than this.</span></div>'
+        % ("".join(rows), colour, colour, verdict, n_ok, n_tried,
+           format(spread_usd, ",.2f"), format(spread_sar * 100, ",.0f"),
+           format(spread_pct, ".3f"))
+    )
 
 
 def render(snap, news):
@@ -609,6 +705,8 @@ def render(snap, news):
   </div>
   <table style="width:100%%;border-collapse:collapse;max-width:330px;margin-bottom:30px;font-size:14px">%(path)s</table>
 
+  %(accuracy)s
+
   %(sources)s
 
   <h2 style="font-size:19px;margin:0 0 10px">Latest from the Fed</h2>
@@ -636,6 +734,7 @@ def render(snap, news):
         "live": live_block(snap),
         "plan": plan_block(gold.get("price")),
         "local": local_block(snap),
+        "accuracy": accuracy_block(snap),
         "sources": sources_block(snap),
         "headline": e(plain.get("headline", "")),
         "lines": lines,

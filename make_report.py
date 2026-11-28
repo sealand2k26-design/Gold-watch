@@ -123,18 +123,24 @@ def local_block(snap):
     cards = []
     for m in loc["markets"]:
         rows = []
+        grams = 10 if "10" in (m.get("unit") or "") else 1
+        dp = 0 if grams == 10 else 2
         for r in m["rows"]:
+            attrs = ('data-lv="1" data-fx="%s" data-g="%s" data-pur="%s" data-dp="%s"'
+                     % (m["fx_rate"], grams, r["purity_pct"] / 100.0, dp))
             rows.append(
                 '<tr>'
                 '<td style="padding:7px 8px;border-bottom:1px solid #eee"><b>%s</b>'
                 '<span style="color:#999;font-size:11.5px"> %s%%</span></td>'
                 '<td style="padding:7px 8px;border-bottom:1px solid #eee;text-align:right;'
-                'font-family:ui-monospace,Menlo,monospace">%s</td>'
+                'font-family:ui-monospace,Menlo,monospace" %s data-prem="0">%s</td>'
                 '<td style="padding:7px 8px;border-bottom:1px solid #eee;text-align:right;'
-                'font-family:ui-monospace,Menlo,monospace;color:#8a7a3a"><b>%s</b></td>'
+                'font-family:ui-monospace,Menlo,monospace;color:#8a7a3a" %s data-prem="%s">'
+                '<b>%s</b></td>'
                 '</tr>'
                 % (e(r["karat"]), r["purity_pct"],
-                   format(r["raw"], ",.2f"), format(r["with_premium"], ",.2f"))
+                   attrs, format(r["raw"], ",.2f"),
+                   attrs, m["premium_pct"], format(r["with_premium"], ",.2f"))
             )
         cards.append(
             '<div style="border:1px solid #e3e3e3;border-radius:8px;padding:14px 16px;'
@@ -173,7 +179,9 @@ def local_block(snap):
         )
 
     return (
-        '<h2 style="font-size:19px;margin:0 0 4px">What it costs where you are</h2>'
+        '<h2 style="font-size:19px;margin:0 0 4px">What it costs where you are '
+        '<span style="font-size:10.5px;letter-spacing:1.5px;color:#2f9e44;'
+        'font-weight:700;vertical-align:middle">&#9679; LIVE</span></h2>'
         '<div style="color:#777;font-size:12.5px;margin-bottom:12px">'
         'Converted from the live <b>spot</b> gold price ($%s an ounce) - the benchmark shops '
         'price off, not the futures contract quoted at the top of this page.</div>'
@@ -318,6 +326,22 @@ def live_block(snap):
       + f(Math.abs(d / C.base * 100), 2) + '%)</span> <span style="color:#888">since this page was built</span>';
     $('lvSar').textContent = f(p / C.oz * C.sar, 2);
     if (C.inr) $('lvInr').textContent = f(p / C.oz * 10 * C.inr, 0);
+
+    var cells = document.querySelectorAll('[data-lv]');
+    for (var i = 0; i < cells.length; i++){
+      var el = cells[i], ds = el.dataset;
+      var v = p / C.oz * parseFloat(ds.g) * parseFloat(ds.pur) * parseFloat(ds.fx)
+              * (1 + parseFloat(ds.prem) / 100);
+      var dp = parseInt(ds.dp, 10);
+      var txt = f(v, dp);
+      var tgt = el.querySelector('b') || el;
+      if (tgt.textContent !== txt){
+        tgt.textContent = txt;
+        el.style.transition = 'none';
+        el.style.background = (last !== null && p > last) ? '#e8f7ec' : '#fdeaf1';
+        (function(n){ setTimeout(function(){ n.style.transition = 'background 1s'; n.style.background = 'transparent'; }, 50); })(el);
+      }
+    }
     $('lvTime').textContent = 'updated ' + new Date().toLocaleTimeString();
     if (last !== null && p !== last){
       var c = p > last ? '#2f9e44' : '#d6336c';

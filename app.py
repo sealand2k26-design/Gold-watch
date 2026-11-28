@@ -465,7 +465,9 @@ def build_alerts(indicators, manual, gold_price, cfg):
 
 def plain_summary(indicators, posterior, forecast, cfg):
     """Turn the numbers into sentences a normal person can act on."""
-    g = (indicators.get("gold") or {}).get("price")
+    # Spot is the live number at weekends; GC=F is frozen from Friday's close.
+    # Running the decision off a stale futures price was simply wrong.
+    g = (indicators.get("spot") or {}).get("price") or (indicators.get("gold") or {}).get("price")
     chg = (indicators.get("gold") or {}).get("change_pct")
     brent = (indicators.get("brent") or {}).get("price")
     pce = (indicators.get("core_pce") or {}).get("value")
@@ -779,11 +781,28 @@ def history_worker():
 # --------------------------------------------------------------------------
 # snapshot builder + routes
 # --------------------------------------------------------------------------
+def spot_change():
+    """Change since midnight UTC, from the gold market that never closes.
+
+    GC=F stops at Friday's close, so its "today" figure is two days old by
+    Sunday and says nothing about now. Tokenised gold trades right through the
+    weekend, so its move since midnight is a live number.
+    """
+    r = session("plain").get("https://api.kraken.com/0/public/Ticker?pair=PAXGUSD", timeout=(5, 8))
+    r.raise_for_status()
+    t = list(r.json()["result"].values())[0]
+    o, c = float(t["o"]), float(t["c"][0])
+    if not (o > 0 and c > 0):
+        raise ValueError("bad kraken quote")
+    return {"change_pct": round((c / o - 1) * 100, 2),
+            "asof": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+
+
 def _sq_xau():
     """Swissquote's public bank feed. Real dealable XAU/USD bid/ask."""
     r = session("plain").get(
         "https://forex-data-feed.swissquote.com/public-quotes/bboquotes/instrument/XAU/USD",
-        timeout=12)
+        timeout=(5, 8))
     r.raise_for_status()
     best = None
     for blk in r.json():
@@ -800,38 +819,37 @@ def _sq_xau():
 
 def _fxr_xau():
     r = session("plain").get(
-        "https://api.fxratesapi.com/latest?base=XAU&currencies=USD", timeout=12)
+        "https://api.fxratesapi.com/latest?base=XAU&currencies=USD", timeout=(5, 8))
     r.raise_for_status()
     return float(r.json()["rates"]["USD"])
 
 
 def _goldapi_xau():
-    r = session("plain").get("https://api.gold-api.com/price/XAU", timeout=12)
+    r = session("plain").get("https://api.gold-api.com/price/XAU", timeout=(5, 8))
     r.raise_for_status()
     return float(r.json()["price"])
 
 
 SPOT_SOURCES = [
     ("Swissquote bank feed", _sq_xau),
-    ("FXRatesAPI", _fxr_xau),
     ("gold-api.com", _goldapi_xau),
 ]
 
 
 def _fx_fxratesapi():
-    r = session("plain").get("https://api.fxratesapi.com/latest?base=USD&currencies=INR", timeout=10)
+    r = session("plain").get("https://api.fxratesapi.com/latest?base=USD&currencies=INR", timeout=(5, 8))
     r.raise_for_status()
     return float(r.json()["rates"]["INR"])
 
 
 def _fx_erapi():
-    r = session("plain").get("https://open.er-api.com/v6/latest/USD", timeout=10)
+    r = session("plain").get("https://open.er-api.com/v6/latest/USD", timeout=(5, 8))
     r.raise_for_status()
     return float(r.json()["rates"]["INR"])
 
 
 def _fx_frankfurter():
-    r = session("plain").get("https://api.frankfurter.dev/v1/latest?base=USD&symbols=INR", timeout=10)
+    r = session("plain").get("https://api.frankfurter.dev/v1/latest?base=USD&symbols=INR", timeout=(5, 8))
     r.raise_for_status()
     return float(r.json()["rates"]["INR"])
 
@@ -839,13 +857,12 @@ def _fx_frankfurter():
 def _fx_jsdelivr():
     r = session("plain").get(
         "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json",
-        timeout=10)
+        timeout=(5, 8))
     r.raise_for_status()
     return float(r.json()["usd"]["inr"])
 
 
 INR_SOURCES = [
-    ("FXRatesAPI", _fx_fxratesapi),
     ("open.er-api.com", _fx_erapi),
     ("Frankfurter", _fx_frankfurter),
     ("Currency-API", _fx_jsdelivr),
@@ -893,7 +910,7 @@ def fx_live():
 def _lpog(country):
     """livepriceofgold.com publishes a live per-gram table per country."""
     r = session("browser").get(
-        "https://www.livepriceofgold.com/%s-gold-price.html" % country, timeout=15)
+        "https://www.livepriceofgold.com/%s-gold-price.html" % country, timeout=(5, 8))
     r.raise_for_status()
     t = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", r.text, flags=re.S | re.I)
     t = html_mod.unescape(re.sub(r"<[^>]+>", "|", t))
@@ -966,7 +983,7 @@ def _gpt_saudi():
     site is publishing at the same moment, so the two can be shown side by side
     and the reader can see the gap rather than be told it is small.
     """
-    r = session("browser").get("https://goldpricetoday-saudi.com/en/", timeout=15)
+    r = session("browser").get("https://goldpricetoday-saudi.com/en/", timeout=(5, 8))
     r.raise_for_status()
     txt = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", r.text, flags=re.S | re.I)
     txt = html_mod.unescape(re.sub(r"<[^>]+>", "|", txt))
@@ -1111,6 +1128,7 @@ def local_prices(indicators, cfg):
             "unit": ksa.get("unit", "per gram"),
             "fx_rate": round(fx["usdsar"], 4),
             "fx_label": "1 USD = %.2f SAR (the official peg, which is what Saudi gold shops price off)" % fx["usdsar"],
+            "grams": 1,
             "premium_pct": ksa.get("dealer_premium_pct", 0),
             "premium_label": "typical dealer premium",
             "rows": rows("ksa", ksa.get("karats", [24]), ksa.get("dealer_premium_pct", 0),
@@ -1124,13 +1142,14 @@ def local_prices(indicators, cfg):
             "key": "india",
             "label": ind.get("label", "India"),
             "currency": ind.get("currency", "INR"),
-            "unit": ind.get("unit", "per 10 grams"),
+            "unit": ind.get("unit", "per 8 g (1 pavan)"),
+            "grams": int(ind.get("grams", 8)),
             "fx_rate": round(fx["usdinr"], 3),
             "fx_label": "1 USD = %.2f INR" % fx["usdinr"],
             "premium_pct": ind.get("import_duty_gst_pct", 0),
             "premium_label": "import duty + GST",
             "rows": rows("india", ind.get("karats", [24]), ind.get("import_duty_gst_pct", 0),
-                         fx["usdinr"], 10),
+                         fx["usdinr"], int(ind.get("grams", 8))),
             "note": ind.get("note", ""),
         })
 
@@ -1167,6 +1186,7 @@ def build_snapshot():
         "usdinr": lambda: cached("usdinr", lambda: yahoo("INR=X", "1mo")),
         "spot":   lambda: cached("spot",   spot_gold),
         "fxlive": lambda: cached("fxlive", fx_live),
+        "spotchg": lambda: cached("spotchg", spot_change),
         "published": lambda: cached("published", published_rates),
     }
     with ThreadPoolExecutor(max_workers=8) as pool:

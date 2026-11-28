@@ -65,7 +65,7 @@ def main():
     # Stops GitHub Pages running the output through Jekyll.
     open(os.path.join(OUT_DIR, ".nojekyll"), "w").close()
 
-    gold = snap["indicators"].get("gold", {}).get("price")
+    gold = (snap["indicators"].get("spot") or snap["indicators"].get("gold") or {}).get("price")
     print("  wrote %s (%d bytes)" % (index, len(doc)))
     print("  gold $%s -> %s" % (gold, snap["plain"]["action"]["label"]))
     return 0

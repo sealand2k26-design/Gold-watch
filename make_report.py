@@ -146,7 +146,7 @@ def local_block(snap):
         rows.append('<tr><td colspan="3" style="padding:2px 8px 9px;color:#777;font-size:12px">'
                     + e(head) + '</td></tr>')
 
-        grams = 10 if "10" in (m.get("unit") or "") else 1
+        grams = int(m.get("grams") or (10 if "10" in (m.get("unit") or "") else 1))
         dp = 0 if grams == 10 else 2
         for r in m["rows"]:
             cal = (r["raw"] / r["computed"]) if r.get("computed") else 1.0
@@ -333,12 +333,6 @@ def live_block(snap):
     # can reach and applies the standing offset to that feed's own median error.
     adj_fx, adj_ga = 0.0, 0.0
     try:
-        _v = float(_get("https://api.fxratesapi.com/latest?base=XAU&currencies=USD")["rates"]["USD"])
-        if 100 < _v < 20000:
-            adj_fx = round(base - _v, 2)
-    except Exception:
-        pass
-    try:
         _v = float(_get("https://api.gold-api.com/price/XAU")["price"])
         if 100 < _v < 20000:
             adj_ga = round(base - _v, 2)
@@ -348,7 +342,7 @@ def live_block(snap):
     cfg_js = json.dumps({"sar": sar, "inr": inr, "base": base, "oz": 31.1034768,
                          "k22": 22.0 / 24.0, "basis": basis,
                          "calSar": cal_sar, "calInr": cal_inr,
-                         "calSar22": cal_sar22, "calInr22": cal_inr22,
+                         "calSar22": cal_sar22, "calInr22": cal_inr22, "pavan": 8,
                          "adjFx": adj_fx, "adjGa": adj_ga})
 
     return """
@@ -368,8 +362,8 @@ def live_block(snap):
       <div><b id="lvSar">&mdash;</b> <span style="color:#777">SAR / gram 24k</span></div>
       <div><b id="lvSar22">&mdash;</b> <span style="color:#777">SAR / gram 22k</span></div>
       <div style="height:6px"></div>
-      <div><b id="lvInr">&mdash;</b> <span style="color:#777">INR / 10g 24k</span></div>
-      <div><b id="lvInr22">&mdash;</b> <span style="color:#777">INR / 10g 22k</span></div>
+      <div><b id="lvInr">&mdash;</b> <span style="color:#777">INR / pavan 24k</span></div>
+      <div><b id="lvInr22">&mdash;</b> <span style="color:#777">INR / pavan 22k</span></div>
       <div style="color:#999;font-size:11px;margin-top:3px" id="lvTime"></div>
     </div>
   </div>
@@ -410,7 +404,7 @@ def live_block(snap):
     $('lvSar').textContent = f(gSar * (C.calSar || 1), 2);
     $('lvSar22').textContent = f(gSar * C.k22 * (C.calSar22 || 1), 2);
     if (C.inr){
-      var tInr = p / C.oz * 10 * C.inr;
+      var tInr = p / C.oz * C.pavan * C.inr;
       $('lvInr').textContent = f(tInr * (C.calInr || 1), 0);
       $('lvInr22').textContent = f(tInr * C.k22 * (C.calInr22 || 1), 0);
     }
@@ -458,16 +452,11 @@ def live_block(snap):
     if (v > 100 && v !== spotNow){ spotNow = v; reanchor = true; }
   }
   function pullSpot(){
-    // primary anchor, corrected to the three-feed median measured at build time
-    fetch('https://api.fxratesapi.com/latest?base=XAU&currencies=USD', {cache:'no-store'})
+    // anchor, corrected to the build-time median of the server-side feeds
+    fetch('https://api.gold-api.com/price/XAU', {cache:'no-store'})
       .then(function(r){ return r.json(); })
-      .then(function(j){ setSpot(parseFloat(j.rates.USD) + C.adjFx); })
-      .catch(function(){
-        fetch('https://api.gold-api.com/price/XAU', {cache:'no-store'})
-          .then(function(r){ return r.json(); })
-          .then(function(j){ setSpot(parseFloat(j.price) + C.adjGa); })
-          .catch(function(){});
-      });
+      .then(function(j){ setSpot(parseFloat(j.price) + C.adjGa); })
+      .catch(function(){});
   }
 
   function pull(){
@@ -791,6 +780,22 @@ def render(snap, news):
     fc = snap["forecast"]
     deltas = snap.get("deltas", {})
     gold = ind.get("gold", {})
+    spot_i = ind.get("spot", {})
+    # the headline must be the number that is actually live today
+    headline = spot_i.get("price") or gold.get("price")
+
+    # the change and the timestamp must describe the headline number, not a
+    # futures contract that stopped trading on Friday evening
+    schg = ind.get("spotchg") or {}
+    if schg.get("change_pct") is not None:
+        chg_txt = "%+.2f%% since midnight" % schg["change_pct"]
+        chg_val = schg["change_pct"]
+    elif gold.get("change_pct") is not None:
+        chg_txt = "%+.2f%% at Friday's close" % gold["change_pct"]
+        chg_val = gold["change_pct"]
+    else:
+        chg_txt, chg_val = "-", 0
+    asof_txt = (spot_i.get("asof") or gold.get("asof") or "-").replace("T", " ").replace("Z", " UTC")
     act = plain["action"]
     acol = C.get(act.get("tone"), "#666")
     now = datetime.now(timezone.utc)
@@ -939,7 +944,7 @@ def render(snap, news):
     <div>
       <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1.5px">Gold, per ounce</div>
       <div style="font-size:42px;font-weight:800;color:#c9a227;line-height:1.1">%(price)s</div>
-      <div style="color:%(chgcol)s;font-weight:700;font-size:14px">%(chg)s today</div>
+      <div style="color:%(chgcol)s;font-weight:700;font-size:14px">%(chg)s</div>
     </div>
     <div style="text-align:right;color:#777;font-size:12.5px">
       market timestamp %(asof)s<br>
@@ -1001,17 +1006,17 @@ def render(snap, news):
 </div>
 """ % {
         "stamp": now.strftime("%d %b %Y, %H:%M UTC"),
-        "price": money(gold.get("price")),
-        "chg": ("%+.2f%%" % gold["change_pct"]) if gold.get("change_pct") is not None else "-",
-        "chgcol": C["bull"] if (gold.get("change_pct") or 0) >= 0 else C["bear"],
-        "asof": e(gold.get("asof", "-")),
+        "price": money(headline),
+        "chg": chg_txt,
+        "chgcol": "#2f9e44" if chg_val >= 0 else "#d6336c",
+        "asof": e(asof_txt),
         "exp": money(fc.get("expected_today")),
         "err": err_txt,
         "acol": acol,
         "alabel": e(act.get("label", "")),
         "atext": e(act.get("text", "")),
         "live": live_block(snap),
-        "plan": plan_block(gold.get("price")),
+        "plan": plan_block(headline),
         "local": local_block(snap),
         "stale": staleness_block(snap),
         "position": position_block(snap, load_cfg()),

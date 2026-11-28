@@ -569,6 +569,64 @@ def live_block(snap):
              .replace("PREFILL_INR", format(base / 31.1034768 * (inr or 0) * cal_inr, ",.0f")))
 
 
+def _spread_table(snap):
+    """Show every price we can see for the same thing, side by side.
+
+    Different gold sites disagree in the second decimal, always. Rather than
+    pick one and defend it, this prints all of them - each named site, plus the
+    figure worked out from live spot - and states the spread. If a reader's own
+    search lands inside that band, nothing is wrong.
+    """
+    pub = (snap.get("indicators") or {}).get("published") or {}
+    loc = snap.get("local") or {}
+    out = []
+    for m in (loc.get("markets") or []):
+        mk = m.get("key")
+        blk = pub.get(mk) or {}
+        each = blk.get("each") or []
+        rows = []
+        for r in m.get("rows", []):
+            if r.get("karat") not in ("24k", "22k"):
+                continue
+            vals, cells = [], []
+            for src in each:
+                v = (src.get("rows") or {}).get(r["karat"])
+                if v:
+                    v = v * (m.get("grams") or 1)
+                    vals.append(v)
+                    cells.append((src["source"].replace("www.", "").split("/")[0], v))
+            if r.get("computed"):
+                vals.append(r["computed"])
+                cells.append(("our sum from live spot", r["computed"]))
+            if len(cells) < 2:
+                continue
+            lo, hi = min(vals), max(vals)
+            dp = 2 if (m.get("grams") or 1) == 1 and mk == "ksa" else 2
+            inner = " &nbsp;&middot;&nbsp; ".join(
+                '%s <b style="font-family:ui-monospace,Menlo,monospace">%s</b>'
+                % (e(n), format(v, ",.%df" % dp)) for n, v in cells)
+            rows.append(
+                '<div style="padding:7px 0;border-bottom:1px solid #f0f0f0">'
+                '<div style="font-size:12px;color:#888;letter-spacing:.3px">%s %s</div>'
+                '<div style="font-size:13px;margin-top:2px">%s</div>'
+                '<div style="font-size:11.5px;color:%s;margin-top:3px">'
+                'spread %s &ndash; %s, that is <b>%.3f%%</b></div></div>'
+                % (e(m.get("label", "")), e(r["karat"]), inner,
+                   "#2f9e44" if (hi / lo - 1) * 100 < 0.3 else "#e8a33d",
+                   format(lo, ",.2f"), format(hi, ",.2f"), (hi / lo - 1) * 100)
+            )
+        out.extend(rows)
+    if not out:
+        return ""
+    return (
+        '<div style="margin-top:16px;font-size:13px;color:#666">'
+        'Every price anyone publishes for the same gram of gold, side by side. '
+        'They never agree exactly - each site takes its own snapshot of spot. '
+        'If the number you find sits inside these bands, both of you are right.</div>'
+        '<div style="margin-top:6px">%s</div>' % "".join(out)
+    )
+
+
 def accuracy_block(snap):
     """Show how closely the independent spot feeds agree, right now.
 
@@ -613,8 +671,9 @@ def accuracy_block(snap):
     else:
         verdict, colour = "Only one feed answered. Cross-check before you trade on it.", "#d6336c"
 
-    pub = (snap.get("indicators") or {}).get("pubksa") or {}
-    check = ""
+    check = _spread_table(snap)
+    if True:
+        pub = {}
     if pub:
         ksa_rows = []
         for m in ((snap.get("local") or {}).get("markets") or []):

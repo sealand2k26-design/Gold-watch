@@ -183,7 +183,7 @@
    }
   ]
  },
- "generated": "2026-11-28 18:26:25 UTC",
+ "generated": "2026-11-28 18:39:09 UTC",
  "indicators": {
   "brent": {
    "asof": "2026-11-27 19:44 UTC",
@@ -234,7 +234,7 @@
    "value": 3.88
   },
   "fxlive": {
-   "asof": "2026-11-28T18:26:23Z",
+   "asof": "2026-11-28T18:39:07Z",
    "inr": 92.9761,
    "n_ok": 3,
    "n_tried": 3,
@@ -488,7 +488,17 @@
   },
   "published": {
    "india": {
-    "asof": "2026-11-28T18:26:25Z",
+    "asof": "2026-11-28T18:39:09Z",
+    "each": [
+     {
+      "rows": {
+       "21k": 9586.14,
+       "22k": 10035.32,
+       "24k": 10955.59
+      },
+      "source": "livepriceofgold.com"
+     }
+    ],
     "karats": {
      "21k": {
       "n": 1,
@@ -511,7 +521,26 @@
     ]
    },
    "ksa": {
-    "asof": "2026-11-28T18:26:25Z",
+    "asof": "2026-11-28T18:39:09Z",
+    "each": [
+     {
+      "rows": {
+       "18k": 330.36,
+       "21k": 385.42,
+       "22k": 403.78,
+       "24k": 440.44
+      },
+      "source": "goldpricetoday-saudi.com"
+     },
+     {
+      "rows": {
+       "21k": 385.71,
+       "22k": 403.79,
+       "24k": 440.82
+      },
+      "source": "livepriceofgold.com"
+     }
+    ],
     "karats": {
      "18k": {
       "n": 1,
@@ -556,28 +585,36 @@
    "trough": 40.051998138427734
   },
   "spot": {
-   "asof": "2026-11-28T18:26:23Z",
+   "asof": "2026-11-28T18:39:07Z",
    "n_ok": 2,
-   "n_tried": 2,
-   "price": 3651.74,
+   "n_tried": 3,
+   "price": 3653.99,
    "sources": [
     {
+     "grade": "fine",
      "name": "Swissquote bank feed",
      "price": 3653.49,
      "used": true
     },
     {
+     "grade": "fine",
+     "name": "jsDelivr XAU dataset",
+     "price": 3654.49,
+     "used": true
+    },
+    {
+     "grade": "coarse",
      "name": "gold-api.com",
      "price": 3650.0,
-     "used": true
+     "used": false
     }
    ],
-   "spread_pct": 0.096,
-   "spread_usd": 3.49
+   "spread_pct": 0.027,
+   "spread_usd": 1.0
   },
   "spotchg": {
-   "asof": "2026-11-28T18:26:23Z",
-   "change_pct": -0.22
+   "asof": "2026-11-28T18:39:06Z",
+   "change_pct": -0.2
   },
   "usdinr": {
    "asof": "2026-11-28 03:30 UTC",
@@ -602,7 +639,7 @@
   "basis": "spot",
   "futures_usd_oz": 3668.5,
   "fx": {
-   "inr_asof": "2026-11-28T18:26:23Z",
+   "inr_asof": "2026-11-28T18:39:07Z",
    "usdinr": 92.9761,
    "usdsar": 3.75,
    "usdsar_market": 3.7512
@@ -621,10 +658,11 @@
     "rows": [
      {
       "basis": "published",
-      "computed": 440.27,
-      "gap_pct": 0.081,
+      "computed": 440.54,
+      "gap_pct": 0.019,
       "karat": "24k",
       "n_sources": 2,
+      "published": 440.63,
       "purity": 1.0,
       "purity_pct": 100.0,
       "raw": 440.63,
@@ -632,10 +670,11 @@
      },
      {
       "basis": "published",
-      "computed": 403.58,
-      "gap_pct": 0.049,
+      "computed": 403.83,
+      "gap_pct": -0.013,
       "karat": "22k",
       "n_sources": 2,
+      "published": 403.78,
       "purity": 0.9166666666666666,
       "purity_pct": 91.7,
       "raw": 403.78,
@@ -643,25 +682,27 @@
      },
      {
       "basis": "published",
-      "computed": 385.24,
-      "gap_pct": 0.083,
+      "computed": 385.48,
+      "gap_pct": 0.022,
       "karat": "21k",
       "n_sources": 2,
+      "published": 385.56,
       "purity": 0.875,
       "purity_pct": 87.5,
       "raw": 385.56,
       "with_premium": 393.27
      },
      {
-      "basis": "published",
-      "computed": 330.2,
-      "gap_pct": 0.047,
+      "basis": "computed",
+      "computed": 330.41,
+      "gap_pct": 0.0,
       "karat": "18k",
-      "n_sources": 1,
+      "n_sources": 0,
+      "published": 330.36,
       "purity": 0.75,
       "purity_pct": 75.0,
-      "raw": 330.36,
-      "with_premium": 336.97
+      "raw": 330.41,
+      "with_premium": 337.02
      }
     ],
     "unit": "per gram"
@@ -678,26 +719,28 @@
     "premium_pct": 14.5,
     "rows": [
      {
-      "basis": "published",
-      "computed": 10915.97,
-      "gap_pct": 0.363,
+      "basis": "computed",
+      "computed": 10922.69,
+      "gap_pct": 0.0,
       "karat": "24k",
-      "n_sources": 1,
+      "n_sources": 0,
+      "published": 10955.59,
       "purity": 1.0,
       "purity_pct": 100.0,
-      "raw": 10955.59,
-      "with_premium": 12544.15
+      "raw": 10922.69,
+      "with_premium": 12506.48
      },
      {
-      "basis": "published",
-      "computed": 10006.3,
-      "gap_pct": 0.29,
+      "basis": "computed",
+      "computed": 10012.47,
+      "gap_pct": 0.0,
       "karat": "22k",
-      "n_sources": 1,
+      "n_sources": 0,
+      "published": 10035.32,
       "purity": 0.9166666666666666,
       "purity_pct": 91.7,
-      "raw": 10035.32,
-      "with_premium": 11490.44
+      "raw": 10012.47,
+      "with_premium": 11464.28
      }
     ],
     "unit": "per gram"
@@ -708,7 +751,7 @@
    "ksa_gram_24k": 415.95,
    "usd_oz": 3450.0
   },
-  "world_usd_oz": 3651.74
+  "world_usd_oz": 3653.99
  },
  "manual": {
   "cb_buying_tonnes_q": {
@@ -755,10 +798,10 @@
  "plain": {
   "action": {
    "label": "HOLD \u2014 NOTHING TO DO",
-   "text": "$3,652 is the normal range. If you have bought your first third, just wait. The next real decision point is the Fed meeting on 9 December.",
+   "text": "$3,654 is the normal range. If you have bought your first third, just wait. The next real decision point is the Fed meeting on 9 December.",
    "tone": "neutral"
   },
-  "headline": "Gold is $3,652 an ounce and jumped 2.9% today.",
+  "headline": "Gold is $3,654 an ounce and jumped 2.9% today.",
   "lines": [
    {
     "icon": "=",

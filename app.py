@@ -824,15 +824,28 @@ def _fxr_xau():
     return float(r.json()["rates"]["USD"])
 
 
+def _jsd_xau():
+    """XAU/USD from the jsDelivr currency dataset - four decimals, CDN-backed."""
+    r = session("plain").get(
+        "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json",
+        timeout=(5, 8))
+    r.raise_for_status()
+    return float(r.json()["xau"]["usd"])
+
+
 def _goldapi_xau():
     r = session("plain").get("https://api.gold-api.com/price/XAU", timeout=(5, 8))
     r.raise_for_status()
     return float(r.json()["price"])
 
 
+# "fine" = quotes to the cent. "coarse" = rounds hard (gold-api sat at exactly
+# 3650.00 for twenty minutes while a bank feed moved), so it is kept only as a
+# fallback and never allowed to pull a precise median off true.
 SPOT_SOURCES = [
-    ("Swissquote bank feed", _sq_xau),
-    ("gold-api.com", _goldapi_xau),
+    ("Swissquote bank feed", _sq_xau, "fine"),
+    ("jsDelivr XAU dataset", _jsd_xau, "fine"),
+    ("gold-api.com", _goldapi_xau, "coarse"),
 ]
 
 
@@ -968,6 +981,7 @@ def published_rates():
         if karats:
             out[market] = {
                 "karats": karats,
+                "each": [{"source": e["source"], "rows": e["rows"]} for e in entries],
                 "sources": [e["source"] for e in entries],
                 "asof": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             }
@@ -1014,29 +1028,34 @@ def spot_gold():
     so the per-gram tables use spot, never futures.
     """
     quotes = []
-    for name, fn in SPOT_SOURCES:
+    for name, fn, grade in SPOT_SOURCES:
         try:
             p = float(fn())
             if 200 < p < 20000:
-                quotes.append({"name": name, "price": round(p, 2)})
-        except Exception as exc:
+                quotes.append({"name": name, "price": round(p, 2), "grade": grade})
+        except Exception as exc:                           # noqa: BLE001
             print("   spot source %s failed: %s" % (name, exc))
 
     if not quotes:
         raise ValueError("every spot source failed")
 
-    vals = sorted(q["price"] for q in quotes)
-    mid = vals[len(vals) // 2] if len(vals) % 2 else (vals[len(vals) // 2 - 1] + vals[len(vals) // 2]) / 2.0
+    def _median(vals):
+        v = sorted(vals)
+        n = len(v)
+        return v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2.0
 
-    # outvote anything more than 1% from the median, then re-take the median
-    kept = [q for q in quotes if abs(q["price"] - mid) / mid <= 0.01]
+    fine = [q for q in quotes if q["grade"] == "fine"]
+    pool = fine if len(fine) >= 2 else quotes
+    mid = _median([q["price"] for q in pool])
+
+    # outvote anything more than 1% away, then re-take the middle
     for q in quotes:
-        q["used"] = q in kept
+        q["used"] = (q in pool) and abs(q["price"] - mid) / mid <= 0.01
+    kept = [q["price"] for q in quotes if q["used"]]
     if kept:
-        kv = sorted(q["price"] for q in kept)
-        mid = kv[len(kv) // 2] if len(kv) % 2 else (kv[len(kv) // 2 - 1] + kv[len(kv) // 2]) / 2.0
+        mid = _median(kept)
 
-    used = [q["price"] for q in quotes if q["used"]]
+    used = kept
     spread = (max(used) - min(used)) if len(used) > 1 else 0.0
 
     return {
@@ -1098,7 +1117,9 @@ def local_prices(indicators, cfg):
             purity = k / 24.0
             computed = gold / TROY_OZ_G * grams * purity * rate
             p = pub.get("%dk" % k)
-            if p and p.get("value"):
+            # one lone site is not a market. Published wins only when at least two
+            # of them agree closely; otherwise the arithmetic off live spot is better.
+            if p and p.get("value") and p.get("n", 1) >= 2 and p.get("spread_pct", 99) < 0.1:
                 base = float(p["value"]) * grams          # published figures are per gram
                 src = "published"
                 n_src = p.get("n", 1)
@@ -1106,6 +1127,10 @@ def local_prices(indicators, cfg):
                 base = computed
                 src = "computed"
                 n_src = 0
+            if p and p.get("value"):
+                res_pub = float(p["value"]) * grams
+            else:
+                res_pub = None
             res.append({
                 "karat": "%dk" % k,
                 "purity_pct": round(purity * 100, 1),
@@ -1115,6 +1140,7 @@ def local_prices(indicators, cfg):
                 "gap_pct": round((base / computed - 1) * 100, 3) if computed else 0.0,
                 "basis": src,
                 "n_sources": n_src,
+                "published": round(res_pub, 2) if res_pub else None,
                 "with_premium": round(base * (1 + premium_pct / 100.0), 2),
             })
         return res

@@ -183,7 +183,7 @@
    }
   ]
  },
- "generated": "2026-11-28 18:21:05 UTC",
+ "generated": "2026-11-28 18:21:08 UTC",
  "indicators": {
   "brent": {
    "asof": "2026-11-27 19:44 UTC",
@@ -234,7 +234,7 @@
    "value": 3.88
   },
   "fxlive": {
-   "asof": "2026-11-28T18:21:02Z",
+   "asof": "2026-11-28T18:21:06Z",
    "inr": 92.9761,
    "n_ok": 3,
    "n_tried": 3,
@@ -488,22 +488,22 @@
   },
   "published": {
    "india": {
-    "asof": "2026-11-28T18:21:04Z",
+    "asof": "2026-11-28T18:21:07Z",
     "karats": {
      "21k": {
       "n": 1,
       "spread_pct": 0.0,
-      "value": 9580.66
+      "value": 9586.14
      },
      "22k": {
       "n": 1,
       "spread_pct": 0.0,
-      "value": 10029.58
+      "value": 10035.32
      },
      "24k": {
       "n": 1,
       "spread_pct": 0.0,
-      "value": 10949.32
+      "value": 10955.59
      }
     },
     "sources": [
@@ -511,7 +511,7 @@
     ]
    },
    "ksa": {
-    "asof": "2026-11-28T18:21:04Z",
+    "asof": "2026-11-28T18:21:07Z",
     "karats": {
      "18k": {
       "n": 1,
@@ -520,18 +520,18 @@
      },
      "21k": {
       "n": 2,
-      "spread_pct": 0.018,
-      "value": 385.46
+      "spread_pct": 0.075,
+      "value": 385.56
      },
      "22k": {
       "n": 2,
-      "spread_pct": 0.055,
-      "value": 403.67
+      "spread_pct": 0.002,
+      "value": 403.78
      },
      "24k": {
       "n": 2,
-      "spread_pct": 0.027,
-      "value": 440.5
+      "spread_pct": 0.086,
+      "value": 440.63
      }
     },
     "sources": [
@@ -556,7 +556,7 @@
    "trough": 40.051998138427734
   },
   "spot": {
-   "asof": "2026-11-28T18:21:02Z",
+   "asof": "2026-11-28T18:21:06Z",
    "n_ok": 2,
    "n_tried": 2,
    "price": 3651.74,
@@ -576,7 +576,7 @@
    "spread_usd": 3.49
   },
   "spotchg": {
-   "asof": "2026-11-28T18:21:01Z",
+   "asof": "2026-11-28T18:21:06Z",
    "change_pct": -0.25
   },
   "usdinr": {
@@ -602,7 +602,7 @@
   "basis": "spot",
   "futures_usd_oz": 3668.5,
   "fx": {
-   "inr_asof": "2026-11-28T18:21:02Z",
+   "inr_asof": "2026-11-28T18:21:06Z",
    "usdinr": 92.9761,
    "usdsar": 3.75,
    "usdsar_market": 3.7512
@@ -622,35 +622,35 @@
      {
       "basis": "published",
       "computed": 440.27,
-      "gap_pct": 0.052,
+      "gap_pct": 0.081,
       "karat": "24k",
       "n_sources": 2,
       "purity": 1.0,
       "purity_pct": 100.0,
-      "raw": 440.5,
-      "with_premium": 449.31
+      "raw": 440.63,
+      "with_premium": 449.44
      },
      {
       "basis": "published",
       "computed": 403.58,
-      "gap_pct": 0.021,
+      "gap_pct": 0.049,
       "karat": "22k",
       "n_sources": 2,
       "purity": 0.9166666666666666,
       "purity_pct": 91.7,
-      "raw": 403.67,
-      "with_premium": 411.74
+      "raw": 403.78,
+      "with_premium": 411.86
      },
      {
       "basis": "published",
       "computed": 385.24,
-      "gap_pct": 0.057,
+      "gap_pct": 0.083,
       "karat": "21k",
       "n_sources": 2,
       "purity": 0.875,
       "purity_pct": 87.5,
-      "raw": 385.46,
-      "with_premium": 393.17
+      "raw": 385.56,
+      "with_premium": 393.27
      },
      {
       "basis": "published",
